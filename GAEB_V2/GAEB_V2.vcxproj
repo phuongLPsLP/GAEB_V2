@@ -210,6 +210,8 @@
     <ResourceCompile Include="GAEBV2.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="l:\icons\icons\20\planer\png2.png" />
+    <Image Include="L:\Icons\Icons\20\Planer\schließen – 25.png" />
     <Image Include="res\buttons.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
@@ -232,6 +234,7 @@
     <None Include="..\..\..\..\Downloads\rapidxml-1.13\rapidxml-1.13\manual.html" />
     <None Include="res\GAEBV2.rc2" />
     <None Include="res\ribbon.mfcribbon-ms" />
+    <None Include="res\ribbon1.mfcribbon-ms" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

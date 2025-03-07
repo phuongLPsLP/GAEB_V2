@@ -164,6 +164,9 @@ int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_staticText_ET.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE | SS_LEFT,CRect(pt,sz), this, 1001);
 	m_staticText_EP.Create(_T("Einheitpreis"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 490), CSize(100, 20)), this, 1001);
 
+
+
+
 	//Edit Box
 	/*m_edit_KT.SetWindowText(_T("Hello, MFC!")); // Set text
 	CString str_kurztext;

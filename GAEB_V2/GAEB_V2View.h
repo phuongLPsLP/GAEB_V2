@@ -23,7 +23,6 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	CGAEBV2Doc* GetDocument() const;
 
 // Operations
 public:
@@ -43,6 +42,7 @@ public:
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
+	CGAEBV2Doc* GetDocument() const;
 #endif
 
 protected:
@@ -53,6 +53,7 @@ protected:
 	CStatic m_staticText_M;
 	CStatic m_staticText_ET;
 	CStatic m_staticText_EP;
+
 	CEdit m_edit_KT;
 	CEdit m_edit_LT;
 	CEdit m_edit_OZ;

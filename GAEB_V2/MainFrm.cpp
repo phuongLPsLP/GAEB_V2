@@ -37,6 +37,18 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
+	ON_COMMAND(ID_BUTTON52, &CMainFrame::OnExit)
+	ON_COMMAND(ID_BUTTON52, &CMainFrame::OnExit)
+	ON_COMMAND(ID_BUTTON48, &CMainFrame::OnNew)
+	ON_COMMAND(ID_BUTTON47, &CMainFrame::OnOpenFile)
+	ON_COMMAND(ID_BUTTON5, &CMainFrame::OnExport)
+
+	ON_COMMAND(ID_CHECK2, &CMainFrame::OnG90)
+	ON_UPDATE_COMMAND_UI(ID_CHECK2, &CMainFrame::OnUpdateG_90)
+	ON_COMMAND(ID_CHECK3, &CMainFrame::OnG_2000)
+	ON_UPDATE_COMMAND_UI(ID_CHECK3, &CMainFrame::OnUpdateG_200)
+	ON_COMMAND(ID_CHECK4, &CMainFrame::OnG_XML)
+	ON_UPDATE_COMMAND_UI(ID_CHECK4, &CMainFrame::OnUpdateG_XML)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -365,4 +377,81 @@ void CMainFrame::OnFilePrintPreview()
 void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetCheck(IsPrintPreview());
+}
+
+
+
+void CMainFrame::OnExit()
+{
+	// TODO: Add your command handler code here
+	ASSERT(AfxGetMainWnd() != NULL);
+	AfxGetMainWnd()->SendMessage(WM_CLOSE);
+}
+
+
+void CMainFrame::OnNew()
+{
+	// TODO: Add your command handler code here
+	ASSERT(AfxGetMainWnd() != NULL);
+	AfxGetMainWnd()->SendMessage(STD_FILENEW);
+}
+
+
+void CMainFrame::OnOpenFile()
+{
+	// TODO: Add your command handler code here
+	/*ASSERT(AfxGetMainWnd() != NULL);
+	AfxGetMainWnd()->SendMessage(STD_FILEOPEN);*/
+	CFileDialog fileDlg(TRUE, _T("txt"), nullptr, OFN_FILEMUSTEXIST | OFN_HIDEREADONLY, _T("alle Formate (*.*) | *.*||"), this);
+	if (fileDlg.DoModal() == IDOK) {
+		CString filePath = fileDlg.GetPathName();
+		AfxMessageBox(_T("Selected file: ") + filePath);
+		//CDocument* pdoc = GetDocument();
+		//OpenFileInExplorer(filePath);
+
+	}
+}
+
+
+void CMainFrame::OnExport()
+{
+	// TODO: Add your command handler code here
+}
+
+
+
+void CMainFrame::OnG90()
+{
+	// TODO: Add your command handler code here
+	m_wnd
+}
+
+
+void CMainFrame::OnUpdateG_90(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+}
+
+
+void CMainFrame::OnG_2000()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnUpdateG_200(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+}
+
+
+void CMainFrame::OnG_XML()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnUpdateG_XML(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
 }

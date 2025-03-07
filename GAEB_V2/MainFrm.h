@@ -31,7 +31,7 @@ protected: // create from serialization only
 	DECLARE_DYNCREATE(CMainFrame)
 
 // Attributes
-public:
+public:	
 
 // Operations
 public:
@@ -82,6 +82,17 @@ protected:
 	CMFCOutlookBarTabCtrl* FindOutlookParent(CWnd* pWnd);
 	CMFCOutlookBarTabCtrl* m_pCurrOutlookWnd;
 	CMFCOutlookBarPane*    m_pCurrOutlookPage;
+public:
+	afx_msg void OnExit();
+	afx_msg void OnNew();
+	afx_msg void OnOpenFile();
+	afx_msg void OnExport();
+	afx_msg void OnG90();
+	afx_msg void OnUpdateG_90(CCmdUI* pCmdUI);
+	afx_msg void OnG_2000();
+	afx_msg void OnUpdateG_200(CCmdUI* pCmdUI);
+	afx_msg void OnG_XML();
+	afx_msg void OnUpdateG_XML(CCmdUI* pCmdUI);
 };
 
 

@@ -181,6 +181,7 @@ protected:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 };
 
 CAboutDlg::CAboutDlg() noexcept : CDialogEx(IDD_ABOUTBOX)
@@ -202,6 +203,7 @@ void CGAEBV2App::OnAppAbout()
 	aboutDlg.DoModal();
 }
 
+
 // CGAEBV2App customization load/save methods
 
 void CGAEBV2App::PreLoadState()
@@ -222,6 +224,7 @@ void CGAEBV2App::SaveCustomState()
 }
 
 // CGAEBV2App message handlers
+
 
 
 
