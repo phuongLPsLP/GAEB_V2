@@ -211,7 +211,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="l:\icons\icons\20\planer\png2.png" />
-    <Image Include="L:\Icons\Icons\20\Planer\schließen – 25.png" />
     <Image Include="res\buttons.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />

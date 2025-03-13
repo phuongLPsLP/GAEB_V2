@@ -49,6 +49,24 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CHECK3, &CMainFrame::OnUpdateG_200)
 	ON_COMMAND(ID_CHECK4, &CMainFrame::OnG_XML)
 	ON_UPDATE_COMMAND_UI(ID_CHECK4, &CMainFrame::OnUpdateG_XML)
+	ON_COMMAND(ID_CHECK5, &CMainFrame::OnCheckbox_81)
+	ON_UPDATE_COMMAND_UI(ID_CHECK5, &CMainFrame::OnCheckbox_81_Update)
+	ON_COMMAND(ID_CHECK7, &CMainFrame::OnCheckbox_82)
+	ON_UPDATE_COMMAND_UI(ID_CHECK7, &CMainFrame::OnCheckbox_82_Update)
+	ON_COMMAND(ID_CHECK8, &CMainFrame::OnCheckbox_83)
+	ON_UPDATE_COMMAND_UI(ID_CHECK8, &CMainFrame::OnCheckbox_83_Update)
+	ON_COMMAND(ID_CHECK9, &CMainFrame::OnCheckbox_84)
+	ON_UPDATE_COMMAND_UI(ID_CHECK9, &CMainFrame::OnCheckbox_84_Update)
+	ON_COMMAND(ID_CHECK10, &CMainFrame::OnCheckbox_85)
+	ON_UPDATE_COMMAND_UI(ID_CHECK10, &CMainFrame::OnCheckbox_85_Update)
+	ON_COMMAND(ID_CHECK11, &CMainFrame::OnCheckbox_86)
+	ON_UPDATE_COMMAND_UI(ID_CHECK11, &CMainFrame::OnCheckbox_86_Update)
+	ON_COMMAND(ID_CHECK12, &CMainFrame::OnCheckbox_89)
+	ON_UPDATE_COMMAND_UI(ID_CHECK12, &CMainFrame::OnCheckbox_89_Update)
+	ON_COMMAND(ID_CHECK13, &CMainFrame::OnCheckbox_93)
+	ON_UPDATE_COMMAND_UI(ID_CHECK13, &CMainFrame::OnCheckbox_93_Update)
+	ON_COMMAND(ID_CHECK14, &CMainFrame::OnCheckbox_94)
+	ON_UPDATE_COMMAND_UI(ID_CHECK14, &CMainFrame::OnCheckbox_94_Update)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -423,13 +441,19 @@ void CMainFrame::OnExport()
 void CMainFrame::OnG90()
 {
 	// TODO: Add your command handler code here
-	m_wnd
+	CMFCRibbonCheckBox* pCheckbox = DYNAMIC_DOWNCAST(CMFCRibbonCheckBox, m_wndRibbonBar.FindByID(ID_CHECK21));
+	if (pCheckbox) {
+		bool bChecked = pCheckbox->GetCheck();
+		AfxMessageBox(bChecked ? _T("checked") . _T("unchecked");
+	}
 }
 
 
 void CMainFrame::OnUpdateG_90(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+
 }
 
 
@@ -442,6 +466,7 @@ void CMainFrame::OnG_2000()
 void CMainFrame::OnUpdateG_200(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
 }
 
 
@@ -454,4 +479,122 @@ void CMainFrame::OnG_XML()
 void CMainFrame::OnUpdateG_XML(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_81()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_81_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_82()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_82_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_83()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_83_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_84()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_84_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_85()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_85_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_86()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_86_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_89()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_89_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_93()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_93_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnCheckbox_94()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnCheckbox_94_Update(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(TRUE);
 }

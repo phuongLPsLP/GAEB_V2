@@ -93,6 +93,24 @@ public:
 	afx_msg void OnUpdateG_200(CCmdUI* pCmdUI);
 	afx_msg void OnG_XML();
 	afx_msg void OnUpdateG_XML(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_81();
+	afx_msg void OnCheckbox_81_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_82();
+	afx_msg void OnCheckbox_82_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_83();
+	afx_msg void OnCheckbox_83_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_84();
+	afx_msg void OnCheckbox_84_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_85();
+	afx_msg void OnCheckbox_85_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_86();
+	afx_msg void OnCheckbox_86_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_89();
+	afx_msg void OnCheckbox_89_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_93();
+	afx_msg void OnCheckbox_93_Update(CCmdUI* pCmdUI);
+	afx_msg void OnCheckbox_94();
+	afx_msg void OnCheckbox_94_Update(CCmdUI* pCmdUI);
 };
 
 
