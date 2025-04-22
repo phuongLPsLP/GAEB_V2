@@ -56,10 +56,21 @@
 #define IDS_EDIT_MENU                   306
 #define IDR_RIBBON                      307
 #define IDB_PNG1                        310
+#define IDD_DIALOG1                     317
+#define IDD_DIALOG_INDEX                317
+#define IDD_DIALOG2                     319
+#define IDD_DIALOG_INFO                 319
+#define IDB_BITMAP1                     321
+#define IDC_LIST1                       1000
 #define ID_WRITE_PASTEASHYPERLINK       32770
+#define ID_RADIO_OPTION1                32771
+#define ID_RADIO_OPTION2                32772
+#define ID_RADIO_OPTION3                32773
 #define ID_CHECK2                       32775
 #define ID_CHECK3                       32776
+#define ID_CHECK_DETAILS                32776
 #define ID_CHECK4                       32777
+#define ID_CHECK_TABELLE                32777
 #define ID_CHECK5                       32778
 #define ID_CHECK7                       32780
 #define ID_CHECK8                       32781
@@ -125,14 +136,32 @@
 #define ID_BUTTON2                      32846
 #define ID_BUTTON3                      32847
 #define ID_BUTTON4                      32848
+#define ID_CHECK_STRUKTUR               32849
+#define ID_CHECK_G2000                  32850
+#define ID_CHECK_G90                    32851
+#define ID_CHECK_GXML                   32852
+#define ID_CHECK_81                     32854
+#define ID_CHECK_82                     32855
+#define ID_CHECK_83                     32856
+#define ID_CHECK_84                     32857
+#define ID_CHECK_85                     32858
+#define ID_CHECK_86                     32859
+#define ID_CHECK_89                     32860
+#define ID_CHECK_93                     32861
+#define ID_CHECK_94                     32862
+#define ID_CHECK_LV_MENGE               32863
+#define ID_CHECK_VA_MENGE               32864
+#define ID_CHECK_RE_MENGE               32865
+#define ID_BUTTON_Speichern             32866
+#define ID_BUTTON_SPEICHERN_UNTER       32867
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        317
-#define _APS_NEXT_COMMAND_VALUE         32849
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_RESOURCE_VALUE        323
+#define _APS_NEXT_COMMAND_VALUE         32868
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

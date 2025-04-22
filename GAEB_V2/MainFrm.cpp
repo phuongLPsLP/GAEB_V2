@@ -21,6 +21,8 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#define IDC_TREE1 1200
+#define IDC_BLANKVIEW 1201
 
 // CMainFrame
 
@@ -43,12 +45,65 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_BUTTON47, &CMainFrame::OnOpenFile)
 	ON_COMMAND(ID_BUTTON5, &CMainFrame::OnExport)
 
-	ON_COMMAND(ID_CHECK2, &CMainFrame::OnG90)
-	ON_UPDATE_COMMAND_UI(ID_CHECK2, &CMainFrame::OnUpdateG_90)
-	ON_COMMAND(ID_CHECK3, &CMainFrame::OnG_2000)
-	ON_UPDATE_COMMAND_UI(ID_CHECK3, &CMainFrame::OnUpdateG_200)
-	ON_COMMAND(ID_CHECK4, &CMainFrame::OnG_XML)
-	ON_UPDATE_COMMAND_UI(ID_CHECK4, &CMainFrame::OnUpdateG_XML)
+	ON_COMMAND(ID_CHECK3, &CMainFrame::OnDetailsAnsicht)
+	ON_UPDATE_COMMAND_UI(ID_CHECK3, &CMainFrame::OnUpdateDetailsAnsicht)
+	ON_COMMAND(ID_CHECK4, &CMainFrame::OnTabelleAnsicht)
+	ON_UPDATE_COMMAND_UI(ID_CHECK4, &CMainFrame::OnUpdateTabelleAnsicht)
+	ON_COMMAND(ID_BUTTON3, &CMainFrame::OnIndex)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON3, &CMainFrame::OnUpdateIndex)
+	ON_COMMAND(ID_BUTTON3, &CMainFrame::OnIndex)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON3, &CMainFrame::OnUpdateIndex)
+	ON_COMMAND(ID_BUTTON4, &CMainFrame::OnInfo)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON4, &CMainFrame::OnUpdateInfo)
+	ON_COMMAND(ID_CHECK_STRUKTUR, &CMainFrame::OnStrukturAnsicht)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_STRUKTUR, &CMainFrame::OnUpdateStrukturAnsicht)
+	ON_COMMAND(ID_CHECK2, &CMainFrame::OnCheck_G90)
+	ON_UPDATE_COMMAND_UI(ID_CHECK2, &CMainFrame::OnUpdateCheck_G90)
+	ON_COMMAND(ID_CHECK_G2000, &CMainFrame::OnCheck_G2000)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_G2000, &CMainFrame::OnUpdateCheck_G2000)
+	ON_COMMAND(ID_CHECK_GXML, &CMainFrame::OnCheck_GXML)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_GXML, &CMainFrame::OnUpdateCheck_GXML)
+	ON_COMMAND(ID_CHECK_G90, &CMainFrame::OnCheck_G90)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_G90, &CMainFrame::OnUpdateCheck_G90)
+	ON_COMMAND(ID_CHECK_81, &CMainFrame::OnCheck_Phase81)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_81, &CMainFrame::OnUpdateCheck_Phase81)
+	ON_COMMAND(ID_CHECK_82, &CMainFrame::OnCheck_Phase82)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_82, &CMainFrame::OnUpdateCheck_Phase82)
+	ON_COMMAND(ID_CHECK_83, &CMainFrame::OnCheck_Phase83)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_83, &CMainFrame::OnUpdateCheck_Phase83)
+	ON_COMMAND(ID_CHECK_84, &CMainFrame::OnCheck_Phase84)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_84, &CMainFrame::OnUpdateCheck_Phase84)
+	ON_COMMAND(ID_CHECK_85, &CMainFrame::OnCheck_Phase85)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_85, &CMainFrame::OnUpdateCheck_Phase85)
+	ON_COMMAND(ID_CHECK_86, &CMainFrame::OnCheck_Phase86)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_86, &CMainFrame::OnUpdateCheck_Phase86)
+	ON_COMMAND(ID_CHECK_89, &CMainFrame::OnCheck_Phase89)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_89, &CMainFrame::OnUpdateCheck_Phase89)
+	ON_COMMAND(ID_CHECK_93, &CMainFrame::OnCheck_Phase93)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_93, &CMainFrame::OnUpdateCheck_Phase93)
+	ON_COMMAND(ID_CHECK_94, &CMainFrame::OnCheck_Phase94)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_94, &CMainFrame::OnUpdateCheck_Phase94)
+	ON_COMMAND(ID_CHECK_LV_MENGE, &CMainFrame::OnCheck_LVMenge)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_LV_MENGE, &CMainFrame::OnUpdateCheck_LVMenge)
+	ON_COMMAND(ID_CHECK_VA_MENGE, &CMainFrame::OnCheck_VAMenge)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_VA_MENGE, &CMainFrame::OnUpdateCheck_VAMenge)
+	ON_COMMAND(ID_CHECK_RE_MENGE, &CMainFrame::OnCheck_REMenge)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_RE_MENGE, &CMainFrame::OnUpdateCheck_REMenge)
+	ON_COMMAND(ID_CHECK18, &CMainFrame::OnCheck_GAEB_2000)
+	ON_UPDATE_COMMAND_UI(ID_CHECK18, &CMainFrame::OnUpdateCheck_GAEB_2000)
+	ON_COMMAND(ID_CHECK19, &CMainFrame::OnCheck_GAEB_XML_REB)
+	ON_UPDATE_COMMAND_UI(ID_CHECK19, &CMainFrame::OnUpdateCheck_GAEB_XML_REB)
+	ON_COMMAND(ID_CHECK20, &CMainFrame::OnCheck_GAEB_VB)
+	ON_UPDATE_COMMAND_UI(ID_CHECK20, &CMainFrame::OnUpdateCheck_GAEB_VB)
+	ON_COMMAND(ID_CHECK21, &CMainFrame::OnCheck_LV_M_Aufmaﬂ)
+	ON_UPDATE_COMMAND_UI(ID_CHECK21, &CMainFrame::OnUpdateCheck_LV_M_Aufmaﬂ)
+	ON_COMMAND(ID_CHECK22, &CMainFrame::OnCheck_VA_M_Aufmaﬂ)
+	ON_UPDATE_COMMAND_UI(ID_CHECK22, &CMainFrame::OnUpdateCheck_VA_M_Aufmaﬂ)
+	ON_COMMAND(ID_CHECK23, &CMainFrame::OnCheck_RE_M_Aufmaﬂ)
+	ON_UPDATE_COMMAND_UI(ID_CHECK23, &CMainFrame::OnUpdateCheck_RE_M_Aufmaﬂ)
+	ON_COMMAND(ID_BUTTON_Speichern, &CMainFrame::OnButton_Speichern)
+	ON_COMMAND(ID_BUTTON_SPEICHERN_UNTER, &CMainFrame::OnButton_SpeichernUnter)
+	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &CMainFrame::OnTreeSelectedItem)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -63,24 +118,93 @@ CMainFrame::~CMainFrame()
 {
 }
 
+//CTreeCtrl
 void CMainFrame::FillClassView()
 {
-	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), 0, 0);
-	m_wndClassView.SetItemState(auftraggeber, TVIS_BOLD, TVIS_BOLD);
 
+	rapidxml::file<> xmlFile("../../Test.xml");
+	rapidxml::xml_document<> doc;
+	doc.parse<0>(xmlFile.data());
+	m_wndClassView.DeleteAllItems();
+
+	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), 0, 0);
 
 	HTREEITEM auftragnehmer = m_wndClassView.InsertItem(_T("Auftragnehmer"), 0, 0);
-	m_wndClassView.SetItemState(auftragnehmer, TVIS_BOLD, TVIS_BOLD);
 
-	HTREEITEM info = m_wndClassView.InsertItem(_T("Projektinfo"), 0, 0);
-	m_wndClassView.SetItemState(info, TVIS_BOLD, TVIS_BOLD);
+	HTREEITEM info = m_wndClassView.InsertItem(_T("Projektinfos"), 0, 0);
 
-	HTREEITEM leistungsverzeichnis = m_wndClassView.InsertItem(_T("Leistungsverzeichnis"), 0, 0);
-	m_wndClassView.SetItemState(leistungsverzeichnis, TVIS_BOLD, TVIS_BOLD);
+	HTREEITEM vergaben = m_wndClassView.InsertItem(_T("Vergabeninfos"), 0, 0);
 
-	m_wndClassView.Expand(leistungsverzeichnis, TVE_EXPAND);
+	HTREEITEM kalkulation = m_wndClassView.InsertItem(_T("Kalkulationsinfos"), 0, 0);
+	
+	rapidxml::xml_node<>* root = doc.first_node();
+	root->name("Leistungsverzeichnis");
+
+	if (!root) return;
+
+	int maxDepth = 0;
+	AddXMLToTreeCtrl(TVI_ROOT, root, 1, maxDepth);
+	/*const char* value = root->value();
+	for (rapidxml::xml_node<>* child = root->first_node(); child; child = child->next_sibling())
+	{
+		//ID <student>
+		const char* value_id = child->first_node()->value();
+		int len_id = MultiByteToWideChar(CP_UTF8, 0, value_id, -1, NULL, 0);
+		wchar_t* wideNodeValue_id = new wchar_t[len_id];
+		MultiByteToWideChar(CP_UTF8, 0, value_id, -1, wideNodeValue_id, len_id);
+
+		HTREEITEM hClass = m_wndClassView.InsertItem(wideNodeValue_id, 1, 1, leistungsverzeichnis);
+	}*/
 
 }
+
+
+int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int currentDepth, int& maxDepth)
+{
+	if (!node) return currentDepth;
+	if (currentDepth > maxDepth)
+		maxDepth = currentDepth;
+	CString nodeLabel(node->name());
+
+	for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+		CString attrStr;
+		attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
+		nodeLabel += attrStr;
+	}
+	HTREEITEM hItem = m_wndClassView.InsertItem(nodeLabel, parentItem);
+	const char* nodeValue = node->value();
+	if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
+	{
+		CString valueText;
+		valueText.Format(CString(nodeValue));
+		m_wndClassView.InsertItem(valueText, hItem);
+	}
+	
+	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) 
+	{
+		if (child->type() == rapidxml::node_element)
+		{
+			AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
+		}
+
+	}
+
+	return maxDepth;
+}
+
+
+void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	HTREEITEM hSelectedItem = m_wndClassView.GetSelectedItem();
+	if (hSelectedItem) 
+	{
+		CString itemText = m_wndClassView.GetItemText(hSelectedItem);
+		
+	}
+}
+
+//CTreeCtrl
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -104,6 +228,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ASSERT(bNameValid);
 	bNameValid = strTitlePane2.LoadString(IDS_STATUS_PANE2);
 	ASSERT(bNameValid);
+
+
 	m_wndStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE1, strTitlePane1, TRUE), strTitlePane1);
 	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE2, strTitlePane2, TRUE), strTitlePane2);
 
@@ -249,6 +375,10 @@ void CMainFrame::Dump(CDumpContext& dc) const
 {
 	CFrameWndEx::Dump(dc);
 }
+
+
+
+
 #endif //_DEBUG
 
 
@@ -381,6 +511,15 @@ void CMainFrame::OnUpdateFilePrintPreview(CCmdUI* pCmdUI)
 
 
 
+void CMainFrame::DoDataExchange(CDataExchange* pDX)
+{
+	CMainFrame::DoDataExchange(pDX); // Call base class method
+	DDX_Control(pDX, IDC_TREE1, m_wndClassView);
+	DDX_Control(pDX, IDC_BLANKVIEW, m_BlankView);
+}
+
+
+
 void CMainFrame::OnExit()
 {
 	// TODO: Add your command handler code here
@@ -419,39 +558,454 @@ void CMainFrame::OnExport()
 }
 
 
-
-void CMainFrame::OnG90()
+void CMainFrame::OnDetailsAnsicht()
 {
 	// TODO: Add your command handler code here
-	m_wnd
+	m_checkbox_Details = !m_checkbox_Details;
+	m_checkbox_Tabelle = FALSE;
+	
 }
 
 
-void CMainFrame::OnUpdateG_90(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateDetailsAnsicht(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_checkbox_Details ? 1 : 0); 
+	pCmdUI->Enable(TRUE);
+}
+
+
+void CMainFrame::OnTabelleAnsicht()
+{
+	// TODO: Add your command handler code here	
+	m_checkbox_Tabelle = !m_checkbox_Tabelle;
+	m_checkbox_Details = FALSE;
+}
+
+
+void CMainFrame::OnUpdateTabelleAnsicht(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_Tabelle ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+
+
+void CMainFrame::OnIndex()
+{
+	// TODO: Add your command handler code here
+	CDialog dlg(IDD_DIALOG_INDEX, this);
+
+	// Display the dialog modally
+	dlg.DoModal();
+}
+
+void CMainFrame::OnUpdateIndex(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 }
 
-
-void CMainFrame::OnG_2000()
+void CMainFrame::OnInfo()
 {
 	// TODO: Add your command handler code here
+	CDialog dlg(IDD_DIALOG_INFO, this);
+	dlg.DoModal();
 }
 
-
-void CMainFrame::OnUpdateG_200(CCmdUI* pCmdUI)
+void CMainFrame::OnUpdateInfo(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 }
 
+void CMainFrame::OnStrukturAnsicht()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_Struktur = !m_checkbox_Struktur;
+}
 
-void CMainFrame::OnG_XML()
+void CMainFrame::OnUpdateStrukturAnsicht(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here	
+	pCmdUI->SetCheck(m_checkbox_Struktur ? 1 : 0); 
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_G2000()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G2000 = !m_checkbox_G2000;
+	m_checkbox_G90 = FALSE;
+	m_checkbox_GXML = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_G2000(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G2000 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_GXML()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_GXML = !m_checkbox_GXML;
+	m_checkbox_G2000 = FALSE;
+	m_checkbox_G90 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_GXML(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_GXML ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_G90()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G90 = !m_checkbox_G90;
+	m_checkbox_G2000 = FALSE;
+	m_checkbox_GXML  = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_G90(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G90 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase81()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G81 = !m_checkbox_G81;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase81(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G81 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase82()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G82 = !m_checkbox_G82;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase82(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G82 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase83()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G83 = !m_checkbox_G83;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+
+}
+
+void CMainFrame::OnUpdateCheck_Phase83(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G83 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase84()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G84 = !m_checkbox_G84;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase84(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G84 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase85()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G85 = !m_checkbox_G85;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase85(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G85 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase86()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G86 = !m_checkbox_G86;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase86(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G86 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase89()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G89 = !m_checkbox_G89;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase89(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G89 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase93()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G93 = !m_checkbox_G93;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G82 = FALSE;
+	m_checkbox_G94 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase93(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G93 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_Phase94()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G94 = !m_checkbox_G94;
+	m_checkbox_G81 = FALSE;
+	m_checkbox_G83 = FALSE;
+	m_checkbox_G84 = FALSE;
+	m_checkbox_G85 = FALSE;
+	m_checkbox_G86 = FALSE;
+	m_checkbox_G89 = FALSE;
+	m_checkbox_G93 = FALSE;
+	m_checkbox_G82 = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_Phase94(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G94 ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_LVMenge()
+{
+	// TODO: Add your command handler code here
+	 m_checkbox_LVMenge = !m_checkbox_LVMenge;
+	 m_checkbox_VAMenge = FALSE;
+	 m_checkbox_REMenge = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_LVMenge(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_LVMenge ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_VAMenge()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_VAMenge = !m_checkbox_VAMenge;
+	m_checkbox_LVMenge = FALSE;
+	m_checkbox_REMenge = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_VAMenge(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_VAMenge ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_REMenge()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_REMenge = !m_checkbox_REMenge;
+	m_checkbox_VAMenge = FALSE;
+	m_checkbox_LVMenge = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_REMenge(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_REMenge ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_GAEB_2000()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_G200_Aufmaﬂ = !m_checkbox_G200_Aufmaﬂ;
+	m_checkbox_GVB_Aufmaﬂ = FALSE;
+	m_checkbox_GXML_Aufmaﬂ = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_GAEB_2000(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_G200_Aufmaﬂ ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_GAEB_XML_REB()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_GXML_Aufmaﬂ = !m_checkbox_GXML_Aufmaﬂ;
+	m_checkbox_G200_Aufmaﬂ = FALSE;
+	m_checkbox_GVB_Aufmaﬂ = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_GAEB_XML_REB(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_GXML_Aufmaﬂ ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_GAEB_VB()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_GVB_Aufmaﬂ = !m_checkbox_GVB_Aufmaﬂ;
+	m_checkbox_G200_Aufmaﬂ = FALSE;
+	m_checkbox_GXML_Aufmaﬂ = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_GAEB_VB(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_GVB_Aufmaﬂ ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_LV_M_Aufmaﬂ()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_LV_M_Aufmaﬂ = !m_checkbox_LV_M_Aufmaﬂ;
+	m_checkbox_RE_M_Aufmaﬂ = FALSE;
+	m_checkbox_VA_M_Aufmaﬂ = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_LV_M_Aufmaﬂ(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_LV_M_Aufmaﬂ ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_VA_M_Aufmaﬂ()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_VA_M_Aufmaﬂ = !m_checkbox_VA_M_Aufmaﬂ;
+	m_checkbox_LV_M_Aufmaﬂ = FALSE;
+	m_checkbox_RE_M_Aufmaﬂ = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_VA_M_Aufmaﬂ(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_VA_M_Aufmaﬂ ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnCheck_RE_M_Aufmaﬂ()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_RE_M_Aufmaﬂ = !m_checkbox_RE_M_Aufmaﬂ;
+	m_checkbox_VA_M_Aufmaﬂ = FALSE;
+	m_checkbox_LV_M_Aufmaﬂ = FALSE;
+}
+
+void CMainFrame::OnUpdateCheck_RE_M_Aufmaﬂ(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_RE_M_Aufmaﬂ ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnButton_Speichern()
 {
 	// TODO: Add your command handler code here
 }
 
-
-void CMainFrame::OnUpdateG_XML(CCmdUI* pCmdUI)
+void CMainFrame::OnButton_SpeichernUnter()
 {
-	// TODO: Add your command update UI handler code here
+	// TODO: Add your command handler code here
 }
