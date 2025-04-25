@@ -13,6 +13,7 @@
 //
 
 #pragma once
+#include "GAEB_V2Doc.h"
 
 
 class CGAEBV2View : public CView
@@ -43,6 +44,7 @@ public:
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 	CGAEBV2Doc* GetDocument() const;
+
 #endif
 
 protected:
@@ -73,6 +75,37 @@ protected:
 	COLORREF m_textColor_editbox;
 	COLORREF m_textColor;
 
+protected:
+	CStatic m_GroupBox_Adresse_Daten;
+
+	CStatic m_staticText_Name1;
+	CStatic m_staticText_Strasse;
+	CStatic m_staticText_PLZ;
+	CStatic m_staticText_Ort;
+	CStatic m_staticText_Land;
+
+	CStatic m_staticText_Ansprechpartner;
+	CStatic m_staticText_Telefon;
+	CStatic m_staticText_Fax;
+	CStatic m_staticText_Email;
+	CStatic m_staticText_IL_Num;
+	CStatic m_staticText_Steuer;
+
+	CEdit m_edit_Name1;
+	CEdit m_edit_Name2;
+	CEdit m_edit_Name3;
+	CEdit m_edit_Srasse;
+	CEdit m_edit_PLZ;
+	CEdit m_edit_Ort;
+	CEdit m_edit_Land;
+	CEdit m_edit_Ansprechpartner;
+	CEdit m_edit_Tel;
+	CEdit m_edit_Fax;
+	CEdit m_edit_Email;
+	CEdit m_edit_IL_Num;
+	CEdit m_edit_Steuer;
+
+
 
 // Generated message map functions
 protected:
@@ -82,6 +115,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate_Vergabeninfos_View(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate_Kalkulationsinfos_View(LPCREATESTRUCT lpCreateStruct);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 

@@ -21,6 +21,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include "GAEB_V2View.h"
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
 
@@ -200,7 +201,44 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	if (hSelectedItem) 
 	{
 		CString itemText = m_wndClassView.GetItemText(hSelectedItem);
-		
+		CView* pView = GetActiveView();
+
+		if (itemText == "Auftraggeber") 
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->OnCreate_Auftraggeber_View(nullptr);
+		}
+		else if (itemText == "Auftragnehmer")
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->OnCreate_Auftragnehmer_View(nullptr);
+		}
+		else if (itemText == "Projektinfos")
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->OnCreate_Projektinfos_View(nullptr);
+		}
+		else if (itemText == "Vergabeninfos")
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->OnCreate_Vergabeninfos_View(nullptr);
+		}
+		else if (itemText == "Kalkulationsinfos")
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->OnCreate_Auftraggeber_View(nullptr);
+		}
+		else
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->OnCreate_FirstView(nullptr);
+		}
+
+		/*if (pView && pView->IsKindOf(RUNTIME_CLASS(CGAEBV2View)))
+		{
+			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			pGAEBView->CreateWorkSpace(itemText);
+		}*/
 	}
 }
 
@@ -515,7 +553,6 @@ void CMainFrame::DoDataExchange(CDataExchange* pDX)
 {
 	CMainFrame::DoDataExchange(pDX); // Call base class method
 	DDX_Control(pDX, IDC_TREE1, m_wndClassView);
-	DDX_Control(pDX, IDC_BLANKVIEW, m_BlankView);
 }
 
 

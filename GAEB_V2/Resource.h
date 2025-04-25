@@ -61,6 +61,7 @@
 #define IDD_DIALOG2                     319
 #define IDD_DIALOG_INFO                 319
 #define IDB_BITMAP1                     321
+#define IDD_DIALOG3                     323
 #define IDC_LIST1                       1000
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_RADIO_OPTION1                32771
@@ -159,7 +160,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        323
+#define _APS_NEXT_RESOURCE_VALUE        325
 #define _APS_NEXT_COMMAND_VALUE         32868
 #define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           310

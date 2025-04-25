@@ -136,6 +136,7 @@ void CGAEBV2View::Dump(CDumpContext& dc) const
 	CView::Dump(dc);
 }
 
+
 CGAEBV2Doc* CGAEBV2View::GetDocument() const // non-debug version is inline
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CGAEBV2Doc)));
@@ -150,18 +151,24 @@ CGAEBV2Doc* CGAEBV2View::GetDocument() const // non-debug version is inline
 int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
-		return -1;
+		return -1;	
+}
+
+
+
+int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
+{
 	CPoint pt(400, 430);
 	CSize sz(70, 30);
-	
+
 
 	// TODO:  Add your specialized creation code here
-	m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 40), CSize(100,20)),this, 1001);
-	m_staticText_PA.Create(_T("Positionsart"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 80), CSize( 100, 20)),this, 1001);
-	m_staticText_KT.Create(_T("Kurztext"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 120),CSize(100, 20)),this, 1001);
-	m_staticText_LT.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint( 50, 200), CSize( 100, 20)), this, 1001);
-	m_staticText_M.Create(_T("Menge"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint( 50, 430), CSize( 100, 20)),this,  1001);
-	m_staticText_ET.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE | SS_LEFT,CRect(pt,sz), this, 1001);
+	m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 40), CSize(100, 20)), this, 1001);
+	m_staticText_PA.Create(_T("Positionsart"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 80), CSize(100, 20)), this, 1001);
+	m_staticText_KT.Create(_T("Kurztext"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 120), CSize(100, 20)), this, 1001);
+	m_staticText_LT.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 200), CSize(100, 20)), this, 1001);
+	m_staticText_M.Create(_T("Menge"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 430), CSize(100, 20)), this, 1001);
+	m_staticText_ET.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(pt, sz), this, 1001);
 	m_staticText_EP.Create(_T("Einheitpreis"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 490), CSize(100, 20)), this, 1001);
 
 
@@ -172,19 +179,19 @@ int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CString str_kurztext;
 	m_edit_KT.GetWindowText(str_kurztext); // Get text*/
 
-	m_edit_OZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE |SS_LEFT, CRect(CPoint(200, 40), CSize(80, 20)), this, 1002);
-	m_edit_M.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE   | SS_RIGHT, CRect(CPoint(200,430), CSize(100, 20)), this, 1002);
-	m_edit_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 120), CSize (700, 50)), this, 1002);
+	m_edit_OZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 40), CSize(80, 20)), this, 1002);
+	m_edit_M.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_RIGHT, CRect(CPoint(200, 430), CSize(100, 20)), this, 1002);
+	m_edit_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 120), CSize(700, 50)), this, 1002);
 	m_edit_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 200), CSize(700, 200)), this, 1002);
 	m_edit_EP.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 490), CSize(100, 20)), this, 1002);
-	
+
 	//Hinweistext --> nur Kurztext_editbox und Hinweistext_editbox
-	
+
 	m_edit_Hinweis.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(), this, 1002);
 	//Combox box 
 
 	//PosArt
-	m_comboBox_PA.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | CBS_DROPDOWNLIST, CRect(CPoint(200,80), CSize(300,20)), this, 1003);
+	m_comboBox_PA.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | CBS_DROPDOWNLIST, CRect(CPoint(200, 80), CSize(300, 20)), this, 1003);
 	m_comboBox_PA.AddString(_T("A - Alternativposition"));
 	m_comboBox_PA.AddString(_T("B - Bedarfposition mit Grundpreis"));
 	m_comboBox_PA.AddString(_T("E - Bedarfposition ohne Grundpreis"));
@@ -197,7 +204,7 @@ int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	//Einheit
-	m_comboBox_ET.Create(WS_CHILD | WS_VISIBLE |ES_MULTILINE| CBS_DROPDOWNLIST, CRect(CPoint(550, 430), CSize(100, 30)), this, 1003);
+	m_comboBox_ET.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | CBS_DROPDOWNLIST, CRect(CPoint(550, 430), CSize(100, 30)), this, 1003);
 	m_comboBox_ET.AddString(_T("Stk"));
 	m_comboBox_ET.AddString(_T("m"));
 	m_comboBox_ET.AddString(_T("m2"));
@@ -208,7 +215,7 @@ int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_comboBox_ET.AddString(_T("t"));
 	m_comboBox_ET.AddString(_T("Std"));
 	m_comboBox_ET.AddString(_T("Min"));
-	
+
 	//Set custom colors
 	m_brush_combobox.CreateSolidBrush(RGB(200, 220, 255));
 	m_brush_editbox.CreateSolidBrush(RGB(255, 255, 180));
@@ -222,7 +229,74 @@ int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
+int CGAEBV2View::OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct)
+{
 
+	
+	CPoint pt(400, 430);
+	CSize sz(70, 30);
+
+	m_GroupBox_Adresse_Daten.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
+
+	m_staticText_Name1.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
+	m_edit_Name1.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250,20)), this, 1002);
+	m_edit_Name2.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 90), CSize(250, 20)), this, 1002);
+	m_edit_Name3.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 130), CSize(250, 20)), this, 1002);
+
+	m_staticText_Strasse.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 170), CSize(80, 20)), this, 1001);
+	m_edit_Srasse.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 170), CSize(250, 20)), this, 1002);
+
+	m_staticText_PLZ.Create(_T("PLZ"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 210), CSize(80, 20)), this, 1001);
+	m_edit_PLZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 210), CSize(150, 20)), this, 1002);
+
+	m_staticText_Ort.Create(_T("Ort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 250), CSize(80, 20)), this, 1001);
+	m_edit_Ort.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 250), CSize(250, 20)), this, 1002);
+
+	m_staticText_Land.Create(_T("Land"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 290), CSize(80, 20)), this, 1001);
+	m_edit_Land.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 290), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Ansprechpartner.Create(_T("Ansprechpartner"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 50), CSize(120, 20)), this, 1001);
+	m_edit_Ansprechpartner.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 50), CSize(250, 20)), this, 1002);
+
+	m_staticText_Telefon.Create(_T("Telefon"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 90), CSize(120, 20)), this, 1001);
+	m_edit_Tel.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 90), CSize(250, 20)), this, 1002);
+
+	m_staticText_Fax.Create(_T("Fax"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 130), CSize(120, 20)), this, 1001);
+	m_edit_Fax.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 130), CSize(250, 20)), this, 1002);
+
+	m_staticText_Email.Create(_T("Email"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 170), CSize(120, 20)), this, 1001);
+	m_edit_Email.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 170), CSize(250, 20)), this, 1002);
+
+	m_staticText_IL_Num.Create(_T("IL-Nummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 210), CSize(120, 20)), this, 1001);
+	m_edit_IL_Num.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 210), CSize(250, 20)), this, 1002);
+
+	m_staticText_Steuer.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
+	m_edit_Steuer.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
+
+
+	return 0;
+}
+
+int CGAEBV2View::OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct)
+{
+	return 0;
+}
+
+int CGAEBV2View::OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct)
+{
+	return 0;
+}
+
+int CGAEBV2View::OnCreate_Vergabeninfos_View(LPCREATESTRUCT lpCreateStruct)
+{
+	return 0;
+}
+
+int CGAEBV2View::OnCreate_Kalkulationsinfos_View(LPCREATESTRUCT lpCreateStruct)
+{
+	return 0;
+}
 
 
 HBRUSH CGAEBV2View::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
