@@ -28,8 +28,12 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#include <vector>
 
 using namespace std;
+
+std::vector<CWnd*> m_firstViewControls;
+std::vector<CWnd*> m_auftraggeberViewControls;
 
 
 #define IDC_STATICTEXT_OZ 1001
@@ -152,6 +156,8 @@ int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;	
+	
+	//OnCreate_FirstView(lpCreateStruct); // Create the first view
 }
 
 
@@ -171,6 +177,13 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 	m_staticText_ET.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(pt, sz), this, 1001);
 	m_staticText_EP.Create(_T("Einheitpreis"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 490), CSize(100, 20)), this, 1001);
 
+	m_firstViewControls.push_back(&m_staticText_OZ);
+	m_firstViewControls.push_back(&m_staticText_PA);
+	m_firstViewControls.push_back(&m_staticText_KT);
+	m_firstViewControls.push_back(&m_staticText_LT);
+	m_firstViewControls.push_back(&m_staticText_M);
+	m_firstViewControls.push_back(&m_staticText_ET);
+	m_firstViewControls.push_back(&m_staticText_EP);
 
 
 
@@ -185,9 +198,17 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 	m_edit_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 200), CSize(700, 200)), this, 1002);
 	m_edit_EP.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 490), CSize(100, 20)), this, 1002);
 
+	m_firstViewControls.push_back(&m_edit_OZ);
+	m_firstViewControls.push_back(&m_edit_M);
+	m_firstViewControls.push_back(&m_edit_KT);
+	m_firstViewControls.push_back(&m_edit_LT);
+	m_firstViewControls.push_back(&m_edit_EP);
+
 	//Hinweistext --> nur Kurztext_editbox und Hinweistext_editbox
 
 	m_edit_Hinweis.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(), this, 1002);
+
+	m_firstViewControls.push_back(&m_edit_Hinweis);
 	//Combox box 
 
 	//PosArt
@@ -231,7 +252,7 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 
 int CGAEBV2View::OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct)
 {
-
+	
 	
 	CPoint pt(400, 430);
 	CSize sz(70, 30);

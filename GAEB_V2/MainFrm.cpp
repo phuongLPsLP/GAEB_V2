@@ -123,9 +123,13 @@ CMainFrame::~CMainFrame()
 void CMainFrame::FillClassView()
 {
 
-	rapidxml::file<> xmlFile("../../Test.xml");
+	//rapidxml::file<> xmlFile("../../Test.xml");
+	//rapidxml::file<> xmlFile("C:/Users/phuon/source/repos/GAEB_V2/GAEB_V2/Test.xml");
+	rapidxml::file<> xmlFile("Test.xml");
 	rapidxml::xml_document<> doc;
 	doc.parse<0>(xmlFile.data());
+
+
 	m_wndClassView.DeleteAllItems();
 
 	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), 0, 0);
@@ -137,7 +141,7 @@ void CMainFrame::FillClassView()
 	HTREEITEM vergaben = m_wndClassView.InsertItem(_T("Vergabeninfos"), 0, 0);
 
 	HTREEITEM kalkulation = m_wndClassView.InsertItem(_T("Kalkulationsinfos"), 0, 0);
-	
+
 	rapidxml::xml_node<>* root = doc.first_node();
 	root->name("Leistungsverzeichnis");
 
