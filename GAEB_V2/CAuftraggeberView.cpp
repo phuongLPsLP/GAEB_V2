@@ -1,80 +1,58 @@
+// CAuftraggeberView.cpp : implementation file
+//
+
 #include "pch.h"
-#include "Auftragsgeber.h"
+#include "GAEB_V2.h"
+#include "CAuftraggeberView.h"
 
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+// CAuftraggeberView
 
-IMPLEMENT_DYNCREATE(Auftragsgeber, CView)
-BEGIN_MESSAGE_MAP(Auftragsgeber, CView)
-	// Standard printing commands
-	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &Auftragsgeber::OnFilePrintPreview)
-	ON_WM_CONTEXTMENU()
+IMPLEMENT_DYNCREATE(CAuftraggeberView, CView)
+
+CAuftraggeberView::CAuftraggeberView()
+{
+
+}
+
+CAuftraggeberView::~CAuftraggeberView()
+{
+}
+
+BEGIN_MESSAGE_MAP(CAuftraggeberView, CView)
 	ON_WM_CREATE()
-	ON_WM_CTLCOLOR()
+
 END_MESSAGE_MAP()
 
 
+// CAuftraggeberView drawing
 
-Auftragsgeber::Auftragsgeber() noexcept
+void CAuftraggeberView::OnDraw(CDC* pDC)
 {
+	CDocument* pDoc = GetDocument();
+	// TODO: add draw code here
 }
 
-void Auftragsgeber::OnDraw(CDC* pDC)
-{
 
-	CGAEBV2Doc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-	// TODO: add draw code for native data here
+// CAuftraggeberView diagnostics
+
+#ifdef _DEBUG
+void CAuftraggeberView::AssertValid() const
+{
+	CView::AssertValid();
 }
 
-BOOL Auftragsgeber::PreCreateWindow(CREATESTRUCT& cs)
+#ifndef _WIN32_WCE
+void CAuftraggeberView::Dump(CDumpContext& dc) const
 {
-	cs.style |= WS_MAXIMIZE;
-	return CView::PreCreateWindow(cs);
+	CView::Dump(dc);
 }
-
-BOOL Auftragsgeber::OnPreparePrinting(CPrintInfo* pInfo)
+int CAuftraggeberView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	return DoPreparePrinting(pInfo);
-}
-
-void Auftragsgeber::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
-{
-}
-
-void Auftragsgeber::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
-{
-}
-
-Auftragsgeber::~Auftragsgeber()
-{
-}
-
-void Auftragsgeber::AssertValid() const
-{
-}
-
-void Auftragsgeber::Dump(CDumpContext& dc) const
-{
-}
-
-CGAEBV2Doc* Auftragsgeber::GetDocument() const
-{
-	return nullptr;
-}
-int Auftragsgeber::OnCreate(LPCREATESTRUCT lpCreateStruct) {
-
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 }
-
-int Auftragsgeber::OnCreate_AuftragsgeberView(LPCREATESTRUCT lpCreateStruct)
+int CAuftraggeberView::OnCreate_AuftragsgeberView(LPCREATESTRUCT lpCreateStruct)
 {
 	//m_GroupBox_Adresse_Daten_AG.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
 
@@ -119,17 +97,11 @@ int Auftragsgeber::OnCreate_AuftragsgeberView(LPCREATESTRUCT lpCreateStruct)
 
 
 	m_staticText_Steuer_AG.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
-	m_edit_Steuer_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);*/
+	m_edit_Steuer_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
 	return 0;
 }
-
-void Auftragsgeber::OnFilePrintPreview()
-{
-#ifndef SHARED_HANDLERS
-	AFXPrintPreview(this);
 #endif
-}
+#endif //_DEBUG
 
-void Auftragsgeber::OnContextMenu(CWnd* pWnd, CPoint point)
-{
-}
+
+// CAuftraggeberView message handlers

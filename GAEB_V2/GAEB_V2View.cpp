@@ -32,6 +32,7 @@
 
 using namespace std;
 
+std::vector<CStatic*> m_control_view;
 
 #define IDC_STATICTEXT_OZ 1001
 
@@ -341,7 +342,7 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }*/
 
-int CGAEBV2View::OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct)
+/*int CGAEBV2View::OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct)
 {
 	CPoint pt(400, 430);
 	CSize sz(70, 30);
@@ -368,12 +369,8 @@ int CGAEBV2View::OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct)
 	m_textColor_combobox = RGB(0, 0, 0);
 	m_textColor_editbox = RGB(0, 0, 0);
 	return 0;
-}
+}*/
 
-int CGAEBV2View::OnCreate_Vergabeninfos_View(LPCREATESTRUCT lpCreateStruct)
-{
-	return 0;
-}
 
 int CGAEBV2View::OnCreate_Kalkulationsinfos_View(LPCREATESTRUCT lpCreateStruct)
 {
@@ -422,4 +419,12 @@ HBRUSH CGAEBV2View::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		return m_brush_editbox;
 	}
 	return hbr;
+}
+
+void CGAEBV2View::OnClearControls()
+{
+	for (CStatic * pCtrl : m_control_view) 
+	{
+
+	}
 }

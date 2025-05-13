@@ -1,113 +1,64 @@
+// CAuftragnehmerView.cpp : implementation file
+//
+
 #include "pch.h"
-#include "CAuftragsnehmer.h"
+#include "GAEB_V2.h"
+#include "CAuftragnehmerView.h"
 
 
-#include "GAEB_V2Doc.h"
-#include "GAEB_V2View.h"
+// CAuftragnehmerView
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-#include <vector>
+IMPLEMENT_DYNCREATE(CAuftragnehmerView, CView)
 
-using namespace std;
+CAuftragnehmerView::CAuftragnehmerView()
+{
 
+}
 
-#define IDC_STATICTEXT_OZ 1001
+CAuftragnehmerView::~CAuftragnehmerView()
+{
+}
 
-
-// CGAEBV2View
-
-IMPLEMENT_DYNCREATE(CAuftragsnehmer, CView)
-
-BEGIN_MESSAGE_MAP(CAuftragsnehmer, CView)
-	// Standard printing commands
-	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
-	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CAuftragsnehmer::OnFilePrintPreview)
-	ON_WM_CONTEXTMENU()
+BEGIN_MESSAGE_MAP(CAuftragnehmerView, CView)
 	ON_WM_CREATE()
-	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
-CAuftragsnehmer::CAuftragsnehmer() noexcept
+
+// CAuftragnehmerView drawing
+
+void CAuftragnehmerView::OnDraw(CDC* pDC)
 {
+	CDocument* pDoc = GetDocument();
+	// TODO: add draw code here
 }
 
-void CAuftragsnehmer::OnDraw(CDC* pDC)
-{
-	CGAEBV2Doc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-	// TODO: add draw code for native data here
-}
 
-BOOL CAuftragsnehmer::PreCreateWindow(CREATESTRUCT& cs)
-{
-	cs.style |= WS_MAXIMIZE;
-	return CView::PreCreateWindow(cs);
-}
+// CAuftragnehmerView diagnostics
 
-BOOL CAuftragsnehmer::OnPreparePrinting(CPrintInfo* pInfo)
-{
-	return DoPreparePrinting(pInfo);
-}
-
-void CAuftragsnehmer::OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo)
-{
-}
-
-void CAuftragsnehmer::OnEndPrinting(CDC* pDC, CPrintInfo* pInfo)
-{
-}
-
-CAuftragsnehmer::~CAuftragsnehmer()
-{
-}
 #ifdef _DEBUG
-void CAuftragsnehmer::AssertValid() const
+void CAuftragnehmerView::AssertValid() const
 {
 	CView::AssertValid();
 }
 
-void CAuftragsnehmer::Dump(CDumpContext& dc) const
+#ifndef _WIN32_WCE
+void CAuftragnehmerView::Dump(CDumpContext& dc) const
 {
 	CView::Dump(dc);
 }
-
-
-CGAEBV2Doc* CAuftragsnehmer::GetDocument() const // non-debug version is inline
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CGAEBV2Doc)));
-	return (CGAEBV2Doc*)m_pDocument;
-}
-#endif //_DEBUG
-
-void CAuftragsnehmer::OnFilePrintPreview()
-{
-
-#ifndef SHARED_HANDLERS
-	AFXPrintPreview(this);
-#endif
-}
-
-void CAuftragsnehmer::OnContextMenu(CWnd* pWnd, CPoint point)
-{
-}
-
-int CAuftragsnehmer::OnCreate(LPCREATESTRUCT lpCreateStruct)
+int CAuftragnehmerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
+	//OnCreate_FirstView(lpCreateStruct); // Create the first view
 }
-int CAuftragsnehmer::OnCreate_Auftragsnehmer_View(LPCREATESTRUCT lpCreateStruct)
+int CAuftragnehmerView::OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct)
 {
 	CPoint pt(400, 430);
 	CSize sz(70, 30);
 
-	//m_GroupBox_Adresse_Daten_AN.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
+	m_GroupBox_Adresse_Daten_AN.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
 
 	m_staticText_Name1_AN.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
 	m_edit_Name1_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250, 20)), this, 1002);
@@ -160,3 +111,8 @@ int CAuftragsnehmer::OnCreate_Auftragsnehmer_View(LPCREATESTRUCT lpCreateStruct)
 
 	return 0;
 }
+#endif
+#endif //_DEBUG
+
+
+// CAuftragnehmerView message handlers

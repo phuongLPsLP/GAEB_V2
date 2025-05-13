@@ -54,16 +54,16 @@
     <ClInclude Include="rapidxml-1.13\rapidxml_utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ProjektinfosView.h">
+    <ClInclude Include="CProjektInfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VergabeninfosView.h">
+    <ClInclude Include="CAuftraggeberView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Auftragsgeber.h">
+    <ClInclude Include="CAuftragnehmerView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CAuftragsnehmer.h">
+    <ClInclude Include="CVergabeinfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,16 +86,16 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProjektinfosView.cpp">
+    <ClCompile Include="CProjektInfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VergabeninfosView.cpp">
+    <ClCompile Include="CAuftraggeberView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Auftragsgeber.cpp">
+    <ClCompile Include="CAuftragnehmerView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CAuftragsnehmer.cpp">
+    <ClCompile Include="CVergabeinfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

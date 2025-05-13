@@ -139,7 +139,7 @@ protected:
 	CEdit m_edit_IL_Num_AN;
 	CEdit m_edit_Steuer_AN;*/
 
-protected:
+/*protected:
 	CStatic m_staticText_Name;
 	CStatic m_staticText_Bezeichnung;
 	CStatic m_staticText_Beschreibung;
@@ -153,7 +153,7 @@ protected:
 	CEdit m_edit_Bez;
 	CEdit m_edit_Leistungsbreich;
 
-	CButton m_button_Zusatztext;
+	CButton m_button_Zusatztext;*/
 
 
 
@@ -168,10 +168,10 @@ public:
 	afx_msg	int OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct);
 	//afx_msg int OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct);
 	//afx_msg int OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnCreate_Vergabeninfos_View(LPCREATESTRUCT lpCreateStruct);
+	//afx_msg int OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct);
 	afx_msg int OnCreate_Kalkulationsinfos_View(LPCREATESTRUCT lpCreateStruct);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg void OnClearControls();
 };
 
 #ifndef _DEBUG  // debug version in GAEB_V2View.cpp

@@ -15,7 +15,6 @@
 #include "pch.h"
 #include "framework.h"
 #include "GAEB_V2.h"
-#include "Auftragsgeber.h"
 
 #include "MainFrm.h"
 
@@ -23,7 +22,11 @@
 #define new DEBUG_NEW
 #endif
 #include "GAEB_V2View.h"
-#include "CAuftragsnehmer.h"
+#include "CProjektInfosView.h"
+#include "CAuftraggeberView.h"
+#include "CAuftragnehmerView.h"
+#include "CVergabeinfosView.h"
+
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
 
@@ -211,7 +214,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 
 		if (itemText == "Auftraggeber") 
 		{
-			Auftragsgeber* pAuftragsgeberView = static_cast<Auftragsgeber*>(pView);
+			CAuftraggeberView* pAuftragsgeberView = static_cast<CAuftraggeberView*>(pView);
 			pAuftragsgeberView->OnCreate_AuftragsgeberView(nullptr);
 			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
 			//pGAEBView->OnCreate_Auftraggeber_View(nullptr);
@@ -219,20 +222,24 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		else if (itemText == "Auftragnehmer")
 		{
 
-			CAuftragsnehmer* pAuftragsnehmerView = static_cast<CAuftragsnehmer*>(pView);
-			pAuftragsnehmerView->OnCreate(nullptr);
+			CAuftragnehmerView* pAuftragnehmerView = static_cast<CAuftragnehmerView*>(pView);
+			pAuftragnehmerView->OnCreate_Auftragnehmer_View(nullptr);
 			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
 			//pGAEBView->OnCreate_Auftragnehmer_View(nullptr);
 		}
 		else if (itemText == "Projektinfos")
 		{
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->OnCreate_Projektinfos_View(nullptr);
+			CProjektInfosView* pAuftragsnehmerView = static_cast<CProjektInfosView*>(pView);
+			pAuftragsnehmerView->OnCreate_ProjecktInfos_View(nullptr);
+			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			//pGAEBView->OnCreate_Projektinfos_View(nullptr);
 		}
 		else if (itemText == "Vergabeninfos")
 		{
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->OnCreate_Vergabeninfos_View(nullptr);
+			CVergabeinfosView* pVergabeinfosView = static_cast<CVergabeinfosView*>(pView);
+			pVergabeinfosView->OnCreate_Vergabeninfos_View(nullptr);
+			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			//pGAEBView->OnCreate_Vergabeninfos_View(nullptr);
 		}
 		else if (itemText == "Kalkulationsinfos")
 		{

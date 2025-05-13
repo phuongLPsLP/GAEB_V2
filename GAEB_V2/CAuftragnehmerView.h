@@ -1,39 +1,26 @@
 #pragma once
-#include <afxwin.h>
-#include "GAEB_V2Doc.h"
-class CAuftragsnehmer :    public CView
+
+
+// CAuftragnehmerView view
+
+class CAuftragnehmerView : public CView
 {
-protected: // create from serialization only
-	CAuftragsnehmer() noexcept;
-	DECLARE_DYNCREATE(CAuftragsnehmer)
+	DECLARE_DYNCREATE(CAuftragnehmerView)
 
-
-	// Attributes
-public:
-
-	// Operations
-public:
-
-	// Overrides
-public:
-	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
-	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
+	CAuftragnehmerView();           // protected constructor used by dynamic creation
+	virtual ~CAuftragnehmerView();
 
-	// Implementation
 public:
-	virtual ~CAuftragsnehmer();
+	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 #ifdef _DEBUG
 	virtual void AssertValid() const;
+#ifndef _WIN32_WCE
 	virtual void Dump(CDumpContext& dc) const;
-	CGAEBV2Doc* GetDocument() const;
-
+#endif
 #endif
 protected:
-	//CStatic m_GroupBox_Adresse_Daten_AN;
+	CStatic m_GroupBox_Adresse_Daten_AN;
 
 	CStatic m_staticText_Name1_AN;
 	CStatic m_staticText_Strasse_AN;
@@ -61,15 +48,12 @@ protected:
 	CEdit m_edit_Email_AN;
 	CEdit m_edit_IL_Num_AN;
 	CEdit m_edit_Steuer_AN;
-
 protected:
-	afx_msg void OnFilePrintPreview();
-	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnCreate_Auftragsnehmer_View(LPCREATESTRUCT lpCreateStruct);
-
+	afx_msg int OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct);
 
 };
+
 
