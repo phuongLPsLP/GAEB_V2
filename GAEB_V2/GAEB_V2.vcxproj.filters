@@ -54,6 +54,18 @@
     <ClInclude Include="rapidxml-1.13\rapidxml_utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProjektinfosView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VergabeninfosView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Auftragsgeber.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAuftragsnehmer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GAEB_V2.cpp">
@@ -72,6 +84,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjektinfosView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VergabeninfosView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Auftragsgeber.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAuftragsnehmer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

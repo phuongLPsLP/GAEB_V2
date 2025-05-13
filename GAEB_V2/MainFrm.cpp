@@ -15,6 +15,7 @@
 #include "pch.h"
 #include "framework.h"
 #include "GAEB_V2.h"
+#include "Auftragsgeber.h"
 
 #include "MainFrm.h"
 
@@ -22,6 +23,7 @@
 #define new DEBUG_NEW
 #endif
 #include "GAEB_V2View.h"
+#include "CAuftragsnehmer.h"
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
 
@@ -209,13 +211,18 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 
 		if (itemText == "Auftraggeber") 
 		{
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->OnCreate_Auftraggeber_View(nullptr);
+			Auftragsgeber* pAuftragsgeberView = static_cast<Auftragsgeber*>(pView);
+			pAuftragsgeberView->OnCreate_AuftragsgeberView(nullptr);
+			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			//pGAEBView->OnCreate_Auftraggeber_View(nullptr);
 		}
 		else if (itemText == "Auftragnehmer")
 		{
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->OnCreate_Auftragnehmer_View(nullptr);
+
+			CAuftragsnehmer* pAuftragsnehmerView = static_cast<CAuftragsnehmer*>(pView);
+			pAuftragsnehmerView->OnCreate(nullptr);
+			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
+			//pGAEBView->OnCreate_Auftragnehmer_View(nullptr);
 		}
 		else if (itemText == "Projektinfos")
 		{
@@ -230,10 +237,13 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		else if (itemText == "Kalkulationsinfos")
 		{
 			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->OnCreate_Auftraggeber_View(nullptr);
+			//pGAEBView->OnCreate_Auftraggeber_View(nullptr);
 		}
 		else
 		{
+			//AuftragsnehmerView* pAuftragsnehmerView = static_cast<AuftragsnehmerView*>(pView);
+			//pAuftragsnehmerView->OnCreate(nullptr);
+
 			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
 			pGAEBView->OnCreate_FirstView(nullptr);
 		}

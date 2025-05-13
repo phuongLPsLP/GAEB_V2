@@ -32,9 +32,6 @@
 
 using namespace std;
 
-std::vector<CWnd*> m_firstViewControls;
-std::vector<CWnd*> m_auftraggeberViewControls;
-
 
 #define IDC_STATICTEXT_OZ 1001
 
@@ -155,8 +152,7 @@ CGAEBV2Doc* CGAEBV2View::GetDocument() const // non-debug version is inline
 int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
-		return -1;	
-	
+		return -1;		
 	//OnCreate_FirstView(lpCreateStruct); // Create the first view
 }
 
@@ -177,16 +173,6 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 	m_staticText_ET.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(pt, sz), this, 1001);
 	m_staticText_EP.Create(_T("Einheitpreis"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 490), CSize(100, 20)), this, 1001);
 
-	m_firstViewControls.push_back(&m_staticText_OZ);
-	m_firstViewControls.push_back(&m_staticText_PA);
-	m_firstViewControls.push_back(&m_staticText_KT);
-	m_firstViewControls.push_back(&m_staticText_LT);
-	m_firstViewControls.push_back(&m_staticText_M);
-	m_firstViewControls.push_back(&m_staticText_ET);
-	m_firstViewControls.push_back(&m_staticText_EP);
-
-
-
 	//Edit Box
 	/*m_edit_KT.SetWindowText(_T("Hello, MFC!")); // Set text
 	CString str_kurztext;
@@ -198,17 +184,10 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 	m_edit_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 200), CSize(700, 200)), this, 1002);
 	m_edit_EP.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 490), CSize(100, 20)), this, 1002);
 
-	m_firstViewControls.push_back(&m_edit_OZ);
-	m_firstViewControls.push_back(&m_edit_M);
-	m_firstViewControls.push_back(&m_edit_KT);
-	m_firstViewControls.push_back(&m_edit_LT);
-	m_firstViewControls.push_back(&m_edit_EP);
-
 	//Hinweistext --> nur Kurztext_editbox und Hinweistext_editbox
 
 	m_edit_Hinweis.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(), this, 1002);
 
-	m_firstViewControls.push_back(&m_edit_Hinweis);
 	//Combox box 
 
 	//PosArt
@@ -250,62 +229,144 @@ int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
-int CGAEBV2View::OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct)
+/*int CGAEBV2View::OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct)
 {
-	
-	
 	CPoint pt(400, 430);
 	CSize sz(70, 30);
 
-	m_GroupBox_Adresse_Daten.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
+	m_GroupBox_Adresse_Daten_AG.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
 
-	m_staticText_Name1.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
-	m_edit_Name1.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250,20)), this, 1002);
-	m_edit_Name2.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 90), CSize(250, 20)), this, 1002);
-	m_edit_Name3.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 130), CSize(250, 20)), this, 1002);
-
-	m_staticText_Strasse.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 170), CSize(80, 20)), this, 1001);
-	m_edit_Srasse.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 170), CSize(250, 20)), this, 1002);
-
-	m_staticText_PLZ.Create(_T("PLZ"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 210), CSize(80, 20)), this, 1001);
-	m_edit_PLZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 210), CSize(150, 20)), this, 1002);
-
-	m_staticText_Ort.Create(_T("Ort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 250), CSize(80, 20)), this, 1001);
-	m_edit_Ort.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 250), CSize(250, 20)), this, 1002);
-
-	m_staticText_Land.Create(_T("Land"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 290), CSize(80, 20)), this, 1001);
-	m_edit_Land.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 290), CSize(250, 20)), this, 1002);
+	m_staticText_Name1_AG.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
+	m_edit_Name1_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250, 20)), this, 1002);
+	m_edit_Name2_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 90), CSize(250, 20)), this, 1002);
+	m_edit_Name3_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 130), CSize(250, 20)), this, 1002);
 
 
-	m_staticText_Ansprechpartner.Create(_T("Ansprechpartner"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 50), CSize(120, 20)), this, 1001);
-	m_edit_Ansprechpartner.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 50), CSize(250, 20)), this, 1002);
-
-	m_staticText_Telefon.Create(_T("Telefon"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 90), CSize(120, 20)), this, 1001);
-	m_edit_Tel.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 90), CSize(250, 20)), this, 1002);
-
-	m_staticText_Fax.Create(_T("Fax"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 130), CSize(120, 20)), this, 1001);
-	m_edit_Fax.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 130), CSize(250, 20)), this, 1002);
-
-	m_staticText_Email.Create(_T("Email"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 170), CSize(120, 20)), this, 1001);
-	m_edit_Email.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 170), CSize(250, 20)), this, 1002);
-
-	m_staticText_IL_Num.Create(_T("IL-Nummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 210), CSize(120, 20)), this, 1001);
-	m_edit_IL_Num.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 210), CSize(250, 20)), this, 1002);
-
-	m_staticText_Steuer.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
-	m_edit_Steuer.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
+	m_staticText_Strasse_AG.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 170), CSize(80, 20)), this, 1001);
+	m_edit_Srasse_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 170), CSize(250, 20)), this, 1002);
 
 
+	m_staticText_PLZ_AG.Create(_T("PLZ"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 210), CSize(80, 20)), this, 1001);
+	m_edit_PLZ_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 210), CSize(150, 20)), this, 1002);
+
+
+	m_staticText_Ort_AG.Create(_T("Ort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 250), CSize(80, 20)), this, 1001);
+	m_edit_Ort_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 250), CSize(250, 20)), this, 1002);
+
+
+
+	m_staticText_Land_AG.Create(_T("Land"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 290), CSize(80, 20)), this, 1001);
+	m_edit_Land_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 290), CSize(250, 20)), this, 1002);
+
+	m_staticText_Ansprechpartner_AG.Create(_T("Ansprechpartner"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 50), CSize(120, 20)), this, 1001);
+	m_edit_Ansprechpartner_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 50), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Telefon_AG.Create(_T("Telefon"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 90), CSize(120, 20)), this, 1001);
+	m_edit_Tel_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 90), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Fax_AG.Create(_T("Fax"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 130), CSize(120, 20)), this, 1001);
+	m_edit_Fax_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 130), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Email_AG.Create(_T("Email"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 170), CSize(120, 20)), this, 1001);
+	m_edit_Email_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 170), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_IL_Num_AG.Create(_T("IL-Nummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 210), CSize(120, 20)), this, 1001);
+	m_edit_IL_Num_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 210), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Steuer_AG.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
+	m_edit_Steuer_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
 	return 0;
-}
-
-int CGAEBV2View::OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct)
+}*/
+/*int CGAEBV2View::OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct)
 {
+	CPoint pt(400, 430);
+	CSize sz(70, 30);
+
+	m_GroupBox_Adresse_Daten_AN.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
+
+	m_staticText_Name1_AN.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
+	m_edit_Name1_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250, 20)), this, 1002);
+	m_edit_Name2_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 90), CSize(250, 20)), this, 1002);
+	m_edit_Name3_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 130), CSize(250, 20)), this, 1002);
+
+
+
+	m_staticText_Strasse_AN.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 170), CSize(80, 20)), this, 1001);
+	m_edit_Srasse_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 170), CSize(250, 20)), this, 1002);
+
+	m_staticText_PLZ_AN.Create(_T("PLZ"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 210), CSize(80, 20)), this, 1001);
+	m_edit_PLZ_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 210), CSize(150, 20)), this, 1002);
+
+
+	m_staticText_Ort_AN.Create(_T("Ort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 250), CSize(80, 20)), this, 1001);
+	m_edit_Ort_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 250), CSize(250, 20)), this, 1002);
+
+
+
+	m_staticText_Land_AN.Create(_T("Land"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 290), CSize(80, 20)), this, 1001);
+	m_edit_Land_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 290), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Ansprechpartner_AN.Create(_T("Ansprechpartner"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 50), CSize(120, 20)), this, 1001);
+	m_edit_Ansprechpartner_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 50), CSize(250, 20)), this, 1002);
+
+
+
+	m_staticText_Telefon_AN.Create(_T("Telefon"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 90), CSize(120, 20)), this, 1001);
+	m_edit_Tel_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 90), CSize(250, 20)), this, 1002);
+
+
+
+	m_staticText_Fax_AN.Create(_T("Fax"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 130), CSize(120, 20)), this, 1001);
+	m_edit_Fax_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 130), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Email_AN.Create(_T("Email"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 170), CSize(120, 20)), this, 1001);
+	m_edit_Email_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 170), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_IL_Num_AN.Create(_T("IL-Nummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 210), CSize(120, 20)), this, 1001);
+	m_edit_IL_Num_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 210), CSize(250, 20)), this, 1002);
+
+
+	m_staticText_Steuer_AN.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
+	m_edit_Steuer_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
+
+
 	return 0;
-}
+}*/
 
 int CGAEBV2View::OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct)
 {
+	CPoint pt(400, 430);
+	CSize sz(70, 30);
+
+	m_staticText_Name.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 50), CSize(80, 20)), this, 1001);
+	m_staticText_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 90), CSize(120, 20)), this, 1001);
+	m_staticText_Beschreibung.Create(_T("Beschreibung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 190), CSize(120, 20)), this, 1001);
+	m_staticText_Waehrung.Create(_T("Währung / Bez."), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 360), CSize(120, 20)), this, 1001);
+	m_staticText_Leistungsbreich.Create(_T("Leistungsbereich"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 400), CSize(120, 20)), this, 1001);
+
+	m_edit_Name.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 50), CSize(150, 20)), this, 1002);
+	m_edit_Bezeichnung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 90), CSize(300, 80)), this, 1002);
+	m_edit_Beschreibung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 190), CSize(300, 150)), this, 1002);
+	m_edit_Waehrung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 360), CSize(50, 20)), this, 1002);
+	m_edit_Bez.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(300, 360), CSize(200, 20)), this, 1002);
+	m_edit_Leistungsbreich.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 400), CSize(100, 20)), this, 1002);
+
+	m_brush_combobox.CreateSolidBrush(RGB(200, 220, 255));
+	m_brush_editbox.CreateSolidBrush(RGB(255, 255, 180));
+	m_brush_static.CreateSolidBrush(RGB(200, 220, 255));
+
+	//Set text colors
+	m_textColor = RGB(0, 0, 0);
+	m_textColor_combobox = RGB(0, 0, 0);
+	m_textColor_editbox = RGB(0, 0, 0);
 	return 0;
 }
 

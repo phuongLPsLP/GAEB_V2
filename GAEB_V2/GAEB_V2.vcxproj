@@ -184,22 +184,28 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Auftragsgeber.h" />
     <ClInclude Include="calendarbar.h" />
+    <ClInclude Include="CAuftragsnehmer.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GAEB_V2.h" />
     <ClInclude Include="GAEB_V2Doc.h" />
     <ClInclude Include="GAEB_V2View.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ProjektinfosView.h" />
     <ClInclude Include="rapidxml-1.13\rapidxml.hpp" />
     <ClInclude Include="rapidxml-1.13\rapidxml_iterators.hpp" />
     <ClInclude Include="rapidxml-1.13\rapidxml_print.hpp" />
     <ClInclude Include="rapidxml-1.13\rapidxml_utils.hpp" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VergabeninfosView.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Auftragsgeber.cpp" />
     <ClCompile Include="calendarbar.cpp" />
+    <ClCompile Include="CAuftragsnehmer.cpp" />
     <ClCompile Include="GAEB_V2.cpp" />
     <ClCompile Include="GAEB_V2Doc.cpp" />
     <ClCompile Include="GAEB_V2View.cpp" />
@@ -210,6 +216,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ProjektinfosView.cpp" />
+    <ClCompile Include="VergabeninfosView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GAEBV2.rc" />
