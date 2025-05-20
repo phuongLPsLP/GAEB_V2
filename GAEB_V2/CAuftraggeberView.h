@@ -13,6 +13,7 @@ protected:
 
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
+	virtual void OnInitialUpdate(); 
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
@@ -20,7 +21,8 @@ public:
 #endif
 #endif
 protected:
-	CButton m_GroupBox_Adresse_Daten_AG;
+
+	CButton *m_groupbox_Adressdaten;
 
 	CStatic m_staticText_Name1_AG;
 	CStatic m_staticText_Strasse_AG;
@@ -49,12 +51,16 @@ protected:
 	CEdit m_edit_IL_Num_AG;
 	CEdit m_edit_Steuer_AG;
 
+	CFont m_font;
+	CBrush m_brush_statictext_background;
+
+
+
 protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnCreate_AuftragsgeberView(LPCREATESTRUCT lpCreateStruct);
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 
 

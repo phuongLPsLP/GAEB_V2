@@ -27,9 +27,13 @@ protected:
 
 	CButton m_button_Zusatztext;
 
+	CFont m_font;
+	CBrush m_brush_statictext_background;
+
 
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
+	virtual void OnInitialUpdate(); 
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
@@ -40,9 +44,7 @@ public:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnCreate_ProjecktInfos_View(LPCREATESTRUCT lpCreateStruct);
-
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 
 

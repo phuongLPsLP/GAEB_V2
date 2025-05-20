@@ -62,6 +62,8 @@ private:
 
 
 protected:  // control bar embedded members
+
+
 	CMFCRibbonBar     m_wndRibbonBar;
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
@@ -117,6 +119,7 @@ protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
 	afx_msg void OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void SwitchView(CRuntimeClass* pNewViewClass);
 	
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 

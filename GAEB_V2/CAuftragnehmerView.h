@@ -17,10 +17,11 @@ public:
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
 	virtual void Dump(CDumpContext& dc) const;
+	virtual void OnInitialUpdate();
 #endif
 #endif
 protected:
-	CStatic m_GroupBox_Adresse_Daten_AN;
+	CButton *m_groupbox_Adressdaten_AN;
 
 	CStatic m_staticText_Name1_AN;
 	CStatic m_staticText_Strasse_AN;
@@ -48,12 +49,14 @@ protected:
 	CEdit m_edit_Email_AN;
 	CEdit m_edit_IL_Num_AN;
 	CEdit m_edit_Steuer_AN;
+
+	CFont m_font;
+	CBrush m_brush_statictext_background;
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg int OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct);
-
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 
 

@@ -26,6 +26,7 @@
 #include "CAuftraggeberView.h"
 #include "CAuftragnehmerView.h"
 #include "CVergabeinfosView.h"
+#include "CKalkulationsInfosView.h"
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -112,6 +113,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &CMainFrame::OnTreeSelectedItem)
 END_MESSAGE_MAP()
 
+
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame() noexcept
@@ -145,7 +147,7 @@ void CMainFrame::FillClassView()
 
 	HTREEITEM vergaben = m_wndClassView.InsertItem(_T("Vergabeninfos"), 0, 0);
 
-	HTREEITEM kalkulation = m_wndClassView.InsertItem(_T("Kalkulationsinfos"), 0, 0);
+	HTREEITEM kalkulation = m_wndClassView.InsertItem(_T("LVInfos"), 0, 0);
 
 	rapidxml::xml_node<>* root = doc.first_node();
 	root->name("Leistungsverzeichnis");
@@ -207,60 +209,53 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	HTREEITEM hSelectedItem = m_wndClassView.GetSelectedItem();
-	if (hSelectedItem) 
-	{
-		CString itemText = m_wndClassView.GetItemText(hSelectedItem);
-		CView* pView = GetActiveView();
+	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
+	CView* pView = GetActiveView();
 
-		if (itemText == "Auftraggeber") 
-		{
-			CAuftraggeberView* pAuftragsgeberView = static_cast<CAuftraggeberView*>(pView);
-			pAuftragsgeberView->OnCreate_AuftragsgeberView(nullptr);
-			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			//pGAEBView->OnCreate_Auftraggeber_View(nullptr);
-		}
-		else if (itemText == "Auftragnehmer")
-		{
-
-			CAuftragnehmerView* pAuftragnehmerView = static_cast<CAuftragnehmerView*>(pView);
-			pAuftragnehmerView->OnCreate_Auftragnehmer_View(nullptr);
-			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			//pGAEBView->OnCreate_Auftragnehmer_View(nullptr);
-		}
-		else if (itemText == "Projektinfos")
-		{
-			CProjektInfosView* pAuftragsnehmerView = static_cast<CProjektInfosView*>(pView);
-			pAuftragsnehmerView->OnCreate_ProjecktInfos_View(nullptr);
-			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			//pGAEBView->OnCreate_Projektinfos_View(nullptr);
-		}
-		else if (itemText == "Vergabeninfos")
-		{
-			CVergabeinfosView* pVergabeinfosView = static_cast<CVergabeinfosView*>(pView);
-			pVergabeinfosView->OnCreate_Vergabeninfos_View(nullptr);
-			//CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			//pGAEBView->OnCreate_Vergabeninfos_View(nullptr);
-		}
-		else if (itemText == "Kalkulationsinfos")
-		{
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			//pGAEBView->OnCreate_Auftraggeber_View(nullptr);
-		}
-		else
-		{
-			//AuftragsnehmerView* pAuftragsnehmerView = static_cast<AuftragsnehmerView*>(pView);
-			//pAuftragsnehmerView->OnCreate(nullptr);
-
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->OnCreate_FirstView(nullptr);
-		}
-
-		/*if (pView && pView->IsKindOf(RUNTIME_CLASS(CGAEBV2View)))
-		{
-			CGAEBV2View* pGAEBView = static_cast<CGAEBV2View*>(pView);
-			pGAEBView->CreateWorkSpace(itemText);
-		}*/
+	if (itemText == _T("Auftraggeber")) {
+		SwitchView(RUNTIME_CLASS(CAuftraggeberView));
 	}
+	else if (itemText == _T("Auftragnehmer")) {
+		SwitchView(RUNTIME_CLASS(CAuftragnehmerView));
+	}
+	else if (itemText == _T("Projektinfos")) {
+		SwitchView(RUNTIME_CLASS(CProjektInfosView));
+	}
+	else if (itemText == _T("Vergabeninfos")) {
+		SwitchView(RUNTIME_CLASS(CVergabeinfosView));
+	}
+	else if (itemText == _T("LVInfos")) {
+		SwitchView(RUNTIME_CLASS(CKalkulationsInfosView));
+	}
+	*pResult = 0;
+}
+
+void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
+{
+	CView* pOldView = GetActiveView();
+	if (pOldView == nullptr || pOldView->IsKindOf(pNewViewClass)) {
+		return; // Already the correct view or invalid
+	}
+	CDocument* pDoc = pOldView->GetDocument();
+	CCreateContext context;
+	context.m_pCurrentDoc = pDoc;
+	context.m_pNewViewClass = pNewViewClass;
+	// Create new view
+	CView* pNewView = (CView*)pNewViewClass->CreateObject();
+	ASSERT(pNewView->IsKindOf(RUNTIME_CLASS(CView)));
+
+	CRect rect;
+	pOldView->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+
+	pNewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, AFX_IDW_PANE_FIRST, &context);
+	pNewView->OnInitialUpdate();
+	SetActiveView(pNewView);
+	pNewView->ShowWindow(SW_SHOW);
+
+	pOldView->ShowWindow(SW_HIDE);
+	pOldView->DestroyWindow();
+	//RecalcLayout();
 }
 
 //CTreeCtrl
