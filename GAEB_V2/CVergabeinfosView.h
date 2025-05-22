@@ -33,9 +33,10 @@ protected:
 	CStatic m_staticText_Abnahmeart;
 	CStatic m_staticText_Auftragsnummer;
 
-	CButton *m_groupbox_Ausführung;
-	CButton *m_groupbox_Gewährleistung;
-	CButton *m_groupbox_Burgschaften;
+	CButton	*m_groupbox_Adressdaten;
+	CButton	*m_groupbox_Ausführung;
+	CButton	*m_groupbox_Gewährleistung;
+	CButton	*m_groupbox_Burgschaften;
 
 	CEdit m_edit_Waehrung_vergabeinfos;
 	CEdit m_edit_Bez_vergabeinfos;

@@ -35,15 +35,47 @@ void CKalkulationsInfosView::OnDraw(CDC* pDC)
 void CKalkulationsInfosView::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
-	m_font.CreatePointFont(110, _T("Segoe UI")); // 9pt font
-	m_groupbox_LV_Summe = new CButton();
-	m_groupbox_LV_Summe->Create(_T("Adressdaten"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-		CRect(CPoint(20, 20), CSize(90, 100)), this, 1003);
-	m_groupbox_LV_Summe->SetFont(&m_font);
+	m_font.CreatePointFont(110, _T("Segoe UI")); // 9pt font	
 	m_groupbox_Bez_EP_Anteil = new CButton();
-	m_groupbox_Bez_EP_Anteil->Create(_T("Adressdaten"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-		CRect(CPoint(70, 70), CSize(920, 320)), this, 1003);
+	m_groupbox_Bez_EP_Anteil->Create(_T("Bezeichnung der EP-Anteile"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+		CRect(CPoint(), CSize()), this, 1003);
 	m_groupbox_Bez_EP_Anteil->SetFont(&m_font);
+	m_groupbox_2 = new CButton();
+	m_groupbox_2->Create(_T(""), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+		CRect(CPoint(), CSize()), this, 1003);
+	m_groupbox_2->SetFont(&m_font);
+	m_groupbox_3 = new CButton();
+	m_groupbox_3->Create(_T(""), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+		CRect(CPoint(), CSize()), this, 1003);
+	m_groupbox_3->SetFont(&m_font);
+
+
+
+	m_staticText_LV_Name.Create(_T("LV-Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 50), CSize(80, 20)), this, 1001);
+	m_staticText_LV_Datum.Create(_T("LV-Datum"), WS_CHILD | WS_VISIBLE, CRect(CPoint(250, 50), CSize(80, 20)), this, 1001);
+	m_staticText_LV_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 90), CSize(80, 20)), this, 1001);
+	m_staticText_LV_AnzahlPos.Create(_T("Anzahl der Positionen"), WS_CHILD | WS_VISIBLE, CRect(CPoint(530, 50), CSize(190, 20)), this, 1001);
+
+	m_edit_LV_Name.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(150, 50), CSize(80, 20)), this, 1002);
+	m_edit_LV_Datum.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(350, 50), CSize(80, 20)), this, 1002);
+	m_edit_LV_Bezeichnung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(150, 90), CSize(700, 20)), this, 1002);
+	m_edit_LV_AnzahlPos.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(740, 50), CSize(50, 20)), this, 1002);
+	m_button_heute_LVInfos.Create(_T("heute"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT,
+		CRect(CPoint(450, 50), CSize(50, 20)), this, 1003);
+
+	m_groupbox_LV_Summe = new CButton();
+	m_groupbox_LV_Summe->Create(_T("LV-Summen"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+		CRect(CPoint(50,130), CSize(400,300)), this, 1003);
+	m_groupbox_LV_Summe->SetFont(&m_font);
+
+	m_staticText_LV_Summe_Net.Create(_T("LV-Summe netto"), WS_CHILD | WS_VISIBLE, 
+		CRect(CPoint(50, 170), CSize(80, 20)), this, 1001);
+	m_staticText_Nachlass.Create(_T("Nachlass"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 210), CSize(80, 20)), this, 1001);
+	m_staticText_Pauschal.Create(_T("oder Pauschal"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 250), CSize(80, 20)), this, 1001);
+	m_staticText_Zwischensumme.Create(_T("Zwischensumme"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 290), CSize(80, 20)), this, 1001);
+	m_staticText_USt_Anteil.Create(_T("USt-Satz [%]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 330), CSize(80, 20)), this, 1001);
+	m_staticText_Brutto_Summe.Create(_T("Bruttosumme"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 370), CSize(80, 20)), this, 1001);
+
 
 
 

@@ -33,6 +33,10 @@ protected:
 
 	CButton m_checkbox_Nachlass;
 
+	CStatic m_staticText_LV_Name;
+	CStatic m_staticText_LV_Datum;
+	CStatic m_staticText_LV_Bezeichnung;
+	CStatic m_staticText_LV_AnzahlPos;
 	CStatic m_staticText_Anzahl_LVInfos;
 	CStatic m_staticText_LV_Summe_Net;
 	CStatic m_staticText_Nachlass;
@@ -64,6 +68,10 @@ protected:
 	CEdit m_edit_Skontosatz_Anteil;
 	CEdit m_edit_Skonto_Tage;
 	CEdit m_edit_Ausführungszeit;
+	CEdit m_edit_LV_Name;
+	CEdit m_edit_LV_Datum;
+	CEdit m_edit_LV_Bezeichnung;
+	CEdit m_edit_LV_AnzahlPos;
 
 	CComboBox m_comboBox_Anzahl_LVInfos;
 	CComboBox m_comboBox_EP_Anteil1;

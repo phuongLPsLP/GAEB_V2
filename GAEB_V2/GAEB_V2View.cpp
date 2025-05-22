@@ -50,6 +50,7 @@ BEGIN_MESSAGE_MAP(CGAEBV2View, CView)
 	ON_WM_RBUTTONUP()
 	ON_WM_CREATE()
 	ON_WM_CTLCOLOR()
+	ON_WM_SYSCOMMAND()
 END_MESSAGE_MAP()
 
 // CGAEBV2View construction/destruction
@@ -426,5 +427,20 @@ void CGAEBV2View::OnClearControls()
 	for (CStatic * pCtrl : m_control_view) 
 	{
 
+	}
+}
+
+
+void CGAEBV2View::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	//CView::OnSysCommand(nID, lParam);
+	if ((nID & 0xFFF0) == SC_MINIMIZE)
+	{
+		// Ignore minimize command
+		return;
+
+		//CFrameWnd::OnSysCommand(nID, lParam);
 	}
 }

@@ -37,17 +37,17 @@ void CVergabeinfosView::OnInitialUpdate()
 	CView::OnInitialUpdate();
 	m_font.CreatePointFont(110, _T("Segoe UI")); // 9pt font
 	m_groupbox_Ausführung = new CButton();
-	m_groupbox_Ausführung.Create(_T("Voraussichtliche Ausführung"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-		CRect(CPoint(20,300), CSize(1000,80)), this, 1003);
-	m_groupbox_Ausführung.SetFont(&m_font);
 	m_groupbox_Gewährleistung = new CButton();
-	m_groupbox_Gewährleistung.Create(_T("Gewährleistung"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-		CRect(CPoint(20, 400), CSize(1000, 80)), this, 1003);
-	m_groupbox_Gewährleistung.SetFont(&m_font);
 	m_groupbox_Burgschaften = new CButton();
-	m_groupbox_Burgschaften.Create(_T("Bürgschaften"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+	m_groupbox_Ausführung->Create(_T("Voraussichtliche Ausführung"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+		CRect(CPoint(20,300), CSize(1000,80)), this, 1003);
+	m_groupbox_Ausführung->SetFont(&m_font);
+	m_groupbox_Gewährleistung->Create(_T("Gewährleistung"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
+		CRect(CPoint(20, 400), CSize(1000, 80)), this, 1003);
+	m_groupbox_Gewährleistung->SetFont(&m_font);
+	m_groupbox_Burgschaften->Create(_T("Bürgschaften"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
 		CRect(CPoint(20, 500), CSize(1000, 80)), this, 1003);
-	m_groupbox_Burgschaften.SetFont(&m_font);
+	m_groupbox_Burgschaften->SetFont(&m_font);
 	
 
 	m_staticText_Vergabeart.Create(_T("Vergabeart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 50), CSize(120, 20)), this, 1001);

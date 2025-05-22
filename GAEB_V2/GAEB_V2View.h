@@ -172,6 +172,7 @@ public:
 	afx_msg int OnCreate_Kalkulationsinfos_View(LPCREATESTRUCT lpCreateStruct);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnClearControls();
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 };
 
 #ifndef _DEBUG  // debug version in GAEB_V2View.cpp
