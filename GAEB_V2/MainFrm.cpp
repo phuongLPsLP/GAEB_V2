@@ -27,6 +27,8 @@
 #include "CAuftragnehmerView.h"
 #include "CVergabeinfosView.h"
 #include "CKalkulationsInfosView.h"
+#include "CLVView.h"
+#include "CVertragView.h"
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -198,7 +200,6 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 		{
 			AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
 		}
-
 	}
 
 	return maxDepth;
@@ -209,6 +210,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	HTREEITEM hSelectedItem = m_wndClassView.GetSelectedItem();
+	HTREEITEM hroot = m_wndClassView.GetRootItem();
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
 
@@ -227,6 +229,19 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	else if (itemText == _T("LVInfos")) {
 		SwitchView(RUNTIME_CLASS(CKalkulationsInfosView));
 	}
+	else if (itemText == _T("Leistungsverzeichnis")) {
+		SwitchView(RUNTIME_CLASS(CLVView));		
+	}
+	//HTREEITEM hFirstChild = m_wndClassView.GetChildItem(hSelectedItem); // Get the first child of the root item
+	//CString childText = m_wndClassView.GetItemText(hFirstChild);
+	HTREEITEM parent = m_wndClassView.GetParentItem(hSelectedItem);
+	if (hSelectedItem == m_wndClassView.GetChildItem(parent))
+	{
+		SwitchView(RUNTIME_CLASS(CVertragView));
+	}
+	//hFirstChild = m_wndClassView.GetNextSiblingItem(hFirstChild); // Move to the next sibling
+
+	
 	*pResult = 0;
 }
 

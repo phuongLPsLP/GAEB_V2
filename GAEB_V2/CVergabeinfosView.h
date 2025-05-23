@@ -73,6 +73,7 @@ protected:
 
 	CFont m_font;
 	CBrush m_brush_statictext_background;
+	CFont m_font_button;
 
 protected:
 	DECLARE_MESSAGE_MAP()

@@ -48,6 +48,23 @@ void CVergabeinfosView::OnInitialUpdate()
 	m_groupbox_Burgschaften->Create(_T("Bürgschaften"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
 		CRect(CPoint(20, 500), CSize(1000, 80)), this, 1003);
 	m_groupbox_Burgschaften->SetFont(&m_font);
+
+	m_font_button.CreateFont(
+		18,                        // Height
+		0,                         // Width
+		0,                         // Escapement
+		0,                         // Orientation
+		FW_NORMAL,                  // Weight
+		FALSE,                    // Italic
+		FALSE,                    // Underline
+		0,                        // StrikeOut
+		ANSI_CHARSET,             // Charset
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, // Pitch and Family
+		_T("Segoe UI")            // Font name
+	);
 	
 
 	m_staticText_Vergabeart.Create(_T("Vergabeart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 50), CSize(120, 20)), this, 1001);
@@ -94,6 +111,9 @@ void CVergabeinfosView::OnInitialUpdate()
 
 	m_button_heute.Create( _T("heute"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(330,130), CSize(70,20)), this, 1004);
 	m_button_Zusatztext.Create(_T("Zusatztext"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(50, 610), CSize(100, 30)), this, 1004);
+
+	m_button_heute.SetFont(&m_font_button);
+	m_button_Zusatztext.SetFont(&m_font_button);
 
 	CStatic* staticControls[] = {
 	&m_staticText_Vergabeart,

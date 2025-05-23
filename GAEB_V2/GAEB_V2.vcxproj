@@ -188,8 +188,10 @@
     <ClInclude Include="CAuftraggeberView.h" />
     <ClInclude Include="CAuftragnehmerView.h" />
     <ClInclude Include="CKalkulationsInfosView.h" />
+    <ClInclude Include="CLVView.h" />
     <ClInclude Include="CProjektInfosView.h" />
     <ClInclude Include="CVergabeinfosView.h" />
+    <ClInclude Include="CVertragView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GAEB_V2.h" />
     <ClInclude Include="GAEB_V2Doc.h" />
@@ -208,8 +210,10 @@
     <ClCompile Include="CAuftraggeberView.cpp" />
     <ClCompile Include="CAuftragnehmerView.cpp" />
     <ClCompile Include="CKalkulationsInfosView.cpp" />
+    <ClCompile Include="CLVView.cpp" />
     <ClCompile Include="CProjektInfosView.cpp" />
     <ClCompile Include="CVergabeinfosView.cpp" />
+    <ClCompile Include="CVertragView.cpp" />
     <ClCompile Include="GAEB_V2.cpp" />
     <ClCompile Include="GAEB_V2Doc.cpp" />
     <ClCompile Include="GAEB_V2View.cpp" />

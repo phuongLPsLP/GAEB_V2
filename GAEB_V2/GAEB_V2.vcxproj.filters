@@ -69,6 +69,12 @@
     <ClInclude Include="CKalkulationsInfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CLVView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CVertragView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GAEB_V2.cpp">
@@ -102,6 +108,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CKalkulationsInfosView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLVView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CVertragView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

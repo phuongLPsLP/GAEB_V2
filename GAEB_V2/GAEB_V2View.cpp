@@ -47,10 +47,6 @@ BEGIN_MESSAGE_MAP(CGAEBV2View, CView)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CGAEBV2View::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
-	ON_WM_RBUTTONUP()
-	ON_WM_CREATE()
-	ON_WM_CTLCOLOR()
-	ON_WM_SYSCOMMAND()
 END_MESSAGE_MAP()
 
 // CGAEBV2View construction/destruction
@@ -112,19 +108,12 @@ void CGAEBV2View::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 	// TODO: add cleanup after printing
 }
 
-void CGAEBV2View::OnRButtonUp(UINT /* nFlags */, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
-}
-
 void CGAEBV2View::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 {
 #ifndef SHARED_HANDLERS
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
 #endif
 }
-
 
 // CGAEBV2View diagnostics
 
@@ -150,284 +139,11 @@ CGAEBV2Doc* CGAEBV2View::GetDocument() const // non-debug version is inline
 
 // CGAEBV2View message handlers
 
-
 int CGAEBV2View::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;		
 	//OnCreate_FirstView(lpCreateStruct); // Create the first view
-}
-
-
-
-int CGAEBV2View::OnCreate_FirstView(LPCREATESTRUCT lpCreateStruct)
-{
-	CPoint pt(400, 430);
-	CSize sz(70, 30);
-
-
-	// TODO:  Add your specialized creation code here
-	m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 40), CSize(100, 20)), this, 1001);
-	m_staticText_PA.Create(_T("Positionsart"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 80), CSize(100, 20)), this, 1001);
-	m_staticText_KT.Create(_T("Kurztext"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 120), CSize(100, 20)), this, 1001);
-	m_staticText_LT.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 200), CSize(100, 20)), this, 1001);
-	m_staticText_M.Create(_T("Menge"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 430), CSize(100, 20)), this, 1001);
-	m_staticText_ET.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(pt, sz), this, 1001);
-	m_staticText_EP.Create(_T("Einheitpreis"), WS_CHILD | WS_VISIBLE | SS_LEFT, CRect(CPoint(50, 490), CSize(100, 20)), this, 1001);
-
-	//Edit Box
-	/*m_edit_KT.SetWindowText(_T("Hello, MFC!")); // Set text
-	CString str_kurztext;
-	m_edit_KT.GetWindowText(str_kurztext); // Get text*/
-
-	m_edit_OZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 40), CSize(80, 20)), this, 1002);
-	m_edit_M.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_RIGHT, CRect(CPoint(200, 430), CSize(100, 20)), this, 1002);
-	m_edit_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 120), CSize(700, 50)), this, 1002);
-	m_edit_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 200), CSize(700, 200)), this, 1002);
-	m_edit_EP.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(CPoint(200, 490), CSize(100, 20)), this, 1002);
-
-	//Hinweistext --> nur Kurztext_editbox und Hinweistext_editbox
-
-	m_edit_Hinweis.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE, CRect(), this, 1002);
-
-	//Combox box 
-
-	//PosArt
-	m_comboBox_PA.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | CBS_DROPDOWNLIST, CRect(CPoint(200, 80), CSize(300, 20)), this, 1003);
-	m_comboBox_PA.AddString(_T("A - Alternativposition"));
-	m_comboBox_PA.AddString(_T("B - Bedarfposition mit Grundpreis"));
-	m_comboBox_PA.AddString(_T("E - Bedarfposition ohne Grundpreis"));
-	m_comboBox_PA.AddString(_T("G - Grundposition"));
-	m_comboBox_PA.AddString(_T("H - Hinweistext"));
-	m_comboBox_PA.AddString(_T("N - Normalposistion"));
-	m_comboBox_PA.AddString(_T("W - Wahlposition"));
-	m_comboBox_PA.AddString(_T("Z - Zuschlagposition"));
-
-
-
-	//Einheit
-	m_comboBox_ET.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | CBS_DROPDOWNLIST, CRect(CPoint(550, 430), CSize(100, 30)), this, 1003);
-	m_comboBox_ET.AddString(_T("Stk"));
-	m_comboBox_ET.AddString(_T("m"));
-	m_comboBox_ET.AddString(_T("m2"));
-	m_comboBox_ET.AddString(_T("m3"));
-	m_comboBox_ET.AddString(_T("psch"));
-	m_comboBox_ET.AddString(_T("pkg"));
-	m_comboBox_ET.AddString(_T("kg"));
-	m_comboBox_ET.AddString(_T("t"));
-	m_comboBox_ET.AddString(_T("Std"));
-	m_comboBox_ET.AddString(_T("Min"));
-
-	//Set custom colors
-	m_brush_combobox.CreateSolidBrush(RGB(200, 220, 255));
-	m_brush_editbox.CreateSolidBrush(RGB(255, 255, 180));
-	m_brush_static.CreateSolidBrush(RGB(200, 220, 255));
-
-	//Set text colors
-	m_textColor = RGB(0, 0, 0);
-	m_textColor_combobox = RGB(0, 0, 0);
-	m_textColor_editbox = RGB(0, 0, 0);
-
-	return 0;
-}
-
-/*int CGAEBV2View::OnCreate_Auftraggeber_View(LPCREATESTRUCT lpCreateStruct)
-{
-	CPoint pt(400, 430);
-	CSize sz(70, 30);
-
-	m_GroupBox_Adresse_Daten_AG.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
-
-	m_staticText_Name1_AG.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
-	m_edit_Name1_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250, 20)), this, 1002);
-	m_edit_Name2_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 90), CSize(250, 20)), this, 1002);
-	m_edit_Name3_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 130), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Strasse_AG.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 170), CSize(80, 20)), this, 1001);
-	m_edit_Srasse_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 170), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_PLZ_AG.Create(_T("PLZ"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 210), CSize(80, 20)), this, 1001);
-	m_edit_PLZ_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 210), CSize(150, 20)), this, 1002);
-
-
-	m_staticText_Ort_AG.Create(_T("Ort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 250), CSize(80, 20)), this, 1001);
-	m_edit_Ort_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 250), CSize(250, 20)), this, 1002);
-
-
-
-	m_staticText_Land_AG.Create(_T("Land"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 290), CSize(80, 20)), this, 1001);
-	m_edit_Land_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 290), CSize(250, 20)), this, 1002);
-
-	m_staticText_Ansprechpartner_AG.Create(_T("Ansprechpartner"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 50), CSize(120, 20)), this, 1001);
-	m_edit_Ansprechpartner_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 50), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Telefon_AG.Create(_T("Telefon"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 90), CSize(120, 20)), this, 1001);
-	m_edit_Tel_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 90), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Fax_AG.Create(_T("Fax"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 130), CSize(120, 20)), this, 1001);
-	m_edit_Fax_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 130), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Email_AG.Create(_T("Email"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 170), CSize(120, 20)), this, 1001);
-	m_edit_Email_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 170), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_IL_Num_AG.Create(_T("IL-Nummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 210), CSize(120, 20)), this, 1001);
-	m_edit_IL_Num_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 210), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Steuer_AG.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
-	m_edit_Steuer_AG.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
-	return 0;
-}*/
-/*int CGAEBV2View::OnCreate_Auftragnehmer_View(LPCREATESTRUCT lpCreateStruct)
-{
-	CPoint pt(400, 430);
-	CSize sz(70, 30);
-
-	m_GroupBox_Adresse_Daten_AN.Create(_T("Adressedaten"), WS_CHILD | WS_VISIBLE | BS_GROUPBOX, CRect(CPoint(50, 40), CSize(1000, 500)), this);
-
-	m_staticText_Name1_AN.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 50), CSize(80, 20)), this, 1001);
-	m_edit_Name1_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(120, 50), CSize(250, 20)), this, 1002);
-	m_edit_Name2_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 90), CSize(250, 20)), this, 1002);
-	m_edit_Name3_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 130), CSize(250, 20)), this, 1002);
-
-
-
-	m_staticText_Strasse_AN.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 170), CSize(80, 20)), this, 1001);
-	m_edit_Srasse_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 170), CSize(250, 20)), this, 1002);
-
-	m_staticText_PLZ_AN.Create(_T("PLZ"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 210), CSize(80, 20)), this, 1001);
-	m_edit_PLZ_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 210), CSize(150, 20)), this, 1002);
-
-
-	m_staticText_Ort_AN.Create(_T("Ort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 250), CSize(80, 20)), this, 1001);
-	m_edit_Ort_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 250), CSize(250, 20)), this, 1002);
-
-
-
-	m_staticText_Land_AN.Create(_T("Land"), WS_CHILD | WS_VISIBLE, CRect(CPoint(60, 290), CSize(80, 20)), this, 1001);
-	m_edit_Land_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(120, 290), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Ansprechpartner_AN.Create(_T("Ansprechpartner"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 50), CSize(120, 20)), this, 1001);
-	m_edit_Ansprechpartner_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 50), CSize(250, 20)), this, 1002);
-
-
-
-	m_staticText_Telefon_AN.Create(_T("Telefon"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 90), CSize(120, 20)), this, 1001);
-	m_edit_Tel_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 90), CSize(250, 20)), this, 1002);
-
-
-
-	m_staticText_Fax_AN.Create(_T("Fax"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 130), CSize(120, 20)), this, 1001);
-	m_edit_Fax_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 130), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Email_AN.Create(_T("Email"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 170), CSize(120, 20)), this, 1001);
-	m_edit_Email_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 170), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_IL_Num_AN.Create(_T("IL-Nummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 210), CSize(120, 20)), this, 1001);
-	m_edit_IL_Num_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 210), CSize(250, 20)), this, 1002);
-
-
-	m_staticText_Steuer_AN.Create(_T("UmsatzsteuerID"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 250), CSize(120, 20)), this, 1001);
-	m_edit_Steuer_AN.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | SS_LEFT, CRect(CPoint(650, 250), CSize(250, 20)), this, 1002);
-
-
-	return 0;
-}*/
-
-/*int CGAEBV2View::OnCreate_Projektinfos_View(LPCREATESTRUCT lpCreateStruct)
-{
-	CPoint pt(400, 430);
-	CSize sz(70, 30);
-
-	m_staticText_Name.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 50), CSize(80, 20)), this, 1001);
-	m_staticText_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 90), CSize(120, 20)), this, 1001);
-	m_staticText_Beschreibung.Create(_T("Beschreibung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 190), CSize(120, 20)), this, 1001);
-	m_staticText_Waehrung.Create(_T("Währung / Bez."), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 360), CSize(120, 20)), this, 1001);
-	m_staticText_Leistungsbreich.Create(_T("Leistungsbereich"), WS_CHILD | WS_VISIBLE, CRect(CPoint(50, 400), CSize(120, 20)), this, 1001);
-
-	m_edit_Name.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 50), CSize(150, 20)), this, 1002);
-	m_edit_Bezeichnung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 90), CSize(300, 80)), this, 1002);
-	m_edit_Beschreibung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 190), CSize(300, 150)), this, 1002);
-	m_edit_Waehrung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 360), CSize(50, 20)), this, 1002);
-	m_edit_Bez.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(300, 360), CSize(200, 20)), this, 1002);
-	m_edit_Leistungsbreich.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(200, 400), CSize(100, 20)), this, 1002);
-
-	m_brush_combobox.CreateSolidBrush(RGB(200, 220, 255));
-	m_brush_editbox.CreateSolidBrush(RGB(255, 255, 180));
-	m_brush_static.CreateSolidBrush(RGB(200, 220, 255));
-
-	//Set text colors
-	m_textColor = RGB(0, 0, 0);
-	m_textColor_combobox = RGB(0, 0, 0);
-	m_textColor_editbox = RGB(0, 0, 0);
-	return 0;
-}*/
-
-
-int CGAEBV2View::OnCreate_Kalkulationsinfos_View(LPCREATESTRUCT lpCreateStruct)
-{
-	return 0;
-}
-
-
-HBRUSH CGAEBV2View::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
-{
-	HBRUSH hbr = CView::OnCtlColor(pDC, pWnd, nCtlColor);
-	
-	int ctrlID = pWnd->GetDlgCtrlID();
-
-	if (ctrlID == 1001)
-	{
-		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
-		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
-	}
-
-	//Combobox
-	if (ctrlID == 1003)
-	{
-		if (nCtlColor == CTLCOLOR_LISTBOX) // ListBox (Dropdown area)
-		{
-			pDC->SetBkColor(RGB(200, 220, 255)); // Light Blue Background
-			pDC->SetTextColor(RGB(255, 0, 0));     // Black Text
-			return m_brush_combobox;
-		}
-		else if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_STATIC) // ComboBox text area
-		{
-			pDC->SetBkColor(RGB(255, 255, 180)); // Light Yellow
-			pDC->SetTextColor(RGB(0, 0, 0));   // Black text
-			return m_brush_combobox;
-		}
-		return CView::OnCtlColor(pDC, pWnd, nCtlColor);
-	}
-	
-	//Edit box
-
-	if (ctrlID == 1002) 
-	{
-		m_textColor_editbox = RGB(0, 0, 0); 
-		pDC->SetTextColor(m_textColor_editbox);       // Black text
-		pDC->SetBkColor(RGB(255, 255, 180));
-		// Return the brush for background color
-		return m_brush_editbox;
-	}
-	return hbr;
-}
-
-void CGAEBV2View::OnClearControls()
-{
-	for (CStatic * pCtrl : m_control_view) 
-	{
-
-	}
 }
 
 

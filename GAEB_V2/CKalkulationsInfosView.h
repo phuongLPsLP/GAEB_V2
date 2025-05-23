@@ -84,6 +84,7 @@ protected:
 	CComboBox m_comboBox_EP_Nachkomma;
 
 	CFont m_font;
+	CFont m_font_button;
 	CBrush m_brush_statictext_background; 
 
 protected:
