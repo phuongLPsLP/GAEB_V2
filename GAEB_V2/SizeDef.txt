@@ -1,0 +1,36 @@
+
+
+1st Element CPoint(20,20)
+Abstand zw. 2 Element: Standard: Vertikal: 20
+Abstand zw. 2 Edit/Combobox/Button oder zw. Edit/Combobox/Button und Text Vertikal: 40
+Abstand zw. Splittview: 80
+
+Groupbox CPoint(20,20)
+Groupbox 1st Element (20+10,20+40)
+
+FontSize: lf.height = 18 
+FontSize Edit Standard: lf.height = 16
+FontSize: Size = 110 ~ 11
+Font:	Segeo UI
+
+CEdit/CCombobox/CButton Standard Size CSize(80,20)
+CEdit/CCombobox/CButton Mini Size CSize(50,20)
+CEdit/CCombobox/CButton Large Size CSize(120,20)
+CEdit/CCombobox/CButton XLarge Size CSize(250,20)
+
+
+
+IDC_Code:
+1001: CStatic
+1002: CEdit - Standard
+1003: CButton - Button
+1004: CComboBox - Standard
+1005: CEdit	- Yellow BG
+1006: CButton - Groupbox
+1007: CComboBox - Dropdown
+
+
+
+XML
+Namen von Baumknoten nach OZ + Bezeichnung
+PA: Position Art

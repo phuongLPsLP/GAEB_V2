@@ -72,8 +72,9 @@ protected:
 	CButton m_button_heute;
 
 	CFont m_font;
-	CBrush m_brush_statictext_background;
+	CFont m_font_edit;
 	CFont m_font_button;
+	CBrush m_brush_edit_bg_color;
 
 protected:
 	DECLARE_MESSAGE_MAP()

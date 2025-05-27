@@ -26,9 +26,10 @@
 #include "CAuftraggeberView.h"
 #include "CAuftragnehmerView.h"
 #include "CVergabeinfosView.h"
-#include "CKalkulationsInfosView.h"
+#include "CLVInfosView.h"
 #include "CLVView.h"
 #include "CVertragView.h"
+#include "CLVBereichView.h"
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -227,20 +228,23 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		SwitchView(RUNTIME_CLASS(CVergabeinfosView));
 	}
 	else if (itemText == _T("LVInfos")) {
-		SwitchView(RUNTIME_CLASS(CKalkulationsInfosView));
+		SwitchView(RUNTIME_CLASS(CLVInfosView));
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
 		SwitchView(RUNTIME_CLASS(CLVView));		
 	}
-	//HTREEITEM hFirstChild = m_wndClassView.GetChildItem(hSelectedItem); // Get the first child of the root item
-	//CString childText = m_wndClassView.GetItemText(hFirstChild);
 	HTREEITEM parent = m_wndClassView.GetParentItem(hSelectedItem);
-	if (hSelectedItem == m_wndClassView.GetChildItem(parent))
-	{
-		SwitchView(RUNTIME_CLASS(CVertragView));
+	CString parent_itemText = m_wndClassView.GetItemText(parent);
+	if (parent_itemText == _T("Leistungsverzeichnis")) {
+		if (hSelectedItem == m_wndClassView.GetChildItem(parent))
+		{
+			SwitchView(RUNTIME_CLASS(CVertragView));
+		}
+		else {
+			SwitchView(RUNTIME_CLASS(CLVBereichView));
+		}
 	}
-	//hFirstChild = m_wndClassView.GetNextSiblingItem(hFirstChild); // Move to the next sibling
-
+	
 	
 	*pResult = 0;
 }

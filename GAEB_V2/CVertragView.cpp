@@ -56,13 +56,24 @@ void CVertragView::OnInitialUpdate()
 	CRect rect;
 	GetClientRect(&rect);
 	rect.DeflateRect(20, 90);
+	m_edit_bg_color.CreateSolidBrush(RGB(255, 255, 200));
+
+
+	CClientDC dc(this);
 
 	LOGFONT lf;
 	::ZeroMemory(&lf, sizeof(LOGFONT));
-	lf.lfHeight = 18; // Font height
-	lf.lfWeight = FW_BOLD;
-	_tcscpy_s(lf.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
+	lf.lfHeight = 18;
+	lf.lfWeight = FW_NORMAL;
+	_tcscpy_s(lf.lfFaceName, _T("Segoe UI"));
 	m_font.CreateFontIndirect(&lf);
+
+	LOGFONT lf_bold;
+	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
+	lf_bold.lfHeight = 18; // Font height
+	lf_bold.lfWeight = FW_BOLD;
+	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
+	m_font_bold.CreateFontIndirect(&lf_bold);
 
 	LOGFONT lf_italic;
 	::ZeroMemory(&lf_italic, sizeof(LOGFONT));
@@ -83,24 +94,39 @@ void CVertragView::OnInitialUpdate()
 	m_staticText_Text.Create(_T("Vertragliche Regelung"), WS_CHILD| WS_VISIBLE, CRect(CPoint(20,20), CSize(200,30)), this, 1001);
 	m_edit_Text.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, rect, this, 1002);
 
-	m_combobox_textFont.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST| CBS_SORT, CRect(CPoint(20, 50), CSize(200, 20)), this, 1003);
-	m_combobox_textSize.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST, CRect(CPoint(250, 50), CSize(100, 20)), this, 1003);
+	CRect rcButton(20, 50, 220, 70);
+	m_combobox_textFont.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST| CBS_SORT  |WS_VSCROLL , 
+		rcButton, this, 1003);
+	m_combobox_textSize.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST, 
+		CRect(CPoint(250, 50), CSize(100, 20)), this, 1003);
 	m_button_bold.Create(_T("B"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(370, 50), CSize(30, 20)), this, 1003);
 	m_button_italic.Create(_T("I"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(410, 50), CSize(30, 20)), this, 1003);
 	m_button_underline.Create(_T("U"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(450, 50), CSize(30, 20)), this, 1003);
 
-	m_button_bold.SetFont(&m_font);
+	m_button_bold.SetFont(&m_font_bold);
 	m_button_italic.SetFont(&m_font_italic);
 	m_button_underline.SetFont(&m_font_underline);
 
-	m_combobox_textFont.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
-
 	LOGFONT lf_textFont = {};
 	lf_textFont.lfCharSet = DEFAULT_CHARSET;
-	lf_textFont.lfFaceName[0] = '\0';  //
+	lf_textFont.lfFaceName[0] = '\0';  
 
-	CClientDC dc(this);  // Get a device context
 	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont, 0);
+	m_combobox_textFont.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
+
+	int standardFontSizes[] = {
+	8, 9, 10, 11, 12, 14, 16, 18,
+	20, 22, 24, 26, 28, 36, 48, 72
+	};
+
+	for (int i = 0; i < _countof(standardFontSizes); ++i)
+	{
+		CString str;
+		str.Format(_T("%d"), standardFontSizes[i]);
+		m_combobox_textSize.AddString(str);
+	}
+	m_combobox_textSize.SelectString(-1, _T("11"));
+
 
 	//m_toolbar_Edit.LoadToolBar(IDR_MAINFRAME_256);
 	//!m_toolbar_Edit.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP |CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC)
@@ -112,7 +138,18 @@ void CVertragView::OnInitialUpdate()
 	for (CStatic* pStatic : staticControls)
 	{
 		if (pStatic->GetSafeHwnd())
-			pStatic->SetFont(&m_font);
+			pStatic->SetFont(&m_font_bold);
+	}
+
+	CEdit* editControls[] = {
+		&m_edit_Text
+	};
+	for (CEdit* pEdit : editControls) 
+	{
+		if (pEdit->GetSafeHwnd())
+		{
+			pEdit->SetFont(&m_font);
+		}
 	}
 }
 
@@ -144,6 +181,7 @@ HBRUSH CVertragView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CView::OnCtlColor(pDC, pWnd, nCtlColor);
 	int ctrlID = pWnd->GetDlgCtrlID();
+
 	if (ctrlID == 1001)
 	{
 		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
@@ -167,17 +205,17 @@ HBRUSH CVertragView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			return m_brush_combobox;
 		}
 		return CView::OnCtlColor(pDC, pWnd, nCtlColor);
-	}
+	}*/
 	//Edit box
 	if (ctrlID == 1002)
 	{
-		m_textColor_editbox = RGB(0, 0, 0);
-		pDC->SetTextColor(m_textColor_editbox);       // Black text
-		pDC->SetBkColor(RGB(255, 255, 180));
+		pDC->SetBkColor(RGB(255, 255, 200));
 		// Return the brush for background color
-		return m_brush_editbox;
-
-	}*/
-
+		return m_edit_bg_color;
+	}
 	return hbr;
+}
+
+void CVertragView::OnEditBold()
+{
 }

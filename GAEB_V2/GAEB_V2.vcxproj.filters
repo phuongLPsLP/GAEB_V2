@@ -66,13 +66,19 @@
     <ClInclude Include="CVergabeinfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CKalkulationsInfosView.h">
+    <ClInclude Include="CLVInfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLVView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CVertragView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CLVBereichView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CHinweisText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,13 +113,19 @@
     <ClCompile Include="CVergabeinfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CKalkulationsInfosView.cpp">
+    <ClCompile Include="CLVInfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CLVView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CVertragView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLVBereichView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CHinweisText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -204,5 +216,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />
+    <Text Include="SizeDef.txt" />
   </ItemGroup>
 </Project>

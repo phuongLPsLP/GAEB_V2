@@ -187,7 +187,9 @@
     <ClInclude Include="calendarbar.h" />
     <ClInclude Include="CAuftraggeberView.h" />
     <ClInclude Include="CAuftragnehmerView.h" />
-    <ClInclude Include="CKalkulationsInfosView.h" />
+    <ClInclude Include="CHinweisText.h" />
+    <ClInclude Include="CLVInfosView.h" />
+    <ClInclude Include="CLVBereichView.h" />
     <ClInclude Include="CLVView.h" />
     <ClInclude Include="CProjektInfosView.h" />
     <ClInclude Include="CVergabeinfosView.h" />
@@ -209,7 +211,9 @@
     <ClCompile Include="calendarbar.cpp" />
     <ClCompile Include="CAuftraggeberView.cpp" />
     <ClCompile Include="CAuftragnehmerView.cpp" />
-    <ClCompile Include="CKalkulationsInfosView.cpp" />
+    <ClCompile Include="CHinweisText.cpp" />
+    <ClCompile Include="CLVInfosView.cpp" />
+    <ClCompile Include="CLVBereichView.cpp" />
     <ClCompile Include="CLVView.cpp" />
     <ClCompile Include="CProjektInfosView.cpp" />
     <ClCompile Include="CVergabeinfosView.cpp" />
@@ -262,6 +266,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />
+    <Text Include="SizeDef.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

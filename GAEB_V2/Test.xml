@@ -3,6 +3,7 @@
 <LV>
 	<student>
 		<PA>Vertragliche Regelung</PA>
+		<BE>Baustelleneinrichung</BE>
 	</student>
 	<student>
 		<OZ>1.</OZ>
@@ -13,6 +14,7 @@
 		<LT></LT>
 		<EP></EP>
 		<GP>11145,86</GP>
+		<BE>Hinweis</BE>
 	</student>
 
 	<student>
@@ -25,6 +27,7 @@
 		<EP></EP>
 		<GP>1564,06</GP>
 	</student>
+
 
 	<student>
 		<OZ>2.01.</OZ>

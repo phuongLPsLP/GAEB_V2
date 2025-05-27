@@ -3,13 +3,13 @@
 
 // CKalkulationsInfosView view
 
-class CKalkulationsInfosView : public CView
+class CLVInfosView : public CView
 {
-	DECLARE_DYNCREATE(CKalkulationsInfosView)
+	DECLARE_DYNCREATE(CLVInfosView)
 
 protected:
-	CKalkulationsInfosView();           // protected constructor used by dynamic creation
-	virtual ~CKalkulationsInfosView();
+	CLVInfosView();           // protected constructor used by dynamic creation
+	virtual ~CLVInfosView();
 
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
@@ -84,8 +84,10 @@ protected:
 	CComboBox m_comboBox_EP_Nachkomma;
 
 	CFont m_font;
+	CFont m_font_edit;
+	CFont m_font_bold;
 	CFont m_font_button;
-	CBrush m_brush_statictext_background; 
+	CBrush m_brush_edit_bg_color;
 
 protected:
 	DECLARE_MESSAGE_MAP()

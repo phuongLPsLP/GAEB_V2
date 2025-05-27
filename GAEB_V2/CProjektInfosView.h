@@ -28,7 +28,9 @@ protected:
 	CButton m_button_Zusatztext;
 
 	CFont m_font;
-	CBrush m_brush_statictext_background;
+	CFont m_font_edit;
+	CFont m_font_bold;
+	CBrush m_brush_edit_bg_color;
 
 
 public:

@@ -34,8 +34,11 @@ protected:
 	CComboBox m_combobox_textFont;
 
 	CFont m_font;
+	CFont m_font_bold;
 	CFont m_font_italic;
 	CFont m_font_underline;
+
+	CBrush m_edit_bg_color;
 
 
 protected:
