@@ -13,7 +13,7 @@ protected:
 
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-	virtual void OnInitUpdate();     
+	virtual void OnInitialUpdate();     
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE

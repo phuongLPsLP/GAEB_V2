@@ -91,7 +91,8 @@ void CVertragView::OnInitialUpdate()
 	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
 	m_font_underline.CreateFontIndirect(&lf_underline);
 
-	m_staticText_Text.Create(_T("Vertragliche Regelung"), WS_CHILD| WS_VISIBLE, CRect(CPoint(20,20), CSize(200,30)), this, 1001);
+	m_staticText_Text.Create(_T("Vertragliche Regelung"), WS_CHILD| WS_VISIBLE, 
+		CRect(CPoint(20,20), CSize(200,30)), this, 1001);
 	m_edit_Text.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, rect, this, 1002);
 
 	CRect rcButton(20, 50, 220, 70);

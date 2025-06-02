@@ -191,6 +191,7 @@
     <ClInclude Include="CLVInfosView.h" />
     <ClInclude Include="CLVBereichView.h" />
     <ClInclude Include="CLVView.h" />
+    <ClInclude Include="CPositionView.h" />
     <ClInclude Include="CProjektInfosView.h" />
     <ClInclude Include="CVergabeinfosView.h" />
     <ClInclude Include="CVertragView.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="CLVInfosView.cpp" />
     <ClCompile Include="CLVBereichView.cpp" />
     <ClCompile Include="CLVView.cpp" />
+    <ClCompile Include="CPositionView.cpp" />
     <ClCompile Include="CProjektInfosView.cpp" />
     <ClCompile Include="CVergabeinfosView.cpp" />
     <ClCompile Include="CVertragView.cpp" />

@@ -30,6 +30,7 @@
 #include "CLVView.h"
 #include "CVertragView.h"
 #include "CLVBereichView.h"
+#include "CHinweisText.h"
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -241,7 +242,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 			SwitchView(RUNTIME_CLASS(CVertragView));
 		}
 		else {
-			SwitchView(RUNTIME_CLASS(CLVBereichView));
+			SwitchView(RUNTIME_CLASS(CHinweisText));
 		}
 	}
 	
