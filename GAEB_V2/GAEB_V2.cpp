@@ -62,6 +62,7 @@ CGAEBV2App::CGAEBV2App() noexcept
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+
 }
 
 // The one and only CGAEBV2App object
@@ -84,7 +85,7 @@ BOOL CGAEBV2App::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinAppEx::InitInstance();
-
+	Init_List();
 
 	// Initialize OLE libraries
 	if (!AfxOleInit())
@@ -202,6 +203,49 @@ void CGAEBV2App::OnAppAbout()
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
 }
+
+void CGAEBV2App::Init_List()
+{
+	//List Einheit
+	m_einheitList.Add(_T("m")); // Meter
+	m_einheitList.Add(_T("Stk")); // Stück
+	m_einheitList.Add(_T("m²")); // Quadratmeter
+	m_einheitList.Add(_T("m³")); // Kubikmeter
+	m_einheitList.Add(_T("psch")); // Pauschal
+	m_einheitList.Add(_T("pack")); // Packung
+	m_einheitList.Add(_T("kg")); // Kilogramm
+	m_einheitList.Add(_T("t")); // Tonne
+	m_einheitList.Add(_T("Std")); // Stunde
+	m_einheitList.Add(_T("Min")); // Minute
+	m_einheitList.Add(_T("lfm")); // Laufmeter
+
+	//List Positionart
+	m_PosArtList.Add(_T("H - Hinweistext"));
+	m_PosArtList.Add(_T("A - Abschnitt"));
+	m_PosArtList.Add(_T("B - Bezugsposition"));
+	m_PosArtList.Add(_T("N - Normalposition"));
+	m_PosArtList.Add(_T("E - Bedarfsposition ohne GP"));
+	m_PosArtList.Add(_T("M - Bedarsfposition mit GP"));
+	m_PosArtList.Add(_T("G - Grundposition"));
+	m_PosArtList.Add(_T("W - Wahlposition"));
+	m_PosArtList.Add(_T("P - Pauschalposition"));
+	m_PosArtList.Add(_T("G - Grundposition"));
+	m_PosArtList.Add(_T("S - Stundenlohnarbeiten"));
+	m_PosArtList.Add(_T("K - Kombiposition"));
+	m_PosArtList.Add(_T("Z - Zuschlagsposition"));
+	m_PosArtList.Add(_T("AL - Alternativposition"));
+	m_PosArtList.Add(_T("L - Leitbeschreibung"));
+	m_PosArtList.Add(_T("AB - Ausführungsbeschreibung"));
+
+
+	//List Position Gruppe
+	m_PosGruppeList.Add(_T("NG - Normalgruppe"));
+	m_PosGruppeList.Add(_T("LO - Los"));
+	m_PosGruppeList.Add(_T("GG - Grundgruppe"));
+	m_PosGruppeList.Add(_T("AG - Alternativgruppe"));
+
+}
+
 
 
 // CGAEBV2App customization load/save methods

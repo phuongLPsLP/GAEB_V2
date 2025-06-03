@@ -256,6 +256,9 @@
     <Image Include="res\writesmall.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="..\..\..\..\Downloads\07_GAEB.X83">
+      <FileType>Document</FileType>
+    </Xml>
     <None Include="..\..\..\..\Downloads\rapidxml-1.13\rapidxml-1.13\manual.html" />
     <None Include="rapidxml-1.13\manual.html" />
     <None Include="res\GAEBV2.rc2" />

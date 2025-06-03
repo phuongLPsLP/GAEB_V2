@@ -14,6 +14,7 @@ protected:
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual void OnInitialUpdate(); // first time after construct
+
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
@@ -29,13 +30,21 @@ protected:
 	CStatic m_staticText_Einheit;
 	CStatic m_staticText_Kurztext;
 	CStatic m_staticText_Langtext;
+	CStatic m_staticText_Einheitpreis;
+	CStatic m_staticText_Nachlass;
+	CStatic m_staticText_Gesamtpreis;
+	CStatic m_staticText_Summe;
 	
 	CEdit m_edit_OZ;
 	CEdit m_edit_Menge;
 	CEdit m_edit_Einheit;
-	CEdit m_edit_PosArt;
+	CComboBox m_combobox_PosArt;
 	CEdit m_edit_langtext;
 	CEdit m_edit_kurztext;
+	CEdit m_edit_einheitpreis;
+	CEdit m_edit_nachlass;
+	CEdit m_edit_gesamt;
+	CEdit m_edit_summe;
 
 	CButton m_button_bold_KT;
 	CButton m_button_italic_KT;
@@ -51,7 +60,10 @@ protected:
 	CComboBox m_combobox_textSize_LT;
 	CComboBox m_combobox_textFont_LT;
 
+	CComboBox m_combobox_einheit;
+
 	CFont m_font;
+	CFont m_font_edit;
 	CFont m_font_bold;
 	CFont m_font_italic;
 	CFont m_font_underline;

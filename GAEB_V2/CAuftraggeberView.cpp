@@ -64,7 +64,7 @@ void CAuftraggeberView::OnInitialUpdate()
 	CRect m_rec2(CPoint(20, 20), CSize(920, 320));
 	m_groupbox_Adressdaten = new CButton();
 	m_groupbox_Adressdaten->Create(_T("Adressdaten"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX, m_rec2, this, 1006);
-	m_groupbox_Adressdaten->SetFont(&m_font);
+	m_groupbox_Adressdaten->SetFont(&m_font_bold);
 
 	m_staticText_Name1_AG.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(30, 60), CSize(80, 20)), this, 1001);
 	m_staticText_Strasse_AG.Create(_T("Strasse"), WS_CHILD | WS_VISIBLE, CRect(CPoint(30, 180), CSize(80, 20)), this, 1001);

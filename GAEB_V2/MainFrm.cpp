@@ -31,6 +31,7 @@
 #include "CVertragView.h"
 #include "CLVBereichView.h"
 #include "CHinweisText.h"
+#include "CPositionView.h"
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -136,7 +137,9 @@ void CMainFrame::FillClassView()
 
 	//rapidxml::file<> xmlFile("../../Test.xml");
 	//rapidxml::file<> xmlFile("C:/Users/phuon/source/repos/GAEB_V2/GAEB_V2/Test.xml");
-	rapidxml::file<> xmlFile("Test.xml");
+	//rapidxml::file<> xmlFile("Test.xml");
+	rapidxml::file<> xmlFile("C:/Users/marku/Downloads/07_GAEB.X83");
+	//rapidxml::file<> xmlFile("../../07_GAEB.X83");
 	rapidxml::xml_document<> doc;
 	doc.parse<0>(xmlFile.data());
 
@@ -160,6 +163,7 @@ void CMainFrame::FillClassView()
 
 	int maxDepth = 0;
 	AddXMLToTreeCtrl(TVI_ROOT, root, 1, maxDepth);
+
 	/*const char* value = root->value();
 	for (rapidxml::xml_node<>* child = root->first_node(); child; child = child->next_sibling())
 	{
@@ -239,10 +243,10 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	if (parent_itemText == _T("Leistungsverzeichnis")) {
 		if (hSelectedItem == m_wndClassView.GetChildItem(parent))
 		{
-			SwitchView(RUNTIME_CLASS(CVertragView));
+			SwitchView(RUNTIME_CLASS(CHinweisText));
 		}
 		else {
-			SwitchView(RUNTIME_CLASS(CHinweisText));
+			SwitchView(RUNTIME_CLASS(CPositionView));
 		}
 	}
 	

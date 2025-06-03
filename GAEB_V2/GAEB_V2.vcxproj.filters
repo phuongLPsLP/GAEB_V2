@@ -219,6 +219,7 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Test.xml" />
+    <Xml Include="..\..\..\..\Downloads\07_GAEB.X83" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />

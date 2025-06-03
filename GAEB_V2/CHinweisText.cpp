@@ -108,13 +108,12 @@ void CHinweisText::OnInitialUpdate()
 	m_button_underline_KT.SetFont(&m_font_underline);
 
 	m_edit_kurztext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, 
-		CRect(CPoint(20,110),CSize(rect.Width(), 100)), this, 1002);
+		CRect(CPoint(20,110),CSize(rect.Width(), 100)), this, 1005);
 
 	//Langtext
 	m_staticText_Langtext.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 230), CSize(80, 20)), this, 1001);
 
-	CRect rcButton_LT(140, 230, 300, 70);
 	m_combobox_textFont_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
 		CRect(CPoint(140, 230), CSize(160, 20)), this, 1003);
 	m_combobox_textSize_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
@@ -128,7 +127,7 @@ void CHinweisText::OnInitialUpdate()
 	m_button_underline_LT.SetFont(&m_font_underline);
 
 	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-		rect, this, 1002);
+		rect, this, 1005);
 
 	LOGFONT lf_textFont = {};
 	lf_textFont.lfCharSet = DEFAULT_CHARSET;
@@ -232,7 +231,7 @@ HBRUSH CHinweisText::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		return CView::OnCtlColor(pDC, pWnd, nCtlColor);
 	}*/
 	//Edit box
-	if (ctrlID == 1002)
+	if (ctrlID == 1005)
 	{
 		pDC->SetBkColor(RGB(255, 255, 200));
 		// Return the brush for background color

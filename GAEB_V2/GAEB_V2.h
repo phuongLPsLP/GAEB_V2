@@ -18,6 +18,8 @@
 #endif
 
 #include "resource.h"       // main symbols
+#include <afxstr.h>  // For CStringArray
+#include <afxtempl.h> // For MFC containers like CArray, CStringArray
 
 
 // CGAEBV2App:
@@ -34,16 +36,21 @@ public:
 public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
-
+	
 // Implementation
 	UINT  m_nAppLook;
 	BOOL  m_bHiColorIcons;
+	CStringArray m_einheitList;
+	CStringArray m_PosArtList;
+	CStringArray m_PosGruppeList;
 
 	virtual void PreLoadState();
 	virtual void LoadCustomState();
 	virtual void SaveCustomState();
 
 	afx_msg void OnAppAbout();
+	afx_msg void Init_List();
+	
 	DECLARE_MESSAGE_MAP()
 };
 
