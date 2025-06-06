@@ -191,6 +191,7 @@
     <ClInclude Include="CLVInfosView.h" />
     <ClInclude Include="CLVBereichView.h" />
     <ClInclude Include="CLVView.h" />
+    <ClInclude Include="CLV_MainView.h" />
     <ClInclude Include="CPositionView.h" />
     <ClInclude Include="CProjektInfosView.h" />
     <ClInclude Include="CVergabeinfosView.h" />
@@ -216,6 +217,7 @@
     <ClCompile Include="CLVInfosView.cpp" />
     <ClCompile Include="CLVBereichView.cpp" />
     <ClCompile Include="CLVView.cpp" />
+    <ClCompile Include="CLV_MainView.cpp" />
     <ClCompile Include="CPositionView.cpp" />
     <ClCompile Include="CProjektInfosView.cpp" />
     <ClCompile Include="CVergabeinfosView.cpp" />
@@ -256,10 +258,8 @@
     <Image Include="res\writesmall.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\..\..\Downloads\07_GAEB.X83">
-      <FileType>Document</FileType>
-    </Xml>
     <None Include="..\..\..\..\Downloads\rapidxml-1.13\rapidxml-1.13\manual.html" />
+    <None Include="07_GAEB.X83" />
     <None Include="rapidxml-1.13\manual.html" />
     <None Include="res\GAEBV2.rc2" />
     <None Include="res\image1.bin" />

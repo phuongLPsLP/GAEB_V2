@@ -84,6 +84,9 @@
     <ClInclude Include="CPositionView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CLV_MainView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GAEB_V2.cpp">
@@ -132,6 +135,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPositionView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLV_MainView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -216,10 +222,10 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="rapidxml-1.13\manual.html" />
+    <None Include="07_GAEB.X83" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Test.xml" />
-    <Xml Include="..\..\..\..\Downloads\07_GAEB.X83" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />

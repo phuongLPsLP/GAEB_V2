@@ -32,6 +32,7 @@
 #include "CLVBereichView.h"
 #include "CHinweisText.h"
 #include "CPositionView.h"
+#include "CLV_MainView.h"
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -138,8 +139,8 @@ void CMainFrame::FillClassView()
 	//rapidxml::file<> xmlFile("../../Test.xml");
 	//rapidxml::file<> xmlFile("C:/Users/phuon/source/repos/GAEB_V2/GAEB_V2/Test.xml");
 	//rapidxml::file<> xmlFile("Test.xml");
-	rapidxml::file<> xmlFile("C:/Users/marku/Downloads/07_GAEB.X83");
-	//rapidxml::file<> xmlFile("../../07_GAEB.X83");
+	//rapidxml::file<> xmlFile("C:/Users/marku/Downloads/07_GAEB.X83");
+	rapidxml::file<> xmlFile("07_GAEB.X83");
 	rapidxml::xml_document<> doc;
 	doc.parse<0>(xmlFile.data());
 
@@ -159,23 +160,11 @@ void CMainFrame::FillClassView()
 	rapidxml::xml_node<>* root = doc.first_node();
 	root->name("Leistungsverzeichnis");
 
+
 	if (!root) return;
 
 	int maxDepth = 0;
 	AddXMLToTreeCtrl(TVI_ROOT, root, 1, maxDepth);
-
-	/*const char* value = root->value();
-	for (rapidxml::xml_node<>* child = root->first_node(); child; child = child->next_sibling())
-	{
-		//ID <student>
-		const char* value_id = child->first_node()->value();
-		int len_id = MultiByteToWideChar(CP_UTF8, 0, value_id, -1, NULL, 0);
-		wchar_t* wideNodeValue_id = new wchar_t[len_id];
-		MultiByteToWideChar(CP_UTF8, 0, value_id, -1, wideNodeValue_id, len_id);
-
-		HTREEITEM hClass = m_wndClassView.InsertItem(wideNodeValue_id, 1, 1, leistungsverzeichnis);
-	}*/
-
 }
 
 
@@ -185,18 +174,30 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 	if (currentDepth > maxDepth)
 		maxDepth = currentDepth;
 	CString nodeLabel(node->name());
+	//nodeLabel = "Leistungsverzeichnis";
 
 	for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-		CString attrStr;
-		attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
-		nodeLabel += attrStr;
+		CString attrName(attr->name());
+
+		//Check if root contains any context 
+		if (attrName.IsEmpty() == FALSE) 
+		{
+			attrName = "";	//set attribute to empty string if it is not empty
+		}
+		else {
+			CString attrStr;
+			attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
+			nodeLabel += attrStr;
+		}
+
 	}
 	HTREEITEM hItem = m_wndClassView.InsertItem(nodeLabel, parentItem);
 	const char* nodeValue = node->value();
 	if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
 	{
-		CString valueText;
-		valueText.Format(CString(nodeValue));
+		//CString valueText;
+		//valueText.Format(CString(nodeValue));
+		CString valueText(nodeValue); 
 		m_wndClassView.InsertItem(valueText, hItem);
 	}
 	
@@ -236,7 +237,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		SwitchView(RUNTIME_CLASS(CLVInfosView));
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
-		SwitchView(RUNTIME_CLASS(CLVView));		
+		SwitchView(RUNTIME_CLASS(CLV_MainView));		
 	}
 	HTREEITEM parent = m_wndClassView.GetParentItem(hSelectedItem);
 	CString parent_itemText = m_wndClassView.GetItemText(parent);

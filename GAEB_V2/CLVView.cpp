@@ -75,7 +75,8 @@ void CLVView::OnInitialUpdate()
     {
         pHeader->SetFont(&m_font_header);
     }
-    rapidxml::file<> xmlFile("Test.xml");
+    rapidxml::file<> xmlFile("07_GAEB.X83");
+   // rapidxml::file<> xmlFile("Test.xml");
     rapidxml::xml_document<> doc;
     doc.parse<0>(xmlFile.data());
     rapidxml::xml_node<>* root = doc.first_node();
