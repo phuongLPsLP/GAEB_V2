@@ -8,7 +8,7 @@ using namespace rapidxml;
 
 // CLV_MainView view
 
-class CLV_MainView : public CView
+class CLV_MainView : public CScrollView
 {
 	DECLARE_DYNCREATE(CLV_MainView)
 
@@ -26,8 +26,19 @@ public:
 #endif
 #endif
 protected:
+	std::vector<CStatic*> m_vecStatics_GAEBInfo;
+	std::vector<CStatic*> m_vecStatics_Prjnfo;
+	std::vector<CStatic*> m_vecStatics_VergInfo;
+	std::vector<CStatic*> m_vecStatics_LVInfo;
+	std::vector<CStatic*> m_vecStatics_RegInfo;
+	std::vector<CStatic*> m_vecStatics_LV;
 
-	std::vector<CStatic*> m_vecStatics;
+	CRect clientRect;
+	std::unique_ptr<rapidxml::file<>> m_xmlFile;
+	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
+	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 
 	CTreeCtrl m_LV_Angabe_View;
 
@@ -42,18 +53,28 @@ protected:
 
 
 	BOOL m_bInfoVisible;
+	BOOL m_bInfoVisible_PrjInfo;
+	BOOL m_bInfoVisible_VergInfo;
+	BOOL m_bInfoVisible_LVInfo;
+	BOOL m_bInfoVisible_RegInfo;
+	BOOL m_bInfoVisible_LV;
+
 	CStatic m_staticText_Version;
 	CStatic m_staticText_Ausgabejahr;
 	CStatic m_staticText_Erstellungdatum;
 	CStatic m_staticText_Erstellungszeit;
 	CStatic m_staticText_Programm;
 	CStatic m_staticText_Umsetzprogramm;
+	CStatic m_staticText_blank;
 
 	CStatic m_staticText_Name;
 	CStatic m_staticText_Bezeichnung;
 	CStatic m_staticText_Kurzbeschreibung;
 	CStatic m_staticText_Waehrung;
 	CStatic m_staticText_WaehrungBez;
+
+	CListCtrl m_listCtrl;
+	CHeaderCtrl* pHeader;
 
 	CFont m_font;
 	CFont m_font_edit;
@@ -76,6 +97,8 @@ public:
 	afx_msg void OnBnClickedToggleLeistungsverzeichnis();
 
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+	CString Utf8ToCString(const char* utf8Str);
+
 };
 
 

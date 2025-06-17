@@ -8,7 +8,7 @@
 
 // CLV_MainView
 
-IMPLEMENT_DYNCREATE(CLV_MainView, CView)
+IMPLEMENT_DYNCREATE(CLV_MainView, CScrollView)
 
 CLV_MainView::CLV_MainView()
 {
@@ -19,7 +19,7 @@ CLV_MainView::~CLV_MainView()
 {
 }
 
-BEGIN_MESSAGE_MAP(CLV_MainView, CView)
+BEGIN_MESSAGE_MAP(CLV_MainView, CScrollView)
 	ON_WM_CTLCOLOR()
 	ON_WM_DRAWITEM()
 	ON_CONTROL(BN_CLICKED, 1101, &CLV_MainView::OnBnClickedToggleGAEBInfo)
@@ -41,11 +41,15 @@ void CLV_MainView::OnDraw(CDC* pDC)
 }
 void CLV_MainView::OnInitialUpdate()
 {
-	CView::OnInitialUpdate();
-	CRect clientRect;
+	CScrollView::OnInitialUpdate();
+	CSize totalSize;
+	totalSize.cx = 1000; // horizontal scroll limit
+	totalSize.cy = 100000; // vertical scroll limit
+	SetScrollSizes(MM_TEXT, totalSize);
+
 	CSize textSize;
 	GetClientRect(&clientRect);
-	CClientDC dc(this);	
+	CClientDC dc(this);
 
 	LOGFONT lf;
 	::ZeroMemory(&lf, sizeof(LOGFONT));
@@ -86,186 +90,334 @@ void CLV_MainView::OnInitialUpdate()
 	m_font_button.CreateFontIndirect(&lf_button_font);
 
 
-	m_button_info_gaeb.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE |  BS_OWNERDRAW | BS_LEFT ,
-		CRect(CPoint(20,20), CSize(clientRect.Width(), 50)), this, 1101);
-	m_button_info_projekt.Create(_T("Informationen zum Projekt"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT ,
-		CRect(CPoint(), CSize()), this, 1102);
-	m_button_info_vergabe.Create(_T("Informationen zur Vergabe"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT ,
+	m_button_info_gaeb.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
+		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1101);
+	m_button_info_projekt.Create(_T("Informationen zum Projekt"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
+		CRect(CPoint(20, 230), CSize(clientRect.Width(), 50)), this, 1102);
+	m_button_info_vergabe.Create(_T("Informationen zur Vergabe"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
 		CRect(CPoint(), CSize()), this, 1103);
-	m_button_info_LV.Create(_T("Informationen zum LV"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT ,
+	m_button_info_LV.Create(_T("Informationen zum LV"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
 		CRect(CPoint(), CSize()), this, 1104);
 	m_button_info_regelung.Create(_T("Informationen zu vertraglichen Regelungen"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
 		CRect(CPoint(), CSize()), this, 1105);
-	m_button_LV.Create(_T("Leistungsverzeichnis"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT, 
-		CRect(CPoint(), CSize()), this, 1106);
+	m_button_LV.Create(_T("Leistungsverzeichnis"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
+		CRect(CPoint(20,400), CSize(clientRect.Width(),50)), this, 1106);
 
-	rapidxml::file<> xmlFile("07_GAEB.X83");
-	rapidxml::xml_document<> doc;
-	doc.parse<0>(xmlFile.data());
-	rapidxml::xml_node<>* root = doc.first_node(); // Root = GAEB
+	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
+	m_xmlDoc->parse<0>(m_xmlFile->data());
+	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
 
-	m_staticText_Version.Create(_T("Version:"), WS_CHILD |WS_VISIBLE,
-		CRect(CPoint(20, 90), CSize(120, 20)), this, 1001);
-	m_staticText_Ausgabejahr.Create(_T("Ausgabejahr der Regelung:"), WS_CHILD |WS_VISIBLE,
-		CRect(CPoint(20, 110), CSize(250, 20)), this, 1001);
-	m_staticText_Erstellungdatum.Create(_T("Erstellungsdatum der Datei:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 130), CSize(250, 20)), this, 1001);
-	m_staticText_Erstellungszeit.Create(_T("Erstellungszeit der Datei:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 150), CSize(250, 20)), this, 1001);
-	m_staticText_Programm.Create(_T("Programmsystem:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 170), CSize(250, 20)), this, 1001);
-	m_staticText_Umsetzprogramm.Create(_T("Umsetzprogramm:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 190), CSize(250, 20)), this, 1001);
+	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
+	m_pProjektInfo = m_pGAEBInfo->next_sibling();
+	m_award = m_pProjektInfo->next_sibling();
 
-	m_staticText_Name.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 270), CSize(120, 20)), this, 1001);
-	m_staticText_Bezeichnung.Create(_T("Bezeichnung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 290), CSize(120, 20)), this, 1001);
-	m_staticText_Kurzbeschreibung.Create(_T("Kurzbeschreibung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 310), CSize(120, 20)), this, 1001);
-	m_staticText_Waehrung.Create(_T("Währung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 330), CSize(120, 20)), this, 1001);
-	m_staticText_WaehrungBez.Create(_T("Bezeichnung der Währung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 350), CSize(250, 20)), this, 1001);
-
-
-	int yPos_GaebInfo = 90;  // Starting y position for controls
-	int yPos_ProjInfo = 270;
-	xml_node<>* GAEBInfo = root->first_node();	//firstChild = GAEBInfo, 
-
-	//GEAB Info
-	for (xml_node<>* SubChild = GAEBInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
-	{
-		//CString subChildValue(SubChild->name());		
-		CString subChildText(SubChild->value());
-		CStatic* pstaticValue = new CStatic();
-		pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE, 
-			CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
-		m_vecStatics.push_back(pstaticValue);  // store pointer
-		yPos_GaebInfo += 20;
-		pstaticValue->SetFont(&m_font);
-	}
-	xml_node<>* PrjInfo = GAEBInfo->next_sibling();	//nextsiblings = PrjInfo
-
-	for (xml_node<>* SubChild = PrjInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
-	{
-		CString subChildText(SubChild->value());
-		CStatic* pstaticValue = new CStatic();
-		pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE, 
-			CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
-		//m_vecStatics.push_back(pstaticValue);  // store pointer
-		yPos_ProjInfo += 20;
-		pstaticValue->SetFont(&m_font);
-	}
-
-
-	CStatic* editControls_static[] = {
-	&m_staticText_Version,
-	&m_staticText_Ausgabejahr,
-	&m_staticText_Erstellungdatum,
-	&m_staticText_Erstellungszeit,
-	&m_staticText_Programm,
-	&m_staticText_Umsetzprogramm,
-	&m_staticText_Name,
-	&m_staticText_Bezeichnung,
-	&m_staticText_Kurzbeschreibung,
-	&m_staticText_Waehrung,
-	&m_staticText_WaehrungBez,
-	};
-	for (CStatic* pStatic : editControls_static)
-	{
-		if (pStatic->GetSafeHwnd())
-		{
-			pStatic->SetFont(&m_font);
-
-		}
-	}
+	/*
+	//rapidxml::file<> xmlFile("07_GAEB.X83");
+	//rapidxml::xml_document<> doc;
+	//doc.parse<0>(xmlFile.data());
+	//rapidxml::xml_node<>* root = doc.first_node(); // Root = GAEB
+	//xml_node<>* GAEBInfo = root->first_node();	//firstChild = GAEBInfo,
+	//xml_node<>* PrjInfo = GAEBInfo->next_sibling();	//nextsiblings = PrjInfo
+	*/
 
 	CButton* editControls[] = {
 		&m_button_info_gaeb,
 		&m_button_info_projekt,
 		&m_button_info_vergabe,
 		&m_button_info_regelung,
-		&m_button_info_LV,
-		&m_button_Inhaltverzeichnis
+		&m_button_LV,
+		//&m_button_info_LV,
 	};
 	for (CButton* pButton : editControls)
 	{
 		if (pButton->GetSafeHwnd())
 		{
 			pButton->SetFont(&m_font_button);
-
 		}
 	}
+
+	 m_bInfoVisible = SW_SHOW;
+	 m_bInfoVisible_PrjInfo = SW_SHOW;
+	 m_bInfoVisible_VergInfo = SW_SHOW;
+	 m_bInfoVisible_LVInfo = SW_SHOW;
+	 m_bInfoVisible_RegInfo = SW_SHOW;
+	 m_bInfoVisible_LV = SW_SHOW;
 }
 
 void CLV_MainView::OnBnClickedToggleGAEBInfo()
 {
+	//int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
+	int state = m_bInfoVisible;
 	m_bInfoVisible = !m_bInfoVisible;
-	int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
-	for (auto pStatic : m_vecStatics)
+
+	for (auto pStatic : m_vecStatics_GAEBInfo)
 	{
 		pStatic->ShowWindow(state);
 	}
-	m_staticText_Version.ShowWindow(state);
-	m_staticText_Ausgabejahr.ShowWindow(state);
-	m_staticText_Erstellungdatum.ShowWindow(state);
-	m_staticText_Erstellungszeit.ShowWindow(state);
-	m_staticText_Programm.ShowWindow(state);
-	m_staticText_Umsetzprogramm.ShowWindow(state);
+	CStatic* staticControls[] =
+	{
+	&m_staticText_Version,
+	&m_staticText_Ausgabejahr,
+	&m_staticText_Erstellungdatum,
+	&m_staticText_Erstellungszeit,
+	&m_staticText_Programm,
+	&m_staticText_Umsetzprogramm,
+	&m_staticText_blank,
+	};
+
+	if (state == SW_SHOW) {
+		for (CStatic* pStatic : staticControls)
+		{
+			pStatic->DestroyWindow();
+		}
+		m_staticText_Version.Create(_T("Version:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 90), CSize(120, 20)), this, 1001);
+		m_staticText_Ausgabejahr.Create(_T("Ausgabejahr der Regelung:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 110), CSize(250, 20)), this, 1001);
+		m_staticText_Erstellungdatum.Create(_T("Erstellungsdatum der Datei:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 130), CSize(250, 20)), this, 1001);
+		m_staticText_Erstellungszeit.Create(_T("Erstellungszeit der Datei:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 150), CSize(250, 20)), this, 1001);
+		m_staticText_Programm.Create(_T("Programmsystem:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 170), CSize(250, 20)), this, 1001);
+		m_staticText_Umsetzprogramm.Create(_T("Umsetzprogramm:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 190), CSize(250, 20)), this, 1001);
+		m_staticText_blank.Create(_T(" "), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 210), CSize(250, 20)), this, 1001);
+
+		int yPos_GaebInfo = 90;  // Starting y position for controls
+		//GEAB Info
+		xml_node<>* SubChild = m_pGAEBInfo->first_node();
+		for (SubChild; SubChild; SubChild = SubChild->next_sibling())
+		{
+			//CString subChildValue(SubChild->name());		
+			CString subChildText(SubChild->value());
+			CStatic* pstaticValue = new CStatic();
+			pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
+			m_vecStatics_GAEBInfo.push_back(pstaticValue);  // store pointer
+			yPos_GaebInfo += 20;
+			pstaticValue->SetFont(&m_font);
+		}		
+		for (CStatic* pStatic : staticControls)
+		{
+			pStatic->SetFont(&m_font);
+			pStatic->ShowWindow(state);
+		}
+	}
+	else {
+		for (CStatic* pStatic : staticControls)
+		{
+			pStatic->ShowWindow(state);
+		}
+	}
 }
 
 void CLV_MainView::OnBnClickedToggleProjektInfo()
 {
-	m_bInfoVisible = !m_bInfoVisible;
-	int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
-	 m_staticText_Name.ShowWindow(state);
-	 m_staticText_Bezeichnung.ShowWindow(state);
-	 m_staticText_Kurzbeschreibung.ShowWindow(state);
-	 m_staticText_Waehrung.ShowWindow(state);
-	 m_staticText_WaehrungBez.ShowWindow(state);
+	int state = m_bInfoVisible_PrjInfo;
+	m_bInfoVisible_PrjInfo = !m_bInfoVisible_PrjInfo;
+
+	for (auto pStatic_PrjInfo : m_vecStatics_Prjnfo)
+	{
+		pStatic_PrjInfo->ShowWindow(state);
+	}
+
+	CStatic* staticControls_PrjInfo[] =
+	{
+	 &m_staticText_Name,
+	 &m_staticText_Bezeichnung,
+	 &m_staticText_Kurzbeschreibung,
+	 &m_staticText_Waehrung,
+	 &m_staticText_WaehrungBez,
+	};
+
+	if (state == SW_SHOW) {
+		for (CStatic* pStatic_PrjInfo : staticControls_PrjInfo)
+		{
+			pStatic_PrjInfo->DestroyWindow();
+		}
+		m_staticText_Name.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 300), CSize(120, 20)), this, 1001);
+		m_staticText_Bezeichnung.Create(_T("Bezeichnung:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 320), CSize(120, 20)), this, 1001);
+		m_staticText_Kurzbeschreibung.Create(_T("Kurzbeschreibung:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 340), CSize(120, 20)), this, 1001);
+		m_staticText_Waehrung.Create(_T("Währung:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 360), CSize(120, 20)), this, 1001);
+		m_staticText_WaehrungBez.Create(_T("Bezeichnung der Währung:"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 380), CSize(250, 20)), this, 1001);
+
+		int yPos_ProjInfo = 300;
+		for (xml_node<>* SubChild = m_pProjektInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
+		{
+			CString subChildText(SubChild->value());
+			if (subChildText == "") {
+				subChildText = SubChild->first_node()->value();
+				CStatic* pstaticValue = new CStatic();
+				pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
+				m_vecStatics_Prjnfo.push_back(pstaticValue);  // store pointer
+				yPos_ProjInfo += 20;
+				pstaticValue->SetFont(&m_font);
+			}
+			else {
+				CStatic* pstaticValue = new CStatic();
+				pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
+				m_vecStatics_Prjnfo.push_back(pstaticValue);  // store pointer
+				yPos_ProjInfo += 20;
+				pstaticValue->SetFont(&m_font);
+			}
+		}
+		for (CStatic* pStatic : staticControls_PrjInfo)
+		{
+			pStatic->SetFont(&m_font);
+			pStatic->ShowWindow(state);
+		}
+	}	
+	
+	else {
+		for (CStatic* pStatic_PrjInfo : staticControls_PrjInfo)
+		{
+			pStatic_PrjInfo->ShowWindow(state);
+		}
+	}
+
+
 }
 
 void CLV_MainView::OnBnClickedToggleVergabenfo()
 {
-	m_bInfoVisible = !m_bInfoVisible;
-	int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
+	int state = m_bInfoVisible_VergInfo;
+	m_bInfoVisible_VergInfo = !m_bInfoVisible_VergInfo;
+
 }
 
 void CLV_MainView::OnBnClickedToggleLVInfo()
 {
-	m_bInfoVisible = !m_bInfoVisible;
-	int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
+	int state = m_bInfoVisible_LVInfo;
+	m_bInfoVisible_LVInfo = !m_bInfoVisible_LVInfo;
+
 }
 
 void CLV_MainView::OnBnClickedToggleRegelungInfo()
 {
-	m_bInfoVisible = !m_bInfoVisible;
-	int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
+	int state = m_bInfoVisible_RegInfo;
+	m_bInfoVisible_RegInfo = !m_bInfoVisible_RegInfo;
+
 }
 
 void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 {
-	m_bInfoVisible = !m_bInfoVisible;
-	int state = m_bInfoVisible ? SW_SHOW : SW_HIDE;
+	int state = m_bInfoVisible_LV;
+	m_bInfoVisible_LV = !m_bInfoVisible_LV;
+	for (auto pStatic_LV : m_vecStatics_LV)
+	{
+		pStatic_LV->ShowWindow(state);
+	}
+
+	if (state == SW_HIDE)
+	{
+		// Hide and move it out of the layout
+		//m_listCtrl.ShowWindow(SW_HIDE);
+	}
+	else
+	{
+		//m_listCtrl.DestroyWindow(); // Destroy the old control
+		/*m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
+			CRect(CPoint(20,470), CSize(clientRect.Width()-20, 50)), this, 1001);
+		// Enable full row select and grid lines
+		m_listCtrl.SetExtendedStyle(LVS_EX_GRIDLINES);
+
+		m_listCtrl.InsertColumn(1, _T("Ordnungszahl"), LVCFMT_LEFT, 100);
+		m_listCtrl.InsertColumn(3, _T("Menge"), LVCFMT_LEFT, 100);
+		m_listCtrl.InsertColumn(4, _T("Einheit"), LVCFMT_LEFT, 100);
+		m_listCtrl.InsertColumn(5, _T("Kurztext"), LVCFMT_LEFT, 1000);
+		m_listCtrl.InsertColumn(6, _T("Einheitspreis [EUR]"), LVCFMT_LEFT, 200);
+		m_listCtrl.InsertColumn(7, _T("Gesamtbetrag [EUR]"), LVCFMT_LEFT, 200);*/
+		//m_listCtrl.ShowWindow(SW_SHOW);
+	}
+
+	int yPos_LV = 480;
+	for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
+	{
+		CString award_text(award->name());
+		//awardtext = DP / OWN / AddText
+		if (award_text == "AddText")
+		{
+			for (xml_node<>* addtext_node = award->first_node(); addtext_node; addtext_node = addtext_node->next_sibling())
+			{
+				//CString addtext_text(addtext_node->name());
+				//OutlineAddText / DetailAddText
+
+				for (xml_node<>* p_node = addtext_node->first_node(); p_node; p_node = p_node->next_sibling())
+				{
+					//CString p_node_text(p_node->name());
+					//<p>		
+					for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+					{
+						CString span_node_text = Utf8ToCString(span_node->value());
+						CStatic* pstaticValue = new CStatic();
+						if (!span_node->previous_sibling()) //first node
+						{
+							if (!span_node->next_sibling()) {	//last node
+								//only child
+								pstaticValue->Create(span_node_text, WS_CHILD | WS_VISIBLE,
+									CRect(CPoint(20, yPos_LV), CSize(clientRect.Width(), 20)), this, 1001);
+								m_vecStatics_LV.push_back(pstaticValue);  // store pointer
+								yPos_LV += 20;
+								pstaticValue->SetFont(&m_font);
+
+							}
+							else
+							{
+								while (span_node)
+								{
+									CString fullText;
+									if (span_node->next_sibling()) {
+										for (rapidxml::xml_node<>* span = span_node->first_node("span"); span; span = span->next_sibling("span"))
+										{
+											CString spanText = Utf8ToCString(span->value()); // Handles UTF-8 characters like ü
+											fullText += spanText;
+										}
+
+										if (!fullText.IsEmpty())
+										{
+											AfxMessageBox(fullText); // or store it / display in a control
+										}
+										span_node = span_node->next_sibling("p"); // move to next <p> tag
+									}
+									else { continue; } //skip if not first node
+								}
+							}
+
+						}	
+						else { continue; } //skip if not first node
+					}
+				}
+			}
+		}
+	}	
 }
 
 #ifdef _DEBUG
 void CLV_MainView::AssertValid() const
 {
-	CView::AssertValid();
+	CScrollView::AssertValid();
 }
 #ifndef _WIN32_WCE
 void CLV_MainView::Dump(CDumpContext& dc) const
 {
-	CView::Dump(dc);
+	CScrollView::Dump(dc);
 }
 #endif
 #endif //_DEBUG
 
 HBRUSH CLV_MainView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	HBRUSH hbr = CView::OnCtlColor(pDC, pWnd, nCtlColor);
+	HBRUSH hbr = CScrollView::OnCtlColor(pDC, pWnd, nCtlColor);
 	int ctrlID = pWnd->GetDlgCtrlID();
 
 	if (ctrlID == 1001)
@@ -298,19 +450,22 @@ void CLV_MainView::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT lpDrawItemStruct)
 		m_button_info_projekt.GetWindowText(text);
 		break;
 	case 1103:
-		m_button_info_regelung.GetWindowText(text);
-		break;
-	case 1104:
 		m_button_info_vergabe.GetWindowText(text);
 		break;
-	case 1105:
+	case 1104:
 		m_button_info_LV.GetWindowText(text);
+		break;
+	case 1105:
+		m_button_info_regelung.GetWindowText(text);
+		break;
+	case 1106:
+		m_button_LV.GetWindowText(text);
 		break;
 		// case 1008:
 		//     m_button_Inhaltverzeichnis.GetWindowText(text);
 		//     break;
 	default:
-		CView::OnDrawItem(nIDCtl, lpDrawItemStruct);
+		CScrollView::OnDrawItem(nIDCtl, lpDrawItemStruct);
 		return;
 	}	
 	pDC->FillSolidRect(&rect, RGB(255, 255, 255));
@@ -328,5 +483,14 @@ BOOL CLV_MainView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 		::SetCursor(AfxGetApp()->LoadStandardCursor(IDC_HAND));
 		return TRUE;
 	}
-	return CView::OnSetCursor(pWnd, nHitTest, message);
+	return CScrollView::OnSetCursor(pWnd, nHitTest, message);
+}
+
+CString CLV_MainView::Utf8ToCString(const char* utf8Str)
+{
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;
 }
