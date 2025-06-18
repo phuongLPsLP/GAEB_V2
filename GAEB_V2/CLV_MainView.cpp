@@ -356,13 +356,21 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				{
 					//CString p_node_text(p_node->name());
 					//<p>		
+					CStatic* pstaticValue = new CStatic();
+					CString Fulltext;
 					for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
 					{
 						CString span_node_text = Utf8ToCString(span_node->value());
-						CStatic* pstaticValue = new CStatic();
-						if (!span_node->previous_sibling()) //first node
+						if (span_node->next_sibling()) 
 						{
-							if (!span_node->next_sibling()) {	//last node
+							Fulltext = Fulltext + span_node_text;
+						}
+						else {
+							//Fulltext = span_node_text;
+						}
+					/*	if (!span_node->previous_sibling()) //no previours sibling -> first node
+						{
+							if (!span_node->next_sibling()) {	//no next sibling -> last node
 								//only child
 								pstaticValue->Create(span_node_text, WS_CHILD | WS_VISIBLE,
 									CRect(CPoint(20, yPos_LV), CSize(clientRect.Width(), 20)), this, 1001);
@@ -372,30 +380,21 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 
 							}
 							else
-							{
-								while (span_node)
-								{
-									CString fullText;
-									if (span_node->next_sibling()) {
-										for (rapidxml::xml_node<>* span = span_node->first_node("span"); span; span = span->next_sibling("span"))
-										{
-											CString spanText = Utf8ToCString(span->value()); // Handles UTF-8 characters like ü
-											fullText += spanText;
-										}
-
-										if (!fullText.IsEmpty())
-										{
-											AfxMessageBox(fullText); // or store it / display in a control
-										}
-										span_node = span_node->next_sibling("p"); // move to next <p> tag
-									}
-									else { continue; } //skip if not first node
-								}
+							{	
+								pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE,
+									CRect(CPoint(20, yPos_LV), CSize(clientRect.Width(), 20)), this, 1001);
+								m_vecStatics_LV.push_back(pstaticValue);  // store pointer
+								yPos_LV += 20;
+								pstaticValue->SetFont(&m_font);
 							}
-
 						}	
-						else { continue; } //skip if not first node
+						else { continue; } //previous node exists*/
 					}
+					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(20, yPos_LV), CSize(clientRect.Width(), 20)), this, 1001);
+					m_vecStatics_LV.push_back(pstaticValue);  // store pointer
+					yPos_LV += 20;
+					pstaticValue->SetFont(&m_font);
 				}
 			}
 		}
