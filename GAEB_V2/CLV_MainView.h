@@ -84,6 +84,8 @@ protected:
 	CFont m_font_button;
 	CBrush m_brush_edit_bg_color;
 
+	CSize m_wndSize;	
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
@@ -98,6 +100,13 @@ public:
 
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	CString Utf8ToCString(const char* utf8Str);
+	void  GetDeepestChild(xml_node<>* node, xml_node<>*& last);
+
+private:
+	void GetDeviceScrollSize(int& nMapMode,
+		SIZE& sizeTotal,
+		SIZE& sizePage,
+		SIZE& sizeLine) const;
 
 };
 

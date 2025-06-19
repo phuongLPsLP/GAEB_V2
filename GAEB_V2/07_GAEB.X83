@@ -23845,7 +23845,7 @@
               </DetailTxt>
               <OutlineText>
                <OutlTxt>
-                <TextOutlTxt>
+				   <TextOutlTxt>
                  <p style="text-align:left;margin-top:0pt;margin-bottom:0pt;">
                   <span>Material fiktiver Wert</span>
                  </p>
