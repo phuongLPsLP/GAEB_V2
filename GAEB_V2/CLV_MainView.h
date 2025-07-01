@@ -100,7 +100,7 @@ public:
 
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	CString Utf8ToCString(const char* utf8Str);
-	void  GetDeepestChild(xml_node<>* node, xml_node<>*& last);
+	bool  GetDeepestChild(xml_node<>* node, xml_node<>*& last);
 
 private:
 	void GetDeviceScrollSize(int& nMapMode,

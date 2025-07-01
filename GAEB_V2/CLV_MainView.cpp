@@ -363,73 +363,30 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 	{
 		pStatic_LV->ShowWindow(state);
 	}
-	m_listCtrl.DestroyWindow(); // Destroy the old control
-	m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
-		CRect(CPoint(20, 500), CSize(clientRect.Width() - 20, clientRect.Height())), this, 1001);
-	// Enable full row select and grid lines
-	m_listCtrl.SetExtendedStyle(LVS_EX_GRIDLINES);
-
-	m_listCtrl.InsertColumn(1, _T("Ordnungszahl"), LVCFMT_LEFT, 100);
-	m_listCtrl.InsertColumn(2, _T("Menge"), LVCFMT_RIGHT, 100);
-	m_listCtrl.InsertColumn(3, _T("Einheit"), LVCFMT_RIGHT, 100);
-	m_listCtrl.InsertColumn(4, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 500);
-	m_listCtrl.InsertColumn(5, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 100);
-	m_listCtrl.InsertColumn(6, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 100);
+	
 	switch (state)
 	{
 	case SW_SHOW:
+		m_listCtrl.DestroyWindow(); // Destroy the old control
+		m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
+			CRect(CPoint(20, 500), CSize(clientRect.Width() - 20, clientRect.Height())), this, 1001);
+		// Enable full row select and grid lines
+		m_listCtrl.SetExtendedStyle(LVS_EX_GRIDLINES);
 
+		m_listCtrl.InsertColumn(1, _T("Ordnungszahl"), LVCFMT_LEFT, 100);
+		m_listCtrl.InsertColumn(2, _T("Menge"), LVCFMT_RIGHT, 100);
+		m_listCtrl.InsertColumn(3, _T("Einheit"), LVCFMT_RIGHT, 100);
+		m_listCtrl.InsertColumn(4, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 500);
+		m_listCtrl.InsertColumn(5, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 150);
+		m_listCtrl.InsertColumn(6, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 150);
 		m_listCtrl.ShowWindow(SW_SHOW);
+
 		for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
 		{
 			CString BoQ_node_text(BoQ_node->name());
 			//BoQ_node_text = DP / OWN / AddText / BoQ
 			if (BoQ_node_text == "BoQ")
 			{
-				/*for (xml_node<>* body_node = BoQ_node->first_node(); body_node; body_node = body_node->next_sibling())
-				{
-					CString body_node_text(body_node->name());
-					//body_node_text = BoQInfo / BoQBody
-					if (body_node == BoQ_node->first_node())
-					{	//BoQInfo
-						for (xml_node<>* BoQInfo_node = body_node->first_node(); BoQInfo_node; BoQInfo_node = BoQInfo_node->next_sibling())
-						{
-							//CString msg;
-							//msg.Format(_T("Child count: %d"), ChildCount);
-							//AfxMessageBox(msg);
-						}
-					}
-					else if (body_node == BoQ_node->last_node())
-					{	//body_node.name() = BoQBody
-
-						/*for (xml_node<>* BoQBody_node = body_node->first_node(); BoQBody_node; BoQBody_node = BoQBody_node->next_sibling())
-						{
-							//BoQBody_node->name() == BoQCtgy
-							CString	test_text(BoQBody_node->name());
-							AfxMessageBox(test_text);
-							/*for (xml_attribute<>* BoQBodyAttr = BoQBody_node->first_attribute(); BoQBodyAttr; BoQBodyAttr = BoQBodyAttr->next_attribute())
-							{
-								CString attr_name(BoQBodyAttr->name());
-								CString attr_value(BoQBodyAttr->value());
-								if (attr_name == "RNoPart") {
-									m_listCtrl.InsertItem(LVIF_TEXT | LVIF_STATE, attr_value + ".");
-								}
-								else { continue; }
-							}
-						}
-
-
-						}
-						for (xml_node<>* BoQBody_node = body_node->first_node(); BoQBody_node; BoQBody_node = BoQBody_node->next_sibling())
-						{
-
-							xml_node<>* deepest = GetDeepestChild(body_node);
-							CString name(deepest->value());
-							//CString value = Utf8ToCString(deepest->value());
-							AfxMessageBox(name);
-						}					
-					}
-				}*/
 				for (xml_node<>* BoQChild_node = BoQ_node->first_node(); BoQChild_node; BoQChild_node = BoQChild_node->next_sibling())
 				{// BoQInfo / BoQBody 
 					CString BoQChild_node_text(BoQChild_node->name());
@@ -438,63 +395,81 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 						continue;
 					}
 					else {
-
-						//xml_node<>* lastNode = nullptr;
-						//GetDeepestChild(BoQ_node, lastNode);
-						/*if (lastNode)
-						{
-							CString name(lastNode->name());
-							CString value(lastNode->value());
-							m_listCtrl.InsertItem(LVIF_TEXT | LVIF_STATE, value);
-						}
-						else {
-							m_listCtrl.InsertItem(LVIF_TEXT | LVIF_STATE, _T("no item"));
-						}*/
 						int nindex = 0;
 						xml_node<>* BoQCtgy_node = BoQChild_node->first_node();
 						xml_node<>* Body_node = nullptr;
 						xml_node<>* Ctgy_node = nullptr;
 						xml_node<>* LblTx_node = nullptr;
-
+						xml_node<>* Item_node = nullptr;
+						int nItem;
 						for (BoQCtgy_node; BoQCtgy_node; BoQCtgy_node = BoQCtgy_node->next_sibling())
-						{
-							nindex++;
-							CString BoQCtgy_node_text(BoQCtgy_node->name());
-							CString itemTitle;
-							xml_attribute<>* BoQCtgy_node_attr = BoQCtgy_node->first_attribute()->next_attribute();
-							CString BoQCtgy_node_attr_text(BoQCtgy_node_attr->value());
-							int nItem = m_listCtrl.InsertItem(nindex, BoQCtgy_node_attr_text + ".");
+						{					
+							GetDeepestChild(BoQCtgy_node, Item_node);
+							if (Item_node) {
+								//Itemlist
+								CString Item_node_text(Item_node->name());
+								if (Item_node_text == "Itemlist") {
+									for (xml_node<>* item_node = Item_node->first_node(); item_node; item_node = item_node->next_sibling())
+									{
+										nindex++;
+										CString item_node_attr_text(item_node->first_attribute()->value());
+										 nItem = m_listCtrl.InsertItem(nindex, item_node_attr_text);
 
-							GetDeepestChild(BoQCtgy_node, LblTx_node);
-							if (LblTx_node) {
-								//xml_node<>* lblTx_node = LblTx_node->first_node();
-								//CString lblTx_node_text(lblTx_node->value());
-								CString Fulltext;
-								for (xml_node<>* span_node = LblTx_node->first_node(); span_node; span_node = span_node->next_sibling())
-								{
-									CString span_node_text = Utf8ToCString(span_node->value());
-									if (!span_node_text.IsEmpty()) {
-										Fulltext += span_node_text;
+										for (xml_node<>* item_child_node = item_node->first_node(); item_child_node; item_child_node = item_child_node->next_sibling()) {
+											CString item_child_node_text(item_child_node->name());
+											CString item_child_node_value(item_child_node->value());
+
+											if (item_child_node_text == "Qty") {
+												m_listCtrl.SetItemText(nItem, 1, item_child_node_value);
+											}
+											else if (item_child_node_text == "QU") {
+												m_listCtrl.SetItemText(nItem, 2, item_child_node_value);
+											}
+											else if (item_child_node_text == "UP") {
+												m_listCtrl.SetItemText(nItem, 4, item_child_node_value);
+											}
+											else if (item_child_node_text == "IT") {
+												m_listCtrl.SetItemText(nItem, 5, item_child_node_value);
+											}
+											else if (item_child_node_text = "TimeQu") {
+
+											}
+											else if (item_child_node_text == "Description") {
+												for (xml_node<>* text_node = item_child_node->first_node(); text_node; text_node = text_node->next_sibling()) {
+													CString text_node_text(text_node->name());
+													if (text_node_text == "DetailTxt") {}
+													else if (text_node_text == "OutlineText") {}
+												}
+											}
+										}
 									}
+									xml_node<>* itemlist_parent = Item_node->parent()->parent();
 								}
-								m_listCtrl.SetItemText(nItem, 3, Fulltext);
+								/*else if (Item_node_text == "BoQCtgy") {
+									nindex++;
+									CString itemode_attr_text(BoQCtgy_node->first_attribute()->next_attribute()->value());
+									nItem = m_listCtrl.InsertItem(nindex, itemode_attr_text + ".");
+
+								}*/
+								CString item_node_attr_text(BoQCtgy_node->first_attribute()->value());
+								AfxMessageBox(item_node_attr_text);
+
 							}
 							else {
 
+								AfxMessageBox(_T("not found"));
 							}
-
-							//int nItem = m_listCtrl.InsertItem(nindex, BoQCtgy_node_attr_text + ".");
-							//m_listCtrl.SetItemText(nItem, 1, BoQCtgy_node_text);
-
 						}
 					}
 				}
 				
 			}
 		}
+
 		break;
 	case SW_HIDE:
 		m_listCtrl.ShowWindow(SW_HIDE);
+		m_bInfoVisible_LV = SW_SHOW;
 		break;
 	default:
 		break;
@@ -594,14 +569,14 @@ CString CLV_MainView::Utf8ToCString(const char* utf8Str)
 	return result;
 }
 
-void CLV_MainView::GetDeepestChild(xml_node<>* node, xml_node<>*& last)
+bool CLV_MainView::GetDeepestChild(xml_node<>* node, xml_node<>*& last)
 {
-	if (!node) return;
-	last = node;
+	if (!node) return false;
+	//last = node;
 
 	//node = BoqCtgy_node
 	
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
+/*	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
 		CString child_text(child->name());
 		if (child_text == "LblTx") 
 		{
@@ -613,31 +588,43 @@ void CLV_MainView::GetDeepestChild(xml_node<>* node, xml_node<>*& last)
 			GetDeepestChild(child, last);
 			
 		}
-		else if (child_text == "BoQCtgy") {
+		else if(child_text == "BoQCtgy")
+		{
+			//AfxMessageBox(_T("BoQCtgy found!"));
 			last = child;
 			break;
 		}
+	}*/
 
+	CString nodeName(node->name());
+
+	if (nodeName == "Itemlist" )
+	{
+		last = node;
+		return true;
 	}
 
+
+	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
+	{
+		if (GetDeepestChild(child, last))
+			return true;
+	}
+
+	return false;
 	/*for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
 	{
 		CString child_text(child->name()); 
-
-		if (child_text == "Item") {
-			xml_attribute<>* attr = child->first_attribute();
-			CString value(attr->value());
-			//AfxMessageBox(value);
-
-			break;
+		if (child_text == "Itemlist") {
+			last = child;
+			return true;
 		}
 		else {
 			GetDeepestChild(child, last);
 		}
 
-	}*/
-
-
+	}
+	return false; // No child found*/
 }
 
 void CLV_MainView::GetDeviceScrollSize(int& nMapMode,
