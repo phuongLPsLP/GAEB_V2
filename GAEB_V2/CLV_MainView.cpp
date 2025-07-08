@@ -42,7 +42,7 @@ void CLV_MainView::OnDraw(CDC* pDC)
 void CLV_MainView::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
-	m_wndSize.cy = 10000;
+	m_wndSize.cy = 100000;
 	SetScrollSizes(MM_TEXT, m_wndSize);
 
 	CSize textSize;
@@ -363,23 +363,48 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 	{
 		pStatic_LV->ShowWindow(state);
 	}
-	
-	switch (state)
+	CStatic* staticControls_LV[] =
 	{
-	case SW_SHOW:
-		m_listCtrl.DestroyWindow(); // Destroy the old control
-		m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
-			CRect(CPoint(20, 500), CSize(clientRect.Width() - 20, clientRect.Height())), this, 1001);
-		// Enable full row select and grid lines
-		m_listCtrl.SetExtendedStyle(LVS_EX_GRIDLINES);
+	 &m_staticText_OZ,
+	 &m_staticText_Menge,
+	 &m_staticText_Einheit,
+	 &m_staticText_LeiBe,
+	 &m_staticText_Einheitpreis,
+	 &m_staticText_Gesamtpreis,
+	};
+
+
+	if (state == SW_SHOW) {
+		for (CStatic* pStatic_LV : staticControls_LV)
+		{
+			pStatic_LV->DestroyWindow();
+		}
+		m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 520), CSize(120, 20)), this, 1001);
+		m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(180, 520), CSize(80, 20)), this, 1001);
+		m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(300, 520), CSize(80, 20)), this, 1001);
+		m_staticText_LeiBe.Create(_T("Leitungsbeschreibung"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(420, 520), CSize(500, 20)), this, 1001);
+		m_staticText_Einheitpreis.Create(_T("Einheitpreis [EUR]"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(960, 520), CSize(120, 20)), this, 1001);
+		m_staticText_Gesamtpreis.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(1120, 520), CSize(180, 20)), this, 1001);
+
+		//m_listCtrl.DestroyWindow(); // Destroy the old control
+		//m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
+			//CRect(CPoint(20, 500), CSize(clientRect.Width() - 20, clientRect.Height())), this, 1001);
+		 //Enable full row select and grid lines
+		/*m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 
 		m_listCtrl.InsertColumn(1, _T("Ordnungszahl"), LVCFMT_LEFT, 100);
 		m_listCtrl.InsertColumn(2, _T("Menge"), LVCFMT_RIGHT, 100);
 		m_listCtrl.InsertColumn(3, _T("Einheit"), LVCFMT_RIGHT, 100);
-		m_listCtrl.InsertColumn(4, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 500);
+		m_listCtrl.InsertColumn(4, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 1000);
 		m_listCtrl.InsertColumn(5, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 150);
 		m_listCtrl.InsertColumn(6, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 150);
-		m_listCtrl.ShowWindow(SW_SHOW);
+		m_listCtrl.ShowWindow(SW_SHOW); */
 
 		for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
 		{
@@ -388,92 +413,101 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			if (BoQ_node_text == "BoQ")
 			{
 				for (xml_node<>* BoQChild_node = BoQ_node->first_node(); BoQChild_node; BoQChild_node = BoQChild_node->next_sibling())
-				{// BoQInfo / BoQBody 
+				{// BoQInfo / BoQBody
 					CString BoQChild_node_text(BoQChild_node->name());
 					if (BoQChild_node_text == "BoQInfo")
 					{
 						continue;
 					}
 					else {
-						int nindex = 0;
+						int yPos_LV = 560;					
 						xml_node<>* BoQCtgy_node = BoQChild_node->first_node();
-						xml_node<>* Body_node = nullptr;
-						xml_node<>* Ctgy_node = nullptr;
-						xml_node<>* LblTx_node = nullptr;
-						xml_node<>* Item_node = nullptr;
+						CStatic* pstaticValue = new CStatic();
 						int nItem;
-						for (BoQCtgy_node; BoQCtgy_node; BoQCtgy_node = BoQCtgy_node->next_sibling())
-						{					
-							GetDeepestChild(BoQCtgy_node, Item_node);
-							if (Item_node) {
-								//Itemlist
-								CString Item_node_text(Item_node->name());
-								if (Item_node_text == "Itemlist") {
-									for (xml_node<>* item_node = Item_node->first_node(); item_node; item_node = item_node->next_sibling())
-									{
-										nindex++;
-										CString item_node_attr_text(item_node->first_attribute()->value());
-										 nItem = m_listCtrl.InsertItem(nindex, item_node_attr_text);
+						PrintAllIDs(BoQCtgy_node, pstaticValue, yPos_LV);
 
-										for (xml_node<>* item_child_node = item_node->first_node(); item_child_node; item_child_node = item_child_node->next_sibling()) {
-											CString item_child_node_text(item_child_node->name());
-											CString item_child_node_value(item_child_node->value());
 
-											if (item_child_node_text == "Qty") {
-												m_listCtrl.SetItemText(nItem, 1, item_child_node_value);
-											}
-											else if (item_child_node_text == "QU") {
-												m_listCtrl.SetItemText(nItem, 2, item_child_node_value);
-											}
-											else if (item_child_node_text == "UP") {
-												m_listCtrl.SetItemText(nItem, 4, item_child_node_value);
-											}
-											else if (item_child_node_text == "IT") {
-												m_listCtrl.SetItemText(nItem, 5, item_child_node_value);
-											}
-											else if (item_child_node_text = "TimeQu") {
+						//for (BoQCtgy_node; BoQCtgy_node; BoQCtgy_node = BoQCtgy_node->next_sibling())
+						//{
 
-											}
-											else if (item_child_node_text == "Description") {
-												for (xml_node<>* text_node = item_child_node->first_node(); text_node; text_node = text_node->next_sibling()) {
-													CString text_node_text(text_node->name());
-													if (text_node_text == "DetailTxt") {}
-													else if (text_node_text == "OutlineText") {}
+							/*	if (Item_node) {								//Itemlist
+
+									xml_node<>* itemlist_parent = Item_node->parent()->parent();
+									CString itemlist_parent_attr(itemlist_parent->first_attribute()->value());
+									nItem = m_listCtrl.InsertItem(nindex, itemlist_parent_attr);
+									CString Item_node_text(Item_node->name());
+
+									//if (Item_node_text == "Itemlist") {
+										for (xml_node<>* item_node = Item_node->first_node(); item_node; item_node = item_node->next_sibling())
+										{
+											nindex++;
+											CString item_node_attr_text(item_node->first_attribute()->value());
+											 nItem = m_listCtrl.InsertItem(nindex, item_node_attr_text);
+
+											for (xml_node<>* item_child_node = item_node->first_node(); item_child_node; item_child_node = item_child_node->next_sibling()) {
+												CString item_child_node_text(item_child_node->name());
+												CString item_child_node_value(item_child_node->value());
+
+												if (item_child_node_text == "Qty") {
+													m_listCtrl.SetItemText(nItem, 1, item_child_node_value);
+												}
+												else if (item_child_node_text == "QU") {
+													m_listCtrl.SetItemText(nItem, 2, item_child_node_value);
+												}
+												else if (item_child_node_text == "UP") {
+													m_listCtrl.SetItemText(nItem, 4, item_child_node_value);
+												}
+												else if (item_child_node_text == "IT") {
+													m_listCtrl.SetItemText(nItem, 5, item_child_node_value);
+												}
+												else if (item_child_node_text = "TimeQu") {
+
+												}
+												else if (item_child_node_text == "Description") {
+													for (xml_node<>* text_node = item_child_node->first_node(); text_node; text_node = text_node->next_sibling()) {
+														CString text_node_text(text_node->name());
+														if (text_node_text == "DetailTxt") {}
+														else if (text_node_text == "OutlineText") {}
+													}
 												}
 											}
 										}
-									}
-									xml_node<>* itemlist_parent = Item_node->parent()->parent();
+									//}
 								}
-								/*else if (Item_node_text == "BoQCtgy") {
-									nindex++;
-									CString itemode_attr_text(BoQCtgy_node->first_attribute()->next_attribute()->value());
-									nItem = m_listCtrl.InsertItem(nindex, itemode_attr_text + ".");
+								else {
 
-								}*/
-								CString item_node_attr_text(BoQCtgy_node->first_attribute()->value());
-								AfxMessageBox(item_node_attr_text);
+									AfxMessageBox(_T("not found"));
+								}
 
-							}
-							else {
-
-								AfxMessageBox(_T("not found"));
-							}
-						}
+								//}
 					}
 				}
-				
+
+			}
+
+			else
+			{
+				//m_listCtrl.ShowWindow(SW_HIDE);
+				m_bInfoVisible_LV = SW_SHOW;
+			}*/
+					}
+				}
 			}
 		}
+		for (CStatic* pStatic_LV : staticControls_LV)
+		{
+			pStatic_LV->SetFont(&m_font_bold);
+			pStatic_LV->ShowWindow(state);
+		}
 
-		break;
-	case SW_HIDE:
-		m_listCtrl.ShowWindow(SW_HIDE);
-		m_bInfoVisible_LV = SW_SHOW;
-		break;
-	default:
-		break;
 	}
+	else {
+		for (CStatic* pStatic_LV : staticControls_LV)
+		{
+			pStatic_LV->ShowWindow(state);
+		}
+	}
+
 }
 
 #ifdef _DEBUG
@@ -572,64 +606,143 @@ CString CLV_MainView::Utf8ToCString(const char* utf8Str)
 bool CLV_MainView::GetDeepestChild(xml_node<>* node, xml_node<>*& last)
 {
 	if (!node) return false;
-	//last = node;
-
-	//node = BoqCtgy_node
-	
-/*	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
-		CString child_text(child->name());
-		if (child_text == "LblTx") 
-		{
-			last = child;
-			break;
-		}
-		else if (child_text == "BoQBody") 
-		{
-			GetDeepestChild(child, last);
-			
-		}
-		else if(child_text == "BoQCtgy")
-		{
-			//AfxMessageBox(_T("BoQCtgy found!"));
-			last = child;
-			break;
-		}
-	}*/
 
 	CString nodeName(node->name());
-
-	if (nodeName == "Itemlist" )
-	{
+	 if (nodeName == "Itemlist") {
 		last = node;
 		return true;
 	}
-
 
 	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
 	{
 		if (GetDeepestChild(child, last))
 			return true;
 	}
-
 	return false;
-	/*for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
-	{
-		CString child_text(child->name()); 
-		if (child_text == "Itemlist") {
-			last = child;
-			return true;
-		}
-		else {
-			GetDeepestChild(child, last);
-		}
-
-	}
-	return false; // No child found*/
 }
 
-void CLV_MainView::GetDeviceScrollSize(int& nMapMode,
-	SIZE& sizeTotal,
-	SIZE& sizePage,
-	SIZE& sizeLine) const
+//void CLV_MainView::PrintAllIDs(xml_node<>* node, CListCtrl* pList, int& index)
+void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 {
+	for (xml_node<>* ctgyNode = node; ctgyNode; ctgyNode = ctgyNode->next_sibling())
+	{
+		xml_attribute<>* ID_Attr = ctgyNode->first_attribute("ID");
+		//xml_attribute<>* NoPart_Attr = ctgyNode->first_attribute("RNoPart");
+
+		CString id = ID_Attr ? CString(ID_Attr->value()) : _T("");
+		//CString rNo = NoPart_Attr ? CString(NoPart_Attr->value()) : _T("");
+		//int itemIndex = pList->InsertItem(index++, rNo + _T("."));
+		//int nItem = pList->InsertItem(index++, id);
+		CStatic* cStatic = new CStatic();
+
+		cStatic->Create(id, WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
+		m_vecStatics_GAEBInfo.push_back(cStatic);
+		index += 20;
+		cStatic->SetFont(&m_font);
+
+		xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
+		if (bodyNode)
+		{
+			xml_node<>* itemListNode = bodyNode->first_node("Itemlist");
+			if (itemListNode)
+			{
+				for (xml_node<>* itemNode = itemListNode->first_node("Item"); itemNode; itemNode = itemNode->next_sibling("Item"))
+				{
+					CString itemId = CString(itemNode->first_attribute("ID")->value());
+					CStatic* cStatic = new CStatic();
+					cStatic->Create(itemId, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
+					m_vecStatics_GAEBInfo.push_back(cStatic);
+					index += 20;
+					cStatic->SetFont(&m_font);
+					//int row = pList->InsertItem(index++, itemId); 
+					for (xml_node<>* child = itemNode->first_node(); child; child = child->next_sibling())
+					{
+						CString tag(child->name());
+						CString val(child->value());
+						
+						if (tag == "Qty") {
+							//pList->SetItemText(row, 1, val); // Menge
+							CStatic* cStatic_Qty = new CStatic();
+							cStatic_Qty->Create(val, WS_CHILD | WS_VISIBLE,
+								CRect(CPoint(180, index), CSize(120, 20)), this, 1001);
+							cStatic_Qty->SetFont(&m_font);
+							m_vecStatics_GAEBInfo.push_back(cStatic_Qty);
+							index += 20;
+						}
+						//	cStatic->SetFont(&m_font);
+						else if (tag == "QU") {
+							//pList->SetItemText(row, 2, val); // Einheit
+							CStatic* cStatic_QU = new CStatic();
+							cStatic_QU->Create(val, WS_CHILD | WS_VISIBLE,
+								CRect(CPoint(300, index), CSize(120, 20)), this, 1001);
+							cStatic_QU->SetFont(&m_font);
+							m_vecStatics_GAEBInfo.push_back(cStatic_QU);
+							index += 20;
+						}
+						else if (tag == "UP") {
+							//pList->SetItemText(row, 4, val); // Einheitpreis
+							CStatic* cStatic_UP = new CStatic();
+							cStatic_UP->Create(val, WS_CHILD | WS_VISIBLE,
+								CRect(CPoint(960, index), CSize(120, 20)), this, 1001);
+							cStatic_UP->SetFont(&m_font);
+							m_vecStatics_GAEBInfo.push_back(cStatic_UP);
+							index += 20;
+						}
+						else if (tag == "IT") {
+							//pList->SetItemText(row, 5, val); // Gesamtpreis
+							CStatic* cStatic_IT = new CStatic();
+							cStatic_IT->Create(val, WS_CHILD | WS_VISIBLE,
+								CRect(CPoint(1120, index), CSize(120, 20)), this, 1001);
+							cStatic_IT->SetFont(&m_font);
+							m_vecStatics_GAEBInfo.push_back(cStatic_IT);
+							index += 20;
+						}
+						else if (tag == "Description")
+						{
+							xml_node<>* complete_txt_node = child->first_node();	//CompleteText
+							xml_node<>* detail_txt_node = complete_txt_node->first_node();	//DetailTxt
+							xml_node<>* outline_txt_node = complete_txt_node->first_node()->next_sibling();	//OutlineText
+							CString Fulltext;
+
+							for (xml_node<>* p_node = detail_txt_node->first_node()->first_node(); p_node; p_node = p_node->next_sibling()) {
+
+
+								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+								{
+									CString span_node_text = Utf8ToCString(span_node->value());
+									span_node_text.Replace(_T("<br/>"), _T("\r\n"));
+									span_node_text.Replace(_T("<br>"), _T("\r\n"));
+									if (!span_node_text.IsEmpty()) {
+										Fulltext += span_node_text;
+									}
+									CStatic* cStatic_text = new CStatic();
+									cStatic_text->Create(Fulltext, WS_CHILD | WS_VISIBLE,
+										CRect(CPoint(420, index), CSize(500, 20)), this, 1001);
+									cStatic_text->SetFont(&m_font);
+									m_vecStatics_GAEBInfo.push_back(cStatic_text);
+									index += 20;
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				// Recurse into nested BoQCtgy (child categories)
+				xml_node<>* childCtgy = bodyNode->first_node("BoQCtgy");
+				if (childCtgy)
+					PrintAllIDs(childCtgy, cStatic, index);
+			}
+		}
+	}
+}
+
+
+void CLV_MainView::GetDeviceScrollSize(int& nMapMode, SIZE & sizeTotal, SIZE & sizePage, SIZE & sizeLine)
+		const
+{
+	
 }

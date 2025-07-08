@@ -184,6 +184,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Downloads\MFC-GridCtrl-master\MFC-GridCtrl-master\CellRange.h" />
     <ClInclude Include="calendarbar.h" />
     <ClInclude Include="CAuftraggeberView.h" />
     <ClInclude Include="CAuftragnehmerView.h" />

@@ -73,6 +73,13 @@ protected:
 	CStatic m_staticText_Waehrung;
 	CStatic m_staticText_WaehrungBez;
 
+	CStatic m_staticText_OZ;
+	CStatic m_staticText_Menge;
+	CStatic m_staticText_Einheit;
+	CStatic m_staticText_LeiBe;
+	CStatic m_staticText_Einheitpreis;
+	CStatic m_staticText_Gesamtpreis;
+
 	CListCtrl m_listCtrl;
 	CHeaderCtrl* pHeader;
 
@@ -101,6 +108,9 @@ public:
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	CString Utf8ToCString(const char* utf8Str);
 	bool  GetDeepestChild(xml_node<>* node, xml_node<>*& last);
+	//void PrintAllIDs(xml_node<>* node, CListCtrl* pList, int& index);
+	void PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index);
+
 
 private:
 	void GetDeviceScrollSize(int& nMapMode,
