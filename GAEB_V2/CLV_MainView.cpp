@@ -391,6 +391,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			CRect(CPoint(960, 520), CSize(120, 20)), this, 1001);
 		m_staticText_Gesamtpreis.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
 			CRect(CPoint(1120, 520), CSize(180, 20)), this, 1001);
+			//CRect(420, 520, 50, 10), this, 1002);
 
 		//m_listCtrl.DestroyWindow(); // Destroy the old control
 		//m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
@@ -405,6 +406,11 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 		m_listCtrl.InsertColumn(5, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 150);
 		m_listCtrl.InsertColumn(6, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 150);
 		m_listCtrl.ShowWindow(SW_SHOW); */
+		for (CStatic* pStatic_LV : staticControls_LV)
+		{
+			pStatic_LV->SetFont(&m_font_bold);
+			pStatic_LV->ShowWindow(state);
+		}
 
 		for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
 		{
@@ -425,11 +431,8 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 						CStatic* pstaticValue = new CStatic();
 						int nItem;
 						PrintAllIDs(BoQCtgy_node, pstaticValue, yPos_LV);
-
-
 						//for (BoQCtgy_node; BoQCtgy_node; BoQCtgy_node = BoQCtgy_node->next_sibling())
 						//{
-
 							/*	if (Item_node) {								//Itemlist
 
 									xml_node<>* itemlist_parent = Item_node->parent()->parent();
@@ -494,11 +497,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				}
 			}
 		}
-		for (CStatic* pStatic_LV : staticControls_LV)
-		{
-			pStatic_LV->SetFont(&m_font_bold);
-			pStatic_LV->ShowWindow(state);
-		}
+
 
 	}
 	else {
@@ -624,6 +623,7 @@ bool CLV_MainView::GetDeepestChild(xml_node<>* node, xml_node<>*& last)
 //void CLV_MainView::PrintAllIDs(xml_node<>* node, CListCtrl* pList, int& index)
 void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 {
+	int index_menge;
 	for (xml_node<>* ctgyNode = node; ctgyNode; ctgyNode = ctgyNode->next_sibling())
 	{
 		xml_attribute<>* ID_Attr = ctgyNode->first_attribute("ID");
@@ -654,7 +654,7 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 					cStatic->Create(itemId, WS_CHILD | WS_VISIBLE,
 						CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
 					m_vecStatics_GAEBInfo.push_back(cStatic);
-					index += 20;
+									
 					cStatic->SetFont(&m_font);
 					//int row = pList->InsertItem(index++, itemId); 
 					for (xml_node<>* child = itemNode->first_node(); child; child = child->next_sibling())
@@ -669,7 +669,7 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 								CRect(CPoint(180, index), CSize(120, 20)), this, 1001);
 							cStatic_Qty->SetFont(&m_font);
 							m_vecStatics_GAEBInfo.push_back(cStatic_Qty);
-							index += 20;
+							//index_menge += 20;
 						}
 						//	cStatic->SetFont(&m_font);
 						else if (tag == "QU") {
@@ -679,7 +679,7 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 								CRect(CPoint(300, index), CSize(120, 20)), this, 1001);
 							cStatic_QU->SetFont(&m_font);
 							m_vecStatics_GAEBInfo.push_back(cStatic_QU);
-							index += 20;
+							//index += 20;
 						}
 						else if (tag == "UP") {
 							//pList->SetItemText(row, 4, val); // Einheitpreis
@@ -688,7 +688,7 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 								CRect(CPoint(960, index), CSize(120, 20)), this, 1001);
 							cStatic_UP->SetFont(&m_font);
 							m_vecStatics_GAEBInfo.push_back(cStatic_UP);
-							index += 20;
+							//index += 20;
 						}
 						else if (tag == "IT") {
 							//pList->SetItemText(row, 5, val); // Gesamtpreis
@@ -697,7 +697,7 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 								CRect(CPoint(1120, index), CSize(120, 20)), this, 1001);
 							cStatic_IT->SetFont(&m_font);
 							m_vecStatics_GAEBInfo.push_back(cStatic_IT);
-							index += 20;
+							//index += 20;
 						}
 						else if (tag == "Description")
 						{
@@ -712,21 +712,33 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
 								{
 									CString span_node_text = Utf8ToCString(span_node->value());
-									span_node_text.Replace(_T("<br/>"), _T("\r\n"));
-									span_node_text.Replace(_T("<br>"), _T("\r\n"));
+									//span_node_text.Replace(_T("<br/>"), _T("\r\n"));
+									//span_node_text.Replace(_T("<br>"), _T("\r\n"));
 									if (!span_node_text.IsEmpty()) {
 										Fulltext += span_node_text;
 									}
 									CStatic* cStatic_text = new CStatic();
+									
+									CDC* pdc = GetDC();
+									CFont* pOldFont = pdc->SelectObject(&m_font);
+									CRect textRect(CPoint(420, index), CSize(500,0));
+									pdc->DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+
+									pdc->SelectObject(pOldFont);
+									ReleaseDC(pdc);
+
 									cStatic_text->Create(Fulltext, WS_CHILD | WS_VISIBLE,
-										CRect(CPoint(420, index), CSize(500, 20)), this, 1001);
-									cStatic_text->SetFont(&m_font);
+										CRect(420, index, 0, 10), this, 1001);
 									m_vecStatics_GAEBInfo.push_back(cStatic_text);
-									index += 20;
+									cStatic_text->SetFont(&m_font);
+
+									//index += 20;
 								}
 							}
 						}
 					}
+					index += 20;
+
 				}
 			}
 			else
