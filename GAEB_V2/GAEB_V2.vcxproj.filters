@@ -90,6 +90,9 @@
     <ClInclude Include="..\..\..\..\Downloads\MFC-GridCtrl-master\MFC-GridCtrl-master\CellRange.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CDocumentClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GAEB_V2.cpp">
@@ -141,6 +144,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CLV_MainView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDocumentClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

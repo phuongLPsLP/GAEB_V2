@@ -188,6 +188,7 @@
     <ClInclude Include="calendarbar.h" />
     <ClInclude Include="CAuftraggeberView.h" />
     <ClInclude Include="CAuftragnehmerView.h" />
+    <ClInclude Include="CDocumentClass.h" />
     <ClInclude Include="CHinweisText.h" />
     <ClInclude Include="CLVInfosView.h" />
     <ClInclude Include="CLVBereichView.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="calendarbar.cpp" />
     <ClCompile Include="CAuftraggeberView.cpp" />
     <ClCompile Include="CAuftragnehmerView.cpp" />
+    <ClCompile Include="CDocumentClass.cpp" />
     <ClCompile Include="CHinweisText.cpp" />
     <ClCompile Include="CLVInfosView.cpp" />
     <ClCompile Include="CLVBereichView.cpp" />

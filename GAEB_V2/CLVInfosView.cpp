@@ -34,10 +34,10 @@ void CLVInfosView::OnDraw(CDC* pDC)
 	CPen pen(PS_SOLID, 1, RGB(0,0,0));
 	CPen* pOldPen = pDC->SelectObject(&pen);
 
-	pDC->MoveTo(30, 250);
-	pDC->LineTo(220, 250);
+	//pDC->MoveTo(30, 250);
+	//pDC->LineTo(220, 250);
 
-	pDC->SelectObject(pOldPen);
+	//pDC->SelectObject(pOldPen);
 }
 
 void CLVInfosView::OnInitialUpdate()
@@ -46,11 +46,14 @@ void CLVInfosView::OnInitialUpdate()
 	//StaticText 1001
 	//Edit 1002
 	//Groupbox 1003
-	
+
 	CView::OnInitialUpdate();
 	Invalidate();
 	UpdateWindow();
 	m_brush_edit_bg_color.CreateSolidBrush(RGB(255, 255, 200));
+
+	GetClientRect(&clientRect);
+	CClientDC dc(this);
 
 	LOGFONT lf;
 	::ZeroMemory(&lf, sizeof(LOGFONT));
@@ -68,7 +71,7 @@ void CLVInfosView::OnInitialUpdate()
 
 	LOGFONT lf_bold;
 	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
-	lf_bold.lfHeight = 18; // Font height
+	lf_bold.lfHeight = 20; // Font height
 	lf_bold.lfWeight = FW_BOLD;
 	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
 	m_font_bold.CreateFontIndirect(&lf_bold);
@@ -90,7 +93,7 @@ void CLVInfosView::OnInitialUpdate()
 		_T("Segoe UI")            // Font name
 	);
 
-	m_staticText_LV_Name.Create(_T("LV-Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(80, 20)), this, 1001);
+	/*m_staticText_LV_Name.Create(_T("LV-Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(80, 20)), this, 1001);
 	m_staticText_LV_Datum.Create(_T("LV-Datum"), WS_CHILD | WS_VISIBLE, CRect(CPoint(260, 20), CSize(80, 20)), this,1001 );
 	m_staticText_LV_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 60), CSize(120, 20)), this, 1001);
 	m_staticText_LV_AnzahlPos.Create(_T("Anzahl der Positionen"), WS_CHILD | WS_VISIBLE, CRect(CPoint(500, 20), CSize(130, 20)), this, 1001);
@@ -108,7 +111,7 @@ void CLVInfosView::OnInitialUpdate()
 		CRect(CPoint(20,100), CSize(220,280)), this, 1006);
 	m_groupbox_LV_Summe->SetFont(&m_font);
 
-	m_staticText_LV_Summe_Net.Create(_T("LV-Summe netto"), WS_CHILD | WS_VISIBLE, 
+	m_staticText_LV_Summe_Net.Create(_T("LV-Summe netto"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(30, 140), CSize(80, 20)), this, 1001);
 	m_staticText_Nachlass.Create(_T("Nachlass"), WS_CHILD | WS_VISIBLE, CRect(CPoint(30, 180), CSize(80, 20)), this, 1001);
 	m_staticText_Pauschal.Create(_T("oder Pauschal"), WS_CHILD | WS_VISIBLE, CRect(CPoint(30, 220), CSize(120, 20)), this, 1001);
@@ -137,7 +140,7 @@ void CLVInfosView::OnInitialUpdate()
 	m_staticText_EP_Anteil_5.Create(_T("EP-Anteil 5"), WS_CHILD | WS_VISIBLE, CRect(CPoint(270, 310), CSize(80, 20)), this, 1001);
 	m_staticText_EP_Anteil_6.Create(_T("EP-Anteil 6"), WS_CHILD | WS_VISIBLE, CRect(CPoint(270, 340), CSize(80, 20)), this, 1001);
 
-	m_comboBox_Anzahl_LVInfos.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | CBS_DROPDOWNLIST, 
+	m_comboBox_Anzahl_LVInfos.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | CBS_DROPDOWNLIST,
 		CRect(CPoint(380, 140), CSize(120, 20)), this, 1003);
 	m_comboBox_EP_Anteil1.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | CBS_DROPDOWNLIST,
 		CRect(CPoint(380, 190), CSize(120, 20)), this, 1003);
@@ -237,8 +240,72 @@ void CLVInfosView::OnInitialUpdate()
 		{
 			pEdit->SetFont(&m_font_edit);
 		}
+	}*/
+	CStatic* staticControls[] =
+	{
+	&m_staticText_Version,
+	&m_staticText_Ausgabejahr,
+	&m_staticText_Erstellungdatum,
+	&m_staticText_Erstellungszeit,
+	&m_staticText_Programm,
+	&m_staticText_Umsetzprogramm,
+	&m_staticText_blank,
+	};
+
+	for (CStatic* pStatic : staticControls)
+	{
+		pStatic->DestroyWindow();
 	}
 
+	m_staticText_Title.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
+	m_staticText_Title.SetFont(&m_font_bold);
+
+	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
+	m_xmlDoc->parse<0>(m_xmlFile->data());
+	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
+
+	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
+	m_pProjektInfo = m_pGAEBInfo->next_sibling();
+	m_award = m_pProjektInfo->next_sibling();
+
+	for (CStatic* pStatic : staticControls)
+	{
+		pStatic->DestroyWindow();
+	}
+	m_staticText_Version.Create(_T("Version:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
+	m_staticText_Ausgabejahr.Create(_T("Ausgabejahr der Regelung:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 90), CSize(250, 20)), this, 1001);
+	m_staticText_Erstellungdatum.Create(_T("Erstellungsdatum der Datei:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 110), CSize(250, 20)), this, 1001);
+	m_staticText_Erstellungszeit.Create(_T("Erstellungszeit der Datei:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 130), CSize(250, 20)), this, 1001);
+	m_staticText_Programm.Create(_T("Programmsystem:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 150), CSize(250, 20)), this, 1001);
+	m_staticText_Umsetzprogramm.Create(_T("Umsetzprogramm:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 170), CSize(250, 20)), this, 1001);
+	m_staticText_blank.Create(_T(" "), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 190), CSize(250, 20)), this, 1001);
+
+	int yPos_GaebInfo = 70;  // Starting y position for controls
+	//GEAB Info
+	xml_node<>* SubChild = m_pGAEBInfo->first_node();
+	for (SubChild; SubChild; SubChild = SubChild->next_sibling())
+	{
+		//CString subChildValue(SubChild->name());		
+		CString subChildText(SubChild->value());
+		CStatic* pstaticValue = new CStatic();
+		pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
+		yPos_GaebInfo += 20;
+		pstaticValue->SetFont(&m_font);
+	}
+	for (CStatic* pStatic : staticControls)
+	{
+		pStatic->SetFont(&m_font);
+	}
 }
 
 

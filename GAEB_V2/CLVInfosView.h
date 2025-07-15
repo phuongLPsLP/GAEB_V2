@@ -1,5 +1,10 @@
 #pragma once
 
+#include "rapidxml-1.13/rapidxml.hpp"
+#include "rapidxml-1.13/rapidxml_print.hpp"
+#include "rapidxml-1.13/rapidxml_utils.hpp"
+
+using namespace rapidxml;
 
 // CKalkulationsInfosView view
 
@@ -82,6 +87,23 @@ protected:
 	CComboBox m_comboBox_EP_Anteil6;
 	CComboBox m_comboBox_Zeit_Anteil;
 	CComboBox m_comboBox_EP_Nachkomma;
+
+	CStatic m_staticText_Title;
+	CStatic m_staticText_Version;
+	CStatic m_staticText_Ausgabejahr;
+	CStatic m_staticText_Erstellungdatum;
+	CStatic m_staticText_Erstellungszeit;
+	CStatic m_staticText_Programm;
+	CStatic m_staticText_Umsetzprogramm;
+	CStatic m_staticText_blank;
+
+	CRect clientRect;
+	std::unique_ptr<rapidxml::file<>> m_xmlFile;
+	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
+	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
+
 
 	CFont m_font;
 	CFont m_font_edit;

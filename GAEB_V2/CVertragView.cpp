@@ -4,11 +4,13 @@
 #include "pch.h"
 #include "GAEB_V2.h"
 #include "CVertragView.h"
+#include "CDocumentClass.h"
+
 
 
 // CVertragView
 
-IMPLEMENT_DYNCREATE(CVertragView, CView)
+IMPLEMENT_DYNCREATE(CVertragView, CScrollView)
 
 CVertragView::CVertragView()
 {
@@ -19,7 +21,7 @@ CVertragView::~CVertragView()
 {
 }
 
-BEGIN_MESSAGE_MAP(CVertragView, CView)
+BEGIN_MESSAGE_MAP(CVertragView, CScrollView)
 	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
@@ -52,13 +54,10 @@ void CVertragView::OnDraw(CDC* pDC)
 
 void CVertragView::OnInitialUpdate()
 {
-	CView::OnInitialUpdate();
-	CRect rect;
-	GetClientRect(&rect);
-	rect.DeflateRect(20, 90);
+	CScrollView::OnInitialUpdate();
 	m_edit_bg_color.CreateSolidBrush(RGB(255, 255, 200));
 
-
+	GetClientRect(&clientRect_VR);
 	CClientDC dc(this);
 
 	LOGFONT lf;
@@ -91,7 +90,37 @@ void CVertragView::OnInitialUpdate()
 	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
 	m_font_underline.CreateFontIndirect(&lf_underline);
 
-	m_staticText_Text.Create(_T("Vertragliche Regelung"), WS_CHILD| WS_VISIBLE, 
+	LOGFONT lf_button_font;
+	::ZeroMemory(&lf_button_font, sizeof(LOGFONT));
+	lf_button_font.lfHeight = 20; // Font height
+	lf_button_font.lfWeight = FW_BOLD;
+	lf_button_font.lfUnderline = FALSE; // Underline
+	_tcscpy_s(lf_button_font.lfFaceName, _T("Segoe UI"));
+	m_font_button.CreateFontIndirect(&lf_button_font);
+
+	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
+	m_xmlDoc->parse<0>(m_xmlFile->data());
+	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
+
+	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
+	m_pProjektInfo = m_pGAEBInfo->next_sibling();
+	m_award = m_pProjektInfo->next_sibling();
+
+	/*CDocumentClass* pDoc = (CDocumentClass*)GetDocument();
+	rapidxml::xml_node<>* award = pDoc->m_award;
+
+	if (!pDoc || !pDoc->m_award)
+	{
+		AfxMessageBox(_T("No award node available"));
+		return;
+	}
+	rapidxml::xml_node<>* award_VR = pDoc->m_award;*/
+
+	m_staticText_Text.Create(_T("Informationen zu vertraglichen Regelungen"), WS_CHILD | WS_VISIBLE ,
+		CRect(CPoint(20, 20), CSize(clientRect_VR.Width(), 30)), this, 1001);
+	m_staticText_Text.SetFont(&m_font_button);
+	/*m_staticText_Text.Create(_T("Vertragliche Regelung"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20,20), CSize(200,30)), this, 1001);
 	m_edit_Text.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, rect, this, 1002);
 
@@ -113,7 +142,7 @@ void CVertragView::OnInitialUpdate()
 	lf_textFont.lfFaceName[0] = '\0';  
 
 	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont, 0);
-	m_combobox_textFont.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
+	m_combobox_textFont.SelectString(-1, _T("Segoe UI"));  // Or any preferred font
 
 	int standardFontSizes[] = {
 	8, 9, 10, 11, 12, 14, 16, 18,
@@ -151,7 +180,45 @@ void CVertragView::OnInitialUpdate()
 		{
 			pEdit->SetFont(&m_font);
 		}
+	}*/
+
+	int yPos_LV = 70;
+
+	for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
+	{
+		CString award_text(award->name());
+		//awardtext = DP / OWN / AddText
+		if (award_text == "AddText")
+		{
+			for (xml_node<>* addtext_node = award->first_node(); addtext_node; addtext_node = addtext_node->next_sibling())
+			{
+				//CString addtext_text(addtext_node->name());
+				//OutlineAddText / DetailAddText
+
+				for (xml_node<>* p_node = addtext_node->first_node(); p_node; p_node = p_node->next_sibling())
+				{
+					//CString p_node_text(p_node->name());
+					//<p>		
+					CStatic* pstaticValue = new CStatic();
+					CString Fulltext;
+					for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+					{
+						CString span_node_text = Utf8ToCString(span_node->value());
+						if (!span_node_text.IsEmpty()) {
+							Fulltext += span_node_text;
+						}
+					}
+					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(20, yPos_LV), CSize(clientRect_VR.Width(), 20)), this, 1001);
+					//m_vecStatics_RegInfo.push_back(pstaticValue);  // store pointer
+					yPos_LV += 20;
+					pstaticValue->SetFont(&m_font);
+				}
+			}
+		}
 	}
+	int finalY = yPos_LV;
+	CScrollView::SetScrollSizes(MM_TEXT, CSize(1000, finalY + 20));
 }
 
 // Static callback function
@@ -219,4 +286,13 @@ HBRUSH CVertragView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CVertragView::OnEditBold()
 {
+}
+
+CString CVertragView::Utf8ToCString(const char* utf8Str)
+{
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;
 }

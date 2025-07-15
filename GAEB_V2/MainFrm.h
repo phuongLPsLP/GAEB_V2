@@ -102,6 +102,11 @@ protected:  // control bar embedded members
 	BOOL m_checkbox_VA_M_Aufmaﬂ = FALSE;
 	BOOL m_checkbox_RE_M_Aufmaﬂ = FALSE;
 
+	std::unique_ptr<rapidxml::file<>> m_xmlFile;
+	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
+	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 
 	void FillClassView();
 	//CCalendarBar      m_wndCalendar;

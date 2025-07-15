@@ -15,7 +15,6 @@
 #include "pch.h"
 #include "framework.h"
 #include "GAEB_V2.h"
-
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -33,6 +32,9 @@
 #include "CHinweisText.h"
 #include "CPositionView.h"
 #include "CLV_MainView.h"
+#include "CDocumentClass.h"
+
+#include <memory>
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -140,25 +142,47 @@ void CMainFrame::FillClassView()
 	//rapidxml::file<> xmlFile("C:/Users/phuon/source/repos/GAEB_V2/GAEB_V2/Test.xml");
 	//rapidxml::file<> xmlFile("Test.xml");
 	//rapidxml::file<> xmlFile("C:/Users/marku/Downloads/07_GAEB.X83");
+
+
+	/*	
+	CDocumentClass* pDoc = dynamic_cast<CDocumentClass*>(GetActiveDocument());
+	if (!pDoc) return;
+	auto xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	auto xmlDoc = std::make_unique<rapidxml::xml_document<>>();
+	xmlDoc->parse<0>(xmlFile->data());
+	rapidxml::xml_node<>* root = xmlDoc->first_node();	
+	rapidxml::xml_node<>*  m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
+	rapidxml::xml_node<>* pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling() : nullptr;
+	rapidxml::xml_node<>* pAward = pProjektInfo ? pProjektInfo->next_sibling() : nullptr;
+		
+	pDoc->m_xmlFile = std::move(xmlFile);
+	pDoc->m_xmlDoc = std::move(xmlDoc);
+	pDoc->m_pGAEBInfo = m_pGAEBInfo;
+	pDoc->m_pProjektInfo = pProjektInfo;
+	pDoc->m_award = pAward;*/
+
 	rapidxml::file<> xmlFile("07_GAEB.X83");
 	rapidxml::xml_document<> doc;
 	doc.parse<0>(xmlFile.data());
+	rapidxml::xml_node<>* root = doc.first_node();
+	root->name("Leistungsverzeichnis");
 
+	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
+	m_pProjektInfo = m_pGAEBInfo->next_sibling();
+	m_award = m_pProjektInfo->next_sibling();
 
 	m_wndClassView.DeleteAllItems();
 
-	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), 0, 0);
+	HTREEITEM info = m_wndClassView.InsertItem(_T("Informationen"), TVI_ROOT, TVI_LAST);
+	HTREEITEM gabe_info = m_wndClassView.InsertItem(_T("GAEB-Datenaustausch"), info, TVI_LAST);
+	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, TVI_LAST);
+	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, TVI_LAST);
+//	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), info, TVI_LAST);
+//	HTREEITEM auftragnehmer = m_wndClassView.InsertItem(_T("Auftragnehmer"), info, TVI_LAST);
+	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
 
-	HTREEITEM auftragnehmer = m_wndClassView.InsertItem(_T("Auftragnehmer"), 0, 0);
 
-	HTREEITEM info = m_wndClassView.InsertItem(_T("Projektinfos"), 0, 0);
-
-	HTREEITEM vergaben = m_wndClassView.InsertItem(_T("Vergabeninfos"), 0, 0);
-
-	HTREEITEM kalkulation = m_wndClassView.InsertItem(_T("LVInfos"), 0, 0);
-
-	rapidxml::xml_node<>* root = doc.first_node();
-	root->name("Leistungsverzeichnis");
+	m_wndClassView.Expand(info, TVE_EXPAND);
 
 
 	if (!root) return;
@@ -174,7 +198,6 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 	if (currentDepth > maxDepth)
 		maxDepth = currentDepth;
 	CString nodeLabel(node->name());
-	//nodeLabel = "Leistungsverzeichnis";
 
 	for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
 		CString attrName(attr->name());
@@ -227,14 +250,17 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	else if (itemText == _T("Auftragnehmer")) {
 		SwitchView(RUNTIME_CLASS(CAuftragnehmerView));
 	}
-	else if (itemText == _T("Projektinfos")) {
+	else if (itemText == _T("Projekt")) {
 		SwitchView(RUNTIME_CLASS(CProjektInfosView));
 	}
-	else if (itemText == _T("Vergabeninfos")) {
+	else if (itemText == _T("Vergabe")) {
 		SwitchView(RUNTIME_CLASS(CVergabeinfosView));
 	}
-	else if (itemText == _T("LVInfos")) {
+	else if (itemText == _T("GAEB-Datenaustausch")) {
 		SwitchView(RUNTIME_CLASS(CLVInfosView));
+	}
+	else if (itemText == _T("Vertragliche Regelung")) {
+		SwitchView(RUNTIME_CLASS(CVertragView));
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
 		SwitchView(RUNTIME_CLASS(CLV_MainView));		

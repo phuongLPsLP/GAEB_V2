@@ -1,6 +1,11 @@
 #pragma once
 
 
+#include "rapidxml-1.13/rapidxml.hpp"
+#include "rapidxml-1.13/rapidxml_print.hpp"
+#include "rapidxml-1.13/rapidxml_utils.hpp"
+
+using namespace rapidxml;
 // CVergabeinfosView view
 
 class CVergabeinfosView : public CView
@@ -21,60 +26,50 @@ public:
 #endif
 #endif
 protected:
+
+	CRect clientRect_Vergabe;
+
+	CStatic m_staticText_Vergabeinfos;
+
+	CStatic m_staticText_Datenaustauschphase;
+
+	CStatic m_staticText_Vergabe;
 	CStatic m_staticText_Vergabeart;
-	CStatic m_staticText_Waehrung_vergabeinfos;
-	CStatic m_staticText_Angebotsdatum;
-	CStatic m_staticText_Abnahmedatum;
-	CStatic m_staticText_Auftragsdatum;
-	CStatic m_staticText_Sonderart;
-	CStatic m_staticText_Abgabeort;
-	CStatic m_staticText_Angebotszeit;
+	CStatic m_staticText_Waehrung;
+	CStatic m_staticText_Waehrung_Bez;
+	CStatic m_staticText_Eröffnungstermins_Datum;
+	CStatic m_staticText_Eröffnungstermins_Uhrzeit;
 	CStatic m_staticText_Zuschlagsfrist;
-	CStatic m_staticText_Abnahmeart;
-	CStatic m_staticText_Auftragsnummer;
 
-	CButton	*m_groupbox_Adressdaten;
-	CButton	*m_groupbox_Ausführung;
-	CButton	*m_groupbox_Gewährleistung;
-	CButton	*m_groupbox_Burgschaften;
+	CStatic m_staticText_Auftraggeber;
+	CStatic m_staticText_Name;
+	CStatic m_staticText_Str_Nr;
+	CStatic m_staticText_PLZ;
+	CStatic m_staticText_Ort;
+	CStatic m_staticText_Tel;
+	CStatic m_staticText_Mail;
+	CStatic m_staticText_DV;
+	CStatic m_staticText_Vergabe_Nr;
 
-	CEdit m_edit_Waehrung_vergabeinfos;
-	CEdit m_edit_Bez_vergabeinfos;
-	CEdit m_edit_Angebotsdatum;
-	CEdit m_edit_Abnahmedatum;
-	CEdit m_edit_Auftragsdatum;
-	CEdit m_edit_Abgabeort;
-	CEdit m_edit_Angebotszeit;
-	CEdit m_edit_Zuschlagsfrist;
-	CEdit m_edit_Abnahmeart;
-	CEdit m_edit_Auftragsnummer;	
+	CStatic m_staticText_Auftragnehmer;
+	CStatic m_staticText_Adresse_nehmer;
+	CStatic m_staticText_Name_nehmer;
+	CStatic m_staticText_Str_Nr_nehmer;
+	CStatic m_staticText_PLZ_nehmer;
+	CStatic m_staticText_Ort_nehmer;
 
-	CStatic m_staticText_Beginn;
-	CStatic m_staticText_End_Ausführung;
-	CStatic m_staticText_Dauer;
-	CStatic m_staticText_Einheit;
-	CStatic m_staticText_End_Gewährleistung;
-	CStatic m_staticText_Ausführung_Anteil;
-	CStatic m_staticText_Gewährleist;
-
-	CEdit m_edit_beginn;
-	CEdit m_edit_end_ausführung;
-	CEdit m_edit_dauer;
-	CEdit m_edit_einheit;
-	CEdit m_edit_ende_gewährleistung;
-	CEdit m_edit_ausführung_anteil;
-	CEdit m_edit_gewährleist_anteil;
-
-	CComboBox m_combobox_Vergabeart;
-	CComboBox m_combobox_Sonderart;
-
-	CButton m_button_Zusatztext;
-	CButton m_button_heute;
 
 	CFont m_font;
-	CFont m_font_edit;
-	CFont m_font_button;
+	CFont m_font_bold;
+	CFont m_font_underline;
 	CBrush m_brush_edit_bg_color;
+
+
+	std::unique_ptr<rapidxml::file<>> m_xmlFile;
+	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
+	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 
 protected:
 	DECLARE_MESSAGE_MAP()

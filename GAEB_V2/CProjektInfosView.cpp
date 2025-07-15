@@ -39,6 +39,8 @@ void CProjektInfosView::OnInitialUpdate()
 	//m_font.CreatePointFont(110, _T("Segoe UI")); // 9pt font
 	m_brush_edit_bg_color.CreateSolidBrush(RGB(255, 255, 200));
 
+	GetClientRect(&clientRect);
+	CClientDC dc(this);
 
 	LOGFONT lf;
 	::ZeroMemory(&lf, sizeof(LOGFONT));
@@ -56,56 +58,119 @@ void CProjektInfosView::OnInitialUpdate()
 
 	LOGFONT lf_bold;
 	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
-	lf_bold.lfHeight = 18; // Font height
+	lf_bold.lfHeight = 20; // Font height
 	lf_bold.lfWeight = FW_BOLD;
 	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
 	m_font_bold.CreateFontIndirect(&lf_bold);
 
 
-	m_staticText_Name.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(80, 20)), this, 1001);
-	m_staticText_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 60), CSize(120, 20)), this, 1001);
-	m_staticText_Beschreibung.Create(_T("Beschreibung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 160), CSize(120, 20)), this, 1001);
-	m_staticText_Waehrung.Create(_T("Währung / Bez."), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 330), CSize(120, 20)), this, 1001);
-	m_staticText_Leistungsbreich.Create(_T("Leistungsbereich"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 370), CSize(120, 20)), this, 1001);
+	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
+	m_xmlDoc->parse<0>(m_xmlFile->data());
+	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
 
-	m_edit_Name.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 20), CSize(120, 20)), this, 1002);
-	m_edit_Bezeichnung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 60), CSize(250, 80)), this, 1002);
-	m_edit_Beschreibung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 160), CSize(250, 150)), this, 1002);
-	m_edit_Bez.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 330), CSize(50, 20)), this, 1002);
-	m_edit_Waehrung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(270,330), CSize(160, 20)), this, 1002);
-	m_edit_Leistungsbreich.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 370), CSize(80, 20)), this, 1002);
-	
-	m_button_Zusatztext.Create(_T("Zusatztext"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(330, 370), CSize(100, 20)), this, 1003);
+	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
+	m_pProjektInfo = m_pGAEBInfo->next_sibling();
+	m_award = m_pProjektInfo->next_sibling();
 
-	CStatic* staticControls[] =
+	m_static_text_Title_project.Create(_T("Informationen zum Projekt"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
+	m_static_text_Title_project.SetFont(&m_font_bold);
+
+	CStatic* staticControls_PrjInfo[] =
 	{
-		&m_staticText_Name,
-		&m_staticText_Bezeichnung,
-		&m_staticText_Beschreibung,
-		&m_staticText_Waehrung,
-		&m_staticText_Leistungsbreich,
+	 &m_staticText_Name,
+	 &m_staticText_Bezeichnung,
+	 &m_staticText_Kurzbeschreibung,
+	 &m_staticText_Waehrung,
+	 &m_staticText_WaehrungBez,
 	};
 
-	for (CStatic* pStatic : staticControls)
+	for (CStatic* pStatic_PrjInfo : staticControls_PrjInfo)
 	{
-		if (pStatic->GetSafeHwnd())
-			pStatic->SetFont(&m_font);
+		pStatic_PrjInfo->DestroyWindow();
 	}
-	CEdit* editControls[] = {
-	&m_edit_Name,
-	&m_edit_Bezeichnung,
-	&m_edit_Beschreibung,
-	&m_edit_Waehrung,
-	&m_edit_Bez,
-	&m_edit_Leistungsbreich,
-	};
-	for (CEdit* pEdit : editControls)
+	m_staticText_Name.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
+	m_staticText_Bezeichnung.Create(_T("Bezeichnung:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 90), CSize(120, 20)), this, 1001);
+	m_staticText_Kurzbeschreibung.Create(_T("Kurzbeschreibung:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 110), CSize(120, 20)), this, 1001);
+	m_staticText_Waehrung.Create(_T("Währung:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 130), CSize(120, 20)), this, 1001);
+	m_staticText_WaehrungBez.Create(_T("Bezeichnung der Währung:"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(20, 150), CSize(250, 20)), this, 1001);
+
+	int yPos_ProjInfo = 70;
+	for (xml_node<>* SubChild = m_pProjektInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
 	{
-		if (pEdit->GetSafeHwnd())
-		{
-			pEdit->SetFont(&m_font_edit);
+		CString subChildText(SubChild->value());
+		if (subChildText == "") {
+			subChildText = SubChild->first_node()->value();
+			CStatic* pstaticValue = new CStatic();
+			pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
+			yPos_ProjInfo += 20;
+			pstaticValue->SetFont(&m_font);
+		}
+		else {
+			CStatic* pstaticValue = new CStatic();
+			pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
+			yPos_ProjInfo += 20;
+			pstaticValue->SetFont(&m_font);
 		}
 	}
+	for (CStatic* pStatic : staticControls_PrjInfo)
+	{
+		pStatic->SetFont(&m_font);
+	}
+
+
+	/*	m_staticText_Name.Create(_T("Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(80, 20)), this, 1001);
+		m_staticText_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 60), CSize(120, 20)), this, 1001);
+		m_staticText_Beschreibung.Create(_T("Beschreibung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 160), CSize(120, 20)), this, 1001);
+		m_staticText_Waehrung.Create(_T("Währung / Bez."), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 330), CSize(120, 20)), this, 1001);
+		m_staticText_Leistungsbreich.Create(_T("Leistungsbereich"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 370), CSize(120, 20)), this, 1001);
+
+		m_edit_Name.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 20), CSize(120, 20)), this, 1002);
+		m_edit_Bezeichnung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 60), CSize(250, 80)), this, 1002);
+		m_edit_Beschreibung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 160), CSize(250, 150)), this, 1002);
+		m_edit_Bez.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 330), CSize(50, 20)), this, 1002);
+		m_edit_Waehrung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(270,330), CSize(160, 20)), this, 1002);
+		m_edit_Leistungsbreich.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 370), CSize(80, 20)), this, 1002);
+
+		m_button_Zusatztext.Create(_T("Zusatztext"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(330, 370), CSize(100, 20)), this, 1003);
+
+		CStatic* staticControls[] =
+		{
+			&m_staticText_Name,
+			&m_staticText_Bezeichnung,
+			&m_staticText_Beschreibung,
+			&m_staticText_Waehrung,
+			&m_staticText_Leistungsbreich,
+		};
+
+		for (CStatic* pStatic : staticControls)
+		{
+			if (pStatic->GetSafeHwnd())
+				pStatic->SetFont(&m_font);
+		}
+		CEdit* editControls[] = {
+		&m_edit_Name,
+		&m_edit_Bezeichnung,
+		&m_edit_Beschreibung,
+		&m_edit_Waehrung,
+		&m_edit_Bez,
+		&m_edit_Leistungsbreich,
+		};
+		for (CEdit* pEdit : editControls)
+		{
+			if (pEdit->GetSafeHwnd())
+			{
+				pEdit->SetFont(&m_font_edit);
+			}
+		}*/
 }
 
 

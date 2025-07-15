@@ -35,3 +35,17 @@ IDC_Code:
 XML
 Namen von Baumknoten nach OZ + Bezeichnung
 PA: Position Art
+
+BoQBody/Item/Qty: Menge
+BoQBody/Item/QU: Einheit
+BoQBody/Item/Description/DetailText: Langtext
+BoQBody/Item/Description/OutlineText: Kurztext
+
+
+	HTREEITEM info = m_wndClassView.InsertItem(_T("Informationen"), 0, TVI_LAST);
+	HTREEITEM gabe_info = m_wndClassView.InsertItem(_T("GAEB-Datenaustausch"), info, TVI_LAST);
+	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, 0);
+	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, 0);
+	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), 0, 0);
+	HTREEITEM auftragnehmer = m_wndClassView.InsertItem(_T("Auftragnehmer"), 0, 0);
+	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, 0);

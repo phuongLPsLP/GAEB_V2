@@ -22,11 +22,11 @@ CLV_MainView::~CLV_MainView()
 BEGIN_MESSAGE_MAP(CLV_MainView, CScrollView)
 	ON_WM_CTLCOLOR()
 	ON_WM_DRAWITEM()
-	ON_CONTROL(BN_CLICKED, 1101, &CLV_MainView::OnBnClickedToggleGAEBInfo)
-	ON_CONTROL(BN_CLICKED, 1102, &CLV_MainView::OnBnClickedToggleProjektInfo)
-	ON_CONTROL(BN_CLICKED, 1103, &CLV_MainView::OnBnClickedToggleVergabenfo)
-	ON_CONTROL(BN_CLICKED, 1104, &CLV_MainView::OnBnClickedToggleLVInfo)
-	ON_CONTROL(BN_CLICKED, 1105, &CLV_MainView::OnBnClickedToggleRegelungInfo)
+	//ON_CONTROL(BN_CLICKED, 1101, &CLV_MainView::OnBnClickedToggleGAEBInfo)
+	//ON_CONTROL(BN_CLICKED, 1102, &CLV_MainView::OnBnClickedToggleProjektInfo)
+	//ON_CONTROL(BN_CLICKED, 1103, &CLV_MainView::OnBnClickedToggleVergabenfo)
+	//ON_CONTROL(BN_CLICKED, 1104, &CLV_MainView::OnBnClickedToggleLVInfo)
+	//ON_CONTROL(BN_CLICKED, 1105, &CLV_MainView::OnBnClickedToggleRegelungInfo)
 	ON_CONTROL(BN_CLICKED, 1106, &CLV_MainView::OnBnClickedToggleLeistungsverzeichnis)
 	ON_WM_SETCURSOR()
 END_MESSAGE_MAP()
@@ -76,7 +76,7 @@ void CLV_MainView::OnInitialUpdate()
 	lf_underline.lfHeight = 18; // Font height
 	lf_underline.lfWeight = FW_NORMAL;
 	lf_underline.lfUnderline = TRUE; // Italic
-	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI")); 
+	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI"));
 	m_font_underline.CreateFontIndirect(&lf_underline);
 
 	LOGFONT lf_button_font;
@@ -84,11 +84,11 @@ void CLV_MainView::OnInitialUpdate()
 	lf_button_font.lfHeight = 20; // Font height
 	lf_button_font.lfWeight = FW_BOLD;
 	lf_button_font.lfUnderline = TRUE; // Underline
-	_tcscpy_s(lf_button_font.lfFaceName, _T("Segoe UI")); 
+	_tcscpy_s(lf_button_font.lfFaceName, _T("Segoe UI"));
 	m_font_button.CreateFontIndirect(&lf_button_font);
 
 
-	m_button_info_gaeb.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
+/*	m_button_info_gaeb.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
 		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1101);
 	m_button_info_projekt.Create(_T("Informationen zum Projekt"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
 		CRect(CPoint(20, 230), CSize(clientRect.Width(), 50)), this, 1102);
@@ -97,9 +97,10 @@ void CLV_MainView::OnInitialUpdate()
 	m_button_info_LV.Create(_T("Informationen zum LV"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
 		CRect(CPoint(), CSize()), this, 1104);
 	m_button_info_regelung.Create(_T("Informationen zu vertraglichen Regelungen"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
-		CRect(CPoint(20,400), CSize(clientRect.Width(), 50)), this, 1105);
+		CRect(CPoint(20, 400), CSize(clientRect.Width(), 50)), this, 1105);*/
+
 	m_button_LV.Create(_T("Leistungsverzeichnis"), WS_CHILD | WS_VISIBLE | BS_OWNERDRAW | BS_LEFT,
-		CRect(CPoint(20, 450), CSize(clientRect.Width(), 50)), this, 1106);
+		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1106);
 
 	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
 	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
@@ -109,7 +110,6 @@ void CLV_MainView::OnInitialUpdate()
 	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
 	m_pProjektInfo = m_pGAEBInfo->next_sibling();
 	m_award = m_pProjektInfo->next_sibling();
-
 
 	/*
 	//rapidxml::file<> xmlFile("07_GAEB.X83");
@@ -136,12 +136,12 @@ void CLV_MainView::OnInitialUpdate()
 		}
 	}
 
-	 m_bInfoVisible = SW_SHOW;
-	 m_bInfoVisible_PrjInfo = SW_SHOW;
-	 m_bInfoVisible_VergInfo = SW_SHOW;
-	 m_bInfoVisible_LVInfo = SW_SHOW;
-	 m_bInfoVisible_RegInfo = SW_SHOW;
-	 m_bInfoVisible_LV = SW_SHOW;
+	m_bInfoVisible = SW_SHOW;
+	m_bInfoVisible_PrjInfo = SW_SHOW;
+	m_bInfoVisible_VergInfo = SW_SHOW;
+	m_bInfoVisible_LVInfo = SW_SHOW;
+	m_bInfoVisible_RegInfo = SW_SHOW;
+	m_bInfoVisible_LV = SW_SHOW;
 }
 
 void CLV_MainView::OnBnClickedToggleGAEBInfo()
@@ -356,13 +356,14 @@ void CLV_MainView::OnBnClickedToggleRegelungInfo()
 
 void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 {
-	int state = m_bInfoVisible_LV;
+	int state = SW_SHOW;
+	/*int state = m_bInfoVisible_LV;
 	m_bInfoVisible_LV = !m_bInfoVisible_LV;
 
 	for (auto pStatic_LV : m_vecStatics_LV)
 	{
 		pStatic_LV->ShowWindow(state);
-	}
+	}*/
 	CStatic* staticControls_LV[] =
 	{
 	 &m_staticText_OZ,
@@ -380,36 +381,28 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			pStatic_LV->DestroyWindow();
 		}
 		m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(20, 520), CSize(120, 20)), this, 1001);
+			CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
 		m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(180, 520), CSize(80, 20)), this, 1001);
+			CRect(CPoint(180, 70), CSize(80, 20)), this, 1001);
 		m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(300, 520), CSize(80, 20)), this, 1001);
+			CRect(CPoint(300, 70), CSize(80, 20)), this, 1001);
 		m_staticText_LeiBe.Create(_T("Leitungsbeschreibung"), WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(420, 520), CSize(500, 20)), this, 1001);
+			CRect(CPoint(420, 70), CSize(700, 20)), this, 1001);
 		m_staticText_Einheitpreis.Create(_T("Einheitpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(960, 520), CSize(120, 20)), this, 1001);
+			CRect(CPoint(1160, 70), CSize(120, 20)), this, 1001);
 		m_staticText_Gesamtpreis.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(1120, 520), CSize(180, 20)), this, 1001);
-			//CRect(420, 520, 50, 10), this, 1002);
+			CRect(CPoint(1320, 70), CSize(180, 20)), this, 1001);
+		//CRect(420, 520, 50, 10), this, 1002);
 
-		//m_listCtrl.DestroyWindow(); // Destroy the old control
-		//m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
-			//CRect(CPoint(20, 500), CSize(clientRect.Width() - 20, clientRect.Height())), this, 1001);
-		 //Enable full row select and grid lines
-		/*m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
+	//m_listCtrl.DestroyWindow(); // Destroy the old control
+	//m_listCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS,
+		//CRect(CPoint(20, 500), CSize(clientRect.Width() - 20, clientRect.Height())), this, 1001);
+	 //Enable full row select and grid lines
 
-		m_listCtrl.InsertColumn(1, _T("Ordnungszahl"), LVCFMT_LEFT, 100);
-		m_listCtrl.InsertColumn(2, _T("Menge"), LVCFMT_RIGHT, 100);
-		m_listCtrl.InsertColumn(3, _T("Einheit"), LVCFMT_RIGHT, 100);
-		m_listCtrl.InsertColumn(4, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 1000);
-		m_listCtrl.InsertColumn(5, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 150);
-		m_listCtrl.InsertColumn(6, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 150);
-		m_listCtrl.ShowWindow(SW_SHOW); */
 		for (CStatic* pStatic_LV : staticControls_LV)
 		{
 			pStatic_LV->SetFont(&m_font_bold);
-			pStatic_LV->ShowWindow(state);
+			//pStatic_LV->ShowWindow(state);
 		}
 
 		for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
@@ -426,86 +419,24 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 						continue;
 					}
 					else {
-						int yPos_LV = 560;					
+						int yPos_LV = 100;
 						xml_node<>* BoQCtgy_node = BoQChild_node->first_node();
 						CStatic* pstaticValue = new CStatic();
 						int nItem;
 						PrintAllIDs(BoQCtgy_node, pstaticValue, yPos_LV);
-						//for (BoQCtgy_node; BoQCtgy_node; BoQCtgy_node = BoQCtgy_node->next_sibling())
-						//{
-							/*	if (Item_node) {								//Itemlist
-
-									xml_node<>* itemlist_parent = Item_node->parent()->parent();
-									CString itemlist_parent_attr(itemlist_parent->first_attribute()->value());
-									nItem = m_listCtrl.InsertItem(nindex, itemlist_parent_attr);
-									CString Item_node_text(Item_node->name());
-
-									//if (Item_node_text == "Itemlist") {
-										for (xml_node<>* item_node = Item_node->first_node(); item_node; item_node = item_node->next_sibling())
-										{
-											nindex++;
-											CString item_node_attr_text(item_node->first_attribute()->value());
-											 nItem = m_listCtrl.InsertItem(nindex, item_node_attr_text);
-
-											for (xml_node<>* item_child_node = item_node->first_node(); item_child_node; item_child_node = item_child_node->next_sibling()) {
-												CString item_child_node_text(item_child_node->name());
-												CString item_child_node_value(item_child_node->value());
-
-												if (item_child_node_text == "Qty") {
-													m_listCtrl.SetItemText(nItem, 1, item_child_node_value);
-												}
-												else if (item_child_node_text == "QU") {
-													m_listCtrl.SetItemText(nItem, 2, item_child_node_value);
-												}
-												else if (item_child_node_text == "UP") {
-													m_listCtrl.SetItemText(nItem, 4, item_child_node_value);
-												}
-												else if (item_child_node_text == "IT") {
-													m_listCtrl.SetItemText(nItem, 5, item_child_node_value);
-												}
-												else if (item_child_node_text = "TimeQu") {
-
-												}
-												else if (item_child_node_text == "Description") {
-													for (xml_node<>* text_node = item_child_node->first_node(); text_node; text_node = text_node->next_sibling()) {
-														CString text_node_text(text_node->name());
-														if (text_node_text == "DetailTxt") {}
-														else if (text_node_text == "OutlineText") {}
-													}
-												}
-											}
-										}
-									//}
-								}
-								else {
-
-									AfxMessageBox(_T("not found"));
-								}
-
-								//}
-					}
-				}
-
-			}
-
-			else
-			{
-				//m_listCtrl.ShowWindow(SW_HIDE);
-				m_bInfoVisible_LV = SW_SHOW;
-			}*/
 					}
 				}
 			}
 		}
-
-
 	}
-	else {
-		for (CStatic* pStatic_LV : staticControls_LV)
-		{
-			pStatic_LV->ShowWindow(state);
-		}
-	}
+
+	//}
+	//else {
+	//	for (CStatic* pStatic_LV : staticControls_LV)
+	//	{
+	//		pStatic_LV->ShowWindow(state);
+	//	}
+	//}
 
 }
 
@@ -601,25 +532,6 @@ CString CLV_MainView::Utf8ToCString(const char* utf8Str)
 	result.ReleaseBuffer();
 	return result;
 }
-
-bool CLV_MainView::GetDeepestChild(xml_node<>* node, xml_node<>*& last)
-{
-	if (!node) return false;
-
-	CString nodeName(node->name());
-	 if (nodeName == "Itemlist") {
-		last = node;
-		return true;
-	}
-
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
-	{
-		if (GetDeepestChild(child, last))
-			return true;
-	}
-	return false;
-}
-
 //void CLV_MainView::PrintAllIDs(xml_node<>* node, CListCtrl* pList, int& index)
 void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 {
@@ -671,7 +583,6 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 							m_vecStatics_GAEBInfo.push_back(cStatic_Qty);
 							//index_menge += 20;
 						}
-						//	cStatic->SetFont(&m_font);
 						else if (tag == "QU") {
 							//pList->SetItemText(row, 2, val); // Einheit
 							CStatic* cStatic_QU = new CStatic();
@@ -702,43 +613,80 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 						else if (tag == "Description")
 						{
 							xml_node<>* complete_txt_node = child->first_node();	//CompleteText
-							xml_node<>* detail_txt_node = complete_txt_node->first_node();	//DetailTxt
-							xml_node<>* outline_txt_node = complete_txt_node->first_node()->next_sibling();	//OutlineText
-							CString Fulltext;
+							CString Fulltext_lang;
+							CString Fulltext_kurz;
 
-							for (xml_node<>* p_node = detail_txt_node->first_node()->first_node(); p_node; p_node = p_node->next_sibling()) {
+							for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
+							{
+								CString compl_text_name(compl_text->name());
 
+								//Langtext
+								if (compl_text_name == "DetailTxt") {
+									/*for (xml_node<>* text_node = detail_txt_node->first_node(); text_node; text_node = text_node->next_sibling()) //Text
+									{
+										for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling()) //p
+										{
+											for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())	//span
+											{
+												CString span_node_text = Utf8ToCString(span_node->value());
+												//span_node_text.Replace(_T("<br/>"), _T("\r\n"));
+												//span_node_text.Replace(_T("<br>"), _T("\r\n"));
+												if (!span_node_text.IsEmpty()) {
+													Fulltext_lang += span_node_text;
+												}
+												CStatic* cStatic_text = new CStatic();
 
-								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
-								{
-									CString span_node_text = Utf8ToCString(span_node->value());
-									//span_node_text.Replace(_T("<br/>"), _T("\r\n"));
-									//span_node_text.Replace(_T("<br>"), _T("\r\n"));
-									if (!span_node_text.IsEmpty()) {
-										Fulltext += span_node_text;
-									}
-									CStatic* cStatic_text = new CStatic();
-									
-									CDC* pdc = GetDC();
-									CFont* pOldFont = pdc->SelectObject(&m_font);
-									CRect textRect(CPoint(420, index), CSize(500,0));
-									pdc->DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+												CDC* pdc = GetDC();
+												CFont* pOldFont = pdc->SelectObject(&m_font);
+												CRect textRect(CPoint(420, index), CSize(500, 0));
+												//pdc->DrawText(Fulltext_lang, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
 
-									pdc->SelectObject(pOldFont);
-									ReleaseDC(pdc);
+												pdc->SelectObject(pOldFont);
+												ReleaseDC(pdc);
 
-									cStatic_text->Create(Fulltext, WS_CHILD | WS_VISIBLE,
-										CRect(420, index, 0, 10), this, 1001);
-									m_vecStatics_GAEBInfo.push_back(cStatic_text);
-									cStatic_text->SetFont(&m_font);
+												cStatic_text->Create(Fulltext_lang, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+													CRect(CPoint(420, index), CSize(500, 200)), this, 1001) ;
+												m_vecStatics_GAEBInfo.push_back(cStatic_text);
+												//index += 20;
+											}
+										}
+									}*/
 
-									//index += 20;
 								}
+
+								//Kurztext
+								else if (compl_text_name == "OutlineText") {
+									for (xml_node<>* OutlTxt = compl_text->first_node(); OutlTxt; OutlTxt = OutlTxt->next_sibling()) //Text
+									{
+										for (xml_node<>* TextOutlTxt = OutlTxt->first_node(); TextOutlTxt; TextOutlTxt = TextOutlTxt->next_sibling()) //p
+										{
+											for (xml_node<>* p_node_kurztext = TextOutlTxt->first_node(); p_node_kurztext; p_node_kurztext = p_node_kurztext->next_sibling())	//span
+											{
+												for (xml_node<>* span_node_kurztext = p_node_kurztext->first_node(); span_node_kurztext; span_node_kurztext = span_node_kurztext->next_sibling())	//span
+												{
+													CString span_node_kurztext_text = Utf8ToCString(span_node_kurztext->value());
+													//span_node_text.Replace(_T("<br/>"), _T("\r\n"));
+													//span_node_text.Replace(_T("<br>"), _T("\r\n"));
+													if (!span_node_kurztext_text.IsEmpty()) {
+														Fulltext_kurz += span_node_kurztext_text;
+													}
+													CStatic* cStatic_kurztext = new CStatic();
+													cStatic_kurztext->Create(Fulltext_kurz, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+														CRect(CPoint(420, index), CSize(1000, 20)), this, 1001);
+													cStatic_kurztext->SetFont(&m_font);
+													m_vecStatics_GAEBInfo.push_back(cStatic_kurztext);
+													//index += 20;
+												}
+											}
+										}
+									}
+								}
+								else if (compl_text_name == "ComplTSA") { continue; }
+								else if (compl_text_name == "ComplTSB") { continue; }
 							}
 						}
 					}
-					index += 20;
-
+					index += 20; // Increment index for next item
 				}
 			}
 			else
@@ -755,6 +703,5 @@ void CLV_MainView::PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index)
 
 void CLV_MainView::GetDeviceScrollSize(int& nMapMode, SIZE & sizeTotal, SIZE & sizePage, SIZE & sizeLine)
 		const
-{
-	
+{	
 }
