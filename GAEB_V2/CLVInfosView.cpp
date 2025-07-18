@@ -249,7 +249,6 @@ void CLVInfosView::OnInitialUpdate()
 	&m_staticText_Erstellungszeit,
 	&m_staticText_Programm,
 	&m_staticText_Umsetzprogramm,
-	&m_staticText_blank,
 	};
 
 	for (CStatic* pStatic : staticControls)
@@ -286,8 +285,7 @@ void CLVInfosView::OnInitialUpdate()
 		CRect(CPoint(20, 150), CSize(250, 20)), this, 1001);
 	m_staticText_Umsetzprogramm.Create(_T("Umsetzprogramm:"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 170), CSize(250, 20)), this, 1001);
-	m_staticText_blank.Create(_T(" "), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 190), CSize(250, 20)), this, 1001);
+
 
 	int yPos_GaebInfo = 70;  // Starting y position for controls
 	//GEAB Info
@@ -301,6 +299,15 @@ void CLVInfosView::OnInitialUpdate()
 			CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
 		yPos_GaebInfo += 20;
 		pstaticValue->SetFont(&m_font);
+		
+		CString cert_text(SubChild->name());
+		if (cert_text == "Certific")
+		{
+			m_staticText_Certificate.Create(_T("Prüfzertifikat:	"), WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(20, 190), CSize(250, 20)), this, 1001);
+			m_staticText_Certificate.SetFont(&m_font);
+		}
+
 	}
 	for (CStatic* pStatic : staticControls)
 	{

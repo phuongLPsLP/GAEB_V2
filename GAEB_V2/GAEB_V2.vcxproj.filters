@@ -232,6 +232,8 @@
     </None>
     <None Include="rapidxml-1.13\manual.html" />
     <None Include="07_GAEB.X83" />
+    <None Include="..\..\..\..\Downloads\Hagmans_01761.x86" />
+    <None Include="..\..\..\..\Downloads\Hof Berufschule Dachdeckerarbeiten 05.X81" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Test.xml" />

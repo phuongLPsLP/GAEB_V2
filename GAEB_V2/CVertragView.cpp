@@ -99,6 +99,7 @@ void CVertragView::OnInitialUpdate()
 	m_font_button.CreateFontIndirect(&lf_button_font);
 
 	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hagmans_01761.X86");
 	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
 	m_xmlDoc->parse<0>(m_xmlFile->data());
 	rapidxml::xml_node<>* root = m_xmlDoc->first_node();

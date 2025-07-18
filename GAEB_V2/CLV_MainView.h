@@ -84,14 +84,15 @@ protected:
 	CHeaderCtrl* pHeader;
 
 	CFont m_font;
-	CFont m_font_edit;
 	CFont m_font_bold;
 	CFont m_font_italic;
 	CFont m_font_underline;
-	CFont m_font_button;
+	CFont m_font_title;
+
 	CBrush m_brush_edit_bg_color;
 
-	CSize m_wndSize;	
+
+	CSize m_wndSize;
 
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -103,12 +104,12 @@ public:
 	afx_msg void OnBnClickedToggleVergabenfo();
 	afx_msg void OnBnClickedToggleLVInfo();
 	afx_msg void OnBnClickedToggleRegelungInfo();
-	afx_msg void OnBnClickedToggleLeistungsverzeichnis();
+	void OnBnClickedToggleLeistungsverzeichnis();
 
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	CString Utf8ToCString(const char* utf8Str);
 	void PrintAllIDs(xml_node<>* node, CStatic* cStatic, int& index);
-
+	void PrintAllIDsRecursive(xml_node<>* node, int& index, std::vector<int> levelPath);
 
 private:
 	void GetDeviceScrollSize(int& nMapMode,

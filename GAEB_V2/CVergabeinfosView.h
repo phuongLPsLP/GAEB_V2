@@ -47,9 +47,11 @@ protected:
 	CStatic m_staticText_PLZ;
 	CStatic m_staticText_Ort;
 	CStatic m_staticText_Tel;
+	CStatic m_staticText_Fax;
 	CStatic m_staticText_Mail;
 	CStatic m_staticText_DV;
 	CStatic m_staticText_Vergabe_Nr;
+	CStatic m_staticText_Deb_Nr;
 
 	CStatic m_staticText_Auftragnehmer;
 	CStatic m_staticText_Adresse_nehmer;
@@ -70,11 +72,17 @@ protected:
 	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
 	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
+	rapidxml::xml_node<>* award_node = nullptr;
 
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	void CVergabeinfosView::Auftraggeber();
+	void CVergabeinfosView::Auftragnehmer();	
+	CString Utf8ToCString(const char* utf8Str);
+
+
 };
 
 

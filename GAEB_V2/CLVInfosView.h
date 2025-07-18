@@ -28,7 +28,7 @@ public:
 
 protected: 
 
-	CButton *m_groupbox_LV_Summe;
+	/*CButton* m_groupbox_LV_Summe;
 	CButton *m_groupbox_Bez_EP_Anteil;
 	CButton *m_groupbox_2;
 	CButton *m_groupbox_3;
@@ -86,7 +86,7 @@ protected:
 	CComboBox m_comboBox_EP_Anteil5;
 	CComboBox m_comboBox_EP_Anteil6;
 	CComboBox m_comboBox_Zeit_Anteil;
-	CComboBox m_comboBox_EP_Nachkomma;
+	CComboBox m_comboBox_EP_Nachkomma;*/
 
 	CStatic m_staticText_Title;
 	CStatic m_staticText_Version;
@@ -95,7 +95,7 @@ protected:
 	CStatic m_staticText_Erstellungszeit;
 	CStatic m_staticText_Programm;
 	CStatic m_staticText_Umsetzprogramm;
-	CStatic m_staticText_blank;
+	CStatic m_staticText_Certificate;
 
 	CRect clientRect;
 	std::unique_ptr<rapidxml::file<>> m_xmlFile;

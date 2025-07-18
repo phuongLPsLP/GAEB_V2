@@ -161,7 +161,8 @@ void CMainFrame::FillClassView()
 	pDoc->m_pProjektInfo = pProjektInfo;
 	pDoc->m_award = pAward;*/
 
-	rapidxml::file<> xmlFile("07_GAEB.X83");
+	//rapidxml::file<> xmlFile("07_GAEB.X83");
+	rapidxml::file<> xmlFile("Hagmans_01761.X86"); 
 	rapidxml::xml_document<> doc;
 	doc.parse<0>(xmlFile.data());
 	rapidxml::xml_node<>* root = doc.first_node();
@@ -244,13 +245,13 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
 
-	if (itemText == _T("Auftraggeber")) {
+/*	if (itemText == _T("Auftraggeber")) {
 		SwitchView(RUNTIME_CLASS(CAuftraggeberView));
 	}
 	else if (itemText == _T("Auftragnehmer")) {
 		SwitchView(RUNTIME_CLASS(CAuftragnehmerView));
-	}
-	else if (itemText == _T("Projekt")) {
+	}*/
+	 if (itemText == _T("Projekt")) {
 		SwitchView(RUNTIME_CLASS(CProjektInfosView));
 	}
 	else if (itemText == _T("Vergabe")) {

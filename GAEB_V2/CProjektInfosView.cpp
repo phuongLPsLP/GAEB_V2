@@ -65,6 +65,7 @@ void CProjektInfosView::OnInitialUpdate()
 
 
 	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
+	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hagmans_01761.X86");
 	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
 	m_xmlDoc->parse<0>(m_xmlFile->data());
 	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
@@ -104,7 +105,7 @@ void CProjektInfosView::OnInitialUpdate()
 	int yPos_ProjInfo = 70;
 	for (xml_node<>* SubChild = m_pProjektInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
 	{
-		CString subChildText(SubChild->value());
+		CString subChildText = Utf8ToCString(SubChild->value());
 		if (subChildText == "") {
 			subChildText = SubChild->first_node()->value();
 			CStatic* pstaticValue = new CStatic();
@@ -233,4 +234,14 @@ HBRUSH CProjektInfosView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}*/
 
 	return hbr;
+}
+
+
+CString CProjektInfosView::Utf8ToCString(const char* utf8Str)
+{
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;
 }

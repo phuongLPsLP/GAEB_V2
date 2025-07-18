@@ -64,6 +64,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	CString Utf8ToCString(const char* utf8Str);
+
 };
 
 
