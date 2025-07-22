@@ -18,12 +18,14 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
+#include <map>
 
 //#include "C:\Users\marku\Downloads\rapidxml-1.13\rapidxml-1.13\rapidxml.hpp"
 //#include "C:\Users\marku\Downloads\rapidxml-1.13\rapidxml-1.13\rapidxml_utils.hpp"
 //#include "C:\Users\marku\Downloads\rapidxml-1.13\rapidxml-1.13\rapidxml_print.hpp"
 
 using namespace rapidxml;
+using namespace std;
 
 
 class COutlookBar : public CMFCOutlookBar
@@ -63,13 +65,19 @@ private:
 
 protected:  // control bar embedded members
 
+	CFont m_font;
+	CFont m_font_bold;
+	CFont m_font_italic;
+	CFont m_font_underline;
+	CFont m_font_title;
+	CFont m_font_button;
 
 	CMFCRibbonBar     m_wndRibbonBar;
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
 	CMFCRibbonStatusBar  m_wndStatusBar;
 	COutlookBar       m_wndNavigationBar;
-	//CMFCShellTreeCtrl m_wndTree;
+
 	CTreeCtrl m_wndClassView;
 
 	BOOL m_checkbox_Struktur = FALSE;
@@ -104,6 +112,7 @@ protected:  // control bar embedded members
 
 	std::unique_ptr<rapidxml::file<>> m_xmlFile;
 	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
+	rapidxml::xml_node<>* m_root = nullptr;
 	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
 	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
@@ -113,6 +122,17 @@ protected:  // control bar embedded members
 	//CMFCCaptionBar    m_wndCaptionBar;
 
 // Generated message map functions
+
+public: 	
+	rapidxml::xml_document<>* GetXmlDoc();                  // Accessor
+	rapidxml::xml_node<>* GetRootNode();
+	rapidxml::xml_node<>* GetGAEBInfoNode();
+	rapidxml::xml_node<>* GetProjektInfoNode();
+	rapidxml::xml_node<>* GetAwardNode();
+
+	CView* m_pCurrentView = nullptr;
+	std::map<CRuntimeClass*, CView*> m_viewMap;
+
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnApplicationLook(UINT id);
@@ -198,6 +218,17 @@ public:
 	afx_msg void OnUpdateCheck_RE_M_Aufmaﬂ(CCmdUI* pCmdUI);
 	afx_msg void OnButton_Speichern();
 	afx_msg void OnButton_SpeichernUnter();
+	afx_msg void OnLangtext();
+	afx_msg void OnUpdateLangtext(CCmdUI* pCmdUI);
+	afx_msg void OnKurztext();
+	afx_msg void OnUpdateKurztext(CCmdUI* pCmdUI);
+
+	CFont* GetFont() { return &m_font; }
+	CFont* GetFontBold() { return &m_font_bold; }
+	CFont* GetFontItalic() { return &m_font_italic; }
+	CFont* GetFontUnderline() { return &m_font_underline; }
+	CFont* GetFontTitle() { return &m_font_title; }
+
 };
 
 

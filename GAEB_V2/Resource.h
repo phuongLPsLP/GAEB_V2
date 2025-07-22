@@ -103,6 +103,7 @@
 #define ID_BUTTON26                     32809
 #define ID_BUTTON29                     32812
 #define ID_BUTTON30                     32813
+#define ID_KURZTEXT                     32813
 #define ID_BUTTON31                     32814
 #define ID_BUTTON32                     32815
 #define ID_BUTTON33                     32816
@@ -135,6 +136,7 @@
 #define ID_BUTTON51                     32844
 #define ID_BUTTON52                     32845
 #define ID_BUTTON2                      32846
+#define ID_LANGTEXT                     32846
 #define ID_BUTTON3                      32847
 #define ID_BUTTON4                      32848
 #define ID_CHECK_STRUKTUR               32849
@@ -155,13 +157,14 @@
 #define ID_CHECK_RE_MENGE               32865
 #define ID_BUTTON_Speichern             32866
 #define ID_BUTTON_SPEICHERN_UNTER       32867
+#define ID_INDEX                        32868
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        327
-#define _APS_NEXT_COMMAND_VALUE         32868
+#define _APS_NEXT_COMMAND_VALUE         32869
 #define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

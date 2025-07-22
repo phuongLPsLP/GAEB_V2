@@ -5,6 +5,7 @@
 #include "GAEB_V2.h"
 #include "CVertragView.h"
 #include "CDocumentClass.h"
+#include "MainFrm.h"
 
 
 
@@ -50,6 +51,29 @@ void CVertragView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 	// TODO: add draw code here
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	if (!pFrame) return;
+
+	// Use title font
+	CFont* pTitleFont = pFrame->GetFontTitle();
+	CFont* pOldFont = pDC->SelectObject(pTitleFont);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pFont = pFrame->GetFont();
+	pOldFont = pDC->SelectObject(pFont);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pBold = pFrame->GetFontBold();
+	pOldFont = pDC->SelectObject(pBold);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pItalic = pFrame->GetFontItalic();
+	pOldFont = pDC->SelectObject(pItalic);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pUnderline = pFrame->GetFontUnderline();
+	pOldFont = pDC->SelectObject(pUnderline);
+	pDC->SelectObject(pOldFont);
 }
 
 void CVertragView::OnInitialUpdate()
@@ -59,130 +83,30 @@ void CVertragView::OnInitialUpdate()
 
 	GetClientRect(&clientRect_VR);
 	CClientDC dc(this);
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
-	LOGFONT lf;
-	::ZeroMemory(&lf, sizeof(LOGFONT));
-	lf.lfHeight = 18;
-	lf.lfWeight = FW_NORMAL;
-	_tcscpy_s(lf.lfFaceName, _T("Segoe UI"));
-	m_font.CreateFontIndirect(&lf);
+	m_Doc = pMainFrame->GetXmlDoc();
+	m_Root = pMainFrame->GetRootNode();
+	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
+	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
+	m_award = pMainFrame->GetAwardNode();
 
-	LOGFONT lf_bold;
-	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
-	lf_bold.lfHeight = 18; // Font height
-	lf_bold.lfWeight = FW_BOLD;
-	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
-	m_font_bold.CreateFontIndirect(&lf_bold);
-
-	LOGFONT lf_italic;
-	::ZeroMemory(&lf_italic, sizeof(LOGFONT));
-	lf_italic.lfHeight = 18; // Font height
-	lf_italic.lfWeight = FW_NORMAL;
-	lf_italic.lfItalic = TRUE; // Italic
-	_tcscpy_s(lf_italic.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
-	m_font_italic.CreateFontIndirect(&lf_italic);
-
-	LOGFONT lf_underline;
-	::ZeroMemory(&lf_underline, sizeof(LOGFONT));
-	lf_underline.lfHeight = 18; // Font height
-	lf_underline.lfWeight = FW_NORMAL;
-	lf_underline.lfItalic = TRUE; // Italic
-	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
-	m_font_underline.CreateFontIndirect(&lf_underline);
-
-	LOGFONT lf_button_font;
-	::ZeroMemory(&lf_button_font, sizeof(LOGFONT));
-	lf_button_font.lfHeight = 20; // Font height
-	lf_button_font.lfWeight = FW_BOLD;
-	lf_button_font.lfUnderline = FALSE; // Underline
-	_tcscpy_s(lf_button_font.lfFaceName, _T("Segoe UI"));
-	m_font_button.CreateFontIndirect(&lf_button_font);
-
-	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
-	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hagmans_01761.X86");
-	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
-	m_xmlDoc->parse<0>(m_xmlFile->data());
-	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
-
-	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
-	m_pProjektInfo = m_pGAEBInfo->next_sibling();
-	m_award = m_pProjektInfo->next_sibling();
-
-	/*CDocumentClass* pDoc = (CDocumentClass*)GetDocument();
-	rapidxml::xml_node<>* award = pDoc->m_award;
-
-	if (!pDoc || !pDoc->m_award)
+	CStatic* staticControls_Vertrag_Info[] =
 	{
-		AfxMessageBox(_T("No award node available"));
-		return;
+		&m_staticText_Text,
+	};
+
+	for (CStatic* pStatic_Vertrag_Info : staticControls_Vertrag_Info)
+	{
+		pStatic_Vertrag_Info->DestroyWindow();
 	}
-	rapidxml::xml_node<>* award_VR = pDoc->m_award;*/
 
 	m_staticText_Text.Create(_T("Informationen zu vertraglichen Regelungen"), WS_CHILD | WS_VISIBLE ,
 		CRect(CPoint(20, 20), CSize(clientRect_VR.Width(), 30)), this, 1001);
-	m_staticText_Text.SetFont(&m_font_button);
-	/*m_staticText_Text.Create(_T("Vertragliche Regelung"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20,20), CSize(200,30)), this, 1001);
-	m_edit_Text.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, rect, this, 1002);
-
-	CRect rcButton(20, 50, 220, 70);
-	m_combobox_textFont.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST| CBS_SORT  |WS_VSCROLL , 
-		rcButton, this, 1003);
-	m_combobox_textSize.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST, 
-		CRect(CPoint(250, 50), CSize(100, 20)), this, 1003);
-	m_button_bold.Create(_T("B"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(370, 50), CSize(30, 20)), this, 1003);
-	m_button_italic.Create(_T("I"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(410, 50), CSize(30, 20)), this, 1003);
-	m_button_underline.Create(_T("U"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(450, 50), CSize(30, 20)), this, 1003);
-
-	m_button_bold.SetFont(&m_font_bold);
-	m_button_italic.SetFont(&m_font_italic);
-	m_button_underline.SetFont(&m_font_underline);
-
-	LOGFONT lf_textFont = {};
-	lf_textFont.lfCharSet = DEFAULT_CHARSET;
-	lf_textFont.lfFaceName[0] = '\0';  
-
-	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont, 0);
-	m_combobox_textFont.SelectString(-1, _T("Segoe UI"));  // Or any preferred font
-
-	int standardFontSizes[] = {
-	8, 9, 10, 11, 12, 14, 16, 18,
-	20, 22, 24, 26, 28, 36, 48, 72
-	};
-
-	for (int i = 0; i < _countof(standardFontSizes); ++i)
+	for (CStatic* pStatic : staticControls_Vertrag_Info)
 	{
-		CString str;
-		str.Format(_T("%d"), standardFontSizes[i]);
-		m_combobox_textSize.AddString(str);
+		pStatic->SetFont(pMainFrame->GetFontBold());
 	}
-	m_combobox_textSize.SelectString(-1, _T("11"));
-
-
-	//m_toolbar_Edit.LoadToolBar(IDR_MAINFRAME_256);
-	//!m_toolbar_Edit.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP |CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC)
-
-	CStatic* staticControls[] = {
-	&m_staticText_Text,
-	};
-
-	for (CStatic* pStatic : staticControls)
-	{
-		if (pStatic->GetSafeHwnd())
-			pStatic->SetFont(&m_font_bold);
-	}
-
-	CEdit* editControls[] = {
-		&m_edit_Text
-	};
-	for (CEdit* pEdit : editControls) 
-	{
-		if (pEdit->GetSafeHwnd())
-		{
-			pEdit->SetFont(&m_font);
-		}
-	}*/
-
 	int yPos_LV = 70;
 
 	for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
@@ -209,25 +133,31 @@ void CVertragView::OnInitialUpdate()
 							Fulltext += span_node_text;
 						}
 					}
-					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE,
-						CRect(CPoint(20, yPos_LV), CSize(clientRect_VR.Width(), 20)), this, 1001);
+
+					CRect textRect(0, 0, clientRect_VR.Width() - 40, 0); // start with 0 height
+
+					CClientDC dc(this);
+					CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
+					dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+					dc.SelectObject(pOldFont);
+
+					textRect.OffsetRect(20, yPos_LV); // apply margins
+
+
+					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
+						this,
+						1001);
+						//CRect(CPoint(20, yPos_LV), CSize(clientRect_VR.Width(), yPos_LV+100)), this, 1001);
 					//m_vecStatics_RegInfo.push_back(pstaticValue);  // store pointer
-					yPos_LV += 20;
-					pstaticValue->SetFont(&m_font);
+					yPos_LV += textRect.Height() + 20;
+					pstaticValue->SetFont(pMainFrame->GetFont());
 				}
 			}
 		}
 	}
 	int finalY = yPos_LV;
-	CScrollView::SetScrollSizes(MM_TEXT, CSize(1000, finalY + 20));
+	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect_VR.Width(), finalY + 20));
 }
-
-// Static callback function
-
-
-
-
-// CVertragView diagnostics
 
 #ifdef _DEBUG
 void CVertragView::AssertValid() const
@@ -256,26 +186,6 @@ HBRUSH CVertragView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
 		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
 	}
-	//Combobox
-
-	/*if (ctrlID == 1003)
-	{
-		if (nCtlColor == CTLCOLOR_LISTBOX) // ListBox (Dropdown area)
-		{
-			pDC->SetBkColor(RGB(200, 220, 255)); // Light Blue Background
-			pDC->SetTextColor(RGB(255, 0, 0));     // Black Text
-			return m_brush_combobox;
-		}
-
-		else if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_STATIC) // ComboBox text area
-		{
-			pDC->SetBkColor(RGB(255, 255, 180)); // Light Yellow
-			pDC->SetTextColor(RGB(0, 0, 0));   // Black text
-			return m_brush_combobox;
-		}
-		return CView::OnCtlColor(pDC, pWnd, nCtlColor);
-	}*/
-	//Edit box
 	if (ctrlID == 1002)
 	{
 		pDC->SetBkColor(RGB(255, 255, 200));
@@ -283,10 +193,6 @@ HBRUSH CVertragView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		return m_edit_bg_color;
 	}
 	return hbr;
-}
-
-void CVertragView::OnEditBold()
-{
 }
 
 CString CVertragView::Utf8ToCString(const char* utf8Str)

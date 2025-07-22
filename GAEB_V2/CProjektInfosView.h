@@ -39,17 +39,15 @@ protected:
 	CStatic m_staticText_Waehrung;
 	CStatic m_staticText_WaehrungBez;
 
-	CFont m_font;
-	CFont m_font_edit;
-	CFont m_font_bold;
 	CBrush m_brush_edit_bg_color;
 
+	rapidxml::xml_document<>* m_Doc = nullptr;
+	rapidxml::xml_node<>* m_Root = nullptr;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
+	rapidxml::xml_node<>* m_award = nullptr;
+
 	CRect clientRect;
-	std::unique_ptr<rapidxml::file<>> m_xmlFile;
-	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
-	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
-	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
-	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual void OnInitialUpdate(); 

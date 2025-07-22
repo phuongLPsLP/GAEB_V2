@@ -60,18 +60,14 @@ protected:
 	CStatic m_staticText_PLZ_nehmer;
 	CStatic m_staticText_Ort_nehmer;
 
-
-	CFont m_font;
-	CFont m_font_bold;
-	CFont m_font_underline;
 	CBrush m_brush_edit_bg_color;
 
+	rapidxml::xml_document<>* m_Doc = nullptr;
+	rapidxml::xml_node<>* m_Root = nullptr;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
+	rapidxml::xml_node<>* m_award = nullptr;
 
-	std::unique_ptr<rapidxml::file<>> m_xmlFile;
-	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
-	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
-	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
-	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 	rapidxml::xml_node<>* award_node = nullptr;
 
 protected:

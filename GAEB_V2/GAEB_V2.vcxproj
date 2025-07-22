@@ -190,6 +190,7 @@
     <ClInclude Include="CAuftragnehmerView.h" />
     <ClInclude Include="CDocumentClass.h" />
     <ClInclude Include="CHinweisText.h" />
+    <ClInclude Include="CLangtextView.h" />
     <ClInclude Include="CLVInfosView.h" />
     <ClInclude Include="CLVBereichView.h" />
     <ClInclude Include="CLVView.h" />
@@ -217,6 +218,7 @@
     <ClCompile Include="CAuftragnehmerView.cpp" />
     <ClCompile Include="CDocumentClass.cpp" />
     <ClCompile Include="CHinweisText.cpp" />
+    <ClCompile Include="CLangtextView.cpp" />
     <ClCompile Include="CLVInfosView.cpp" />
     <ClCompile Include="CLVBereichView.cpp" />
     <ClCompile Include="CLVView.cpp" />

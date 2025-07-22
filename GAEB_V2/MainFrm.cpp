@@ -33,6 +33,7 @@
 #include "CPositionView.h"
 #include "CLV_MainView.h"
 #include "CDocumentClass.h"
+#include "CLangtextView.h"
 
 #include <memory>
 
@@ -119,6 +120,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_BUTTON_Speichern, &CMainFrame::OnButton_Speichern)
 	ON_COMMAND(ID_BUTTON_SPEICHERN_UNTER, &CMainFrame::OnButton_SpeichernUnter)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &CMainFrame::OnTreeSelectedItem)
+	ON_COMMAND(ID_LANGTEXT, &CMainFrame::OnLangtext)
+	ON_UPDATE_COMMAND_UI(ID_LANGTEXT, &CMainFrame::OnUpdateLangtext)
+	ON_COMMAND(ID_KURZTEXT, &CMainFrame::OnKurztext)
+	ON_UPDATE_COMMAND_UI(ID_KURZTEXT, &CMainFrame::OnUpdateKurztext)
 END_MESSAGE_MAP()
 
 
@@ -133,44 +138,38 @@ CMainFrame::CMainFrame() noexcept
 CMainFrame::~CMainFrame()
 {
 }
-
+rapidxml::xml_document<>* CMainFrame::GetXmlDoc()
+{
+	return m_xmlDoc.get();  // if you're using unique_ptr
+}
+rapidxml::xml_node<>* CMainFrame::GetRootNode() {
+	return m_root;  // if you're using unique_ptr
+}
+rapidxml::xml_node<>* CMainFrame::GetGAEBInfoNode() {
+	return m_pGAEBInfo;  // if you're using unique_ptr
+}
+rapidxml::xml_node<>* CMainFrame::GetProjektInfoNode()
+{
+	return m_pProjektInfo;  // if you're using unique_ptr
+}
+rapidxml::xml_node<>* CMainFrame::GetAwardNode()
+{
+	return m_award;  // if you're using unique_ptr
+}
 //CTreeCtrl
 void CMainFrame::FillClassView()
 {
+	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83"); 
+	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hagmans_01761.X86");
 
-	//rapidxml::file<> xmlFile("../../Test.xml");
-	//rapidxml::file<> xmlFile("C:/Users/phuon/source/repos/GAEB_V2/GAEB_V2/Test.xml");
-	//rapidxml::file<> xmlFile("Test.xml");
-	//rapidxml::file<> xmlFile("C:/Users/marku/Downloads/07_GAEB.X83");
+	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();  
+	m_xmlDoc->parse<0>(m_xmlFile->data());
+	m_root = m_xmlDoc->first_node();
+	m_root->name("Leistungsverzeichnis");
 
-
-	/*	
-	CDocumentClass* pDoc = dynamic_cast<CDocumentClass*>(GetActiveDocument());
-	if (!pDoc) return;
-	auto xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
-	auto xmlDoc = std::make_unique<rapidxml::xml_document<>>();
-	xmlDoc->parse<0>(xmlFile->data());
-	rapidxml::xml_node<>* root = xmlDoc->first_node();	
-	rapidxml::xml_node<>*  m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
-	rapidxml::xml_node<>* pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling() : nullptr;
-	rapidxml::xml_node<>* pAward = pProjektInfo ? pProjektInfo->next_sibling() : nullptr;
-		
-	pDoc->m_xmlFile = std::move(xmlFile);
-	pDoc->m_xmlDoc = std::move(xmlDoc);
-	pDoc->m_pGAEBInfo = m_pGAEBInfo;
-	pDoc->m_pProjektInfo = pProjektInfo;
-	pDoc->m_award = pAward;*/
-
-	//rapidxml::file<> xmlFile("07_GAEB.X83");
-	rapidxml::file<> xmlFile("Hagmans_01761.X86"); 
-	rapidxml::xml_document<> doc;
-	doc.parse<0>(xmlFile.data());
-	rapidxml::xml_node<>* root = doc.first_node();
-	root->name("Leistungsverzeichnis");
-
-	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
-	m_pProjektInfo = m_pGAEBInfo->next_sibling();
-	m_award = m_pProjektInfo->next_sibling();
+	m_pGAEBInfo = m_root->first_node("GAEBInfo");
+	m_pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling("PrjInfo") : nullptr;
+	m_award = m_pProjektInfo ? m_pProjektInfo->next_sibling("Award") : nullptr;
 
 	m_wndClassView.DeleteAllItems();
 
@@ -178,18 +177,14 @@ void CMainFrame::FillClassView()
 	HTREEITEM gabe_info = m_wndClassView.InsertItem(_T("GAEB-Datenaustausch"), info, TVI_LAST);
 	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, TVI_LAST);
 	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, TVI_LAST);
-//	HTREEITEM auftraggeber = m_wndClassView.InsertItem(_T("Auftraggeber"), info, TVI_LAST);
-//	HTREEITEM auftragnehmer = m_wndClassView.InsertItem(_T("Auftragnehmer"), info, TVI_LAST);
 	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
-
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
 
-
-	if (!root) return;
+	if (!m_root) return;
 
 	int maxDepth = 0;
-	AddXMLToTreeCtrl(TVI_ROOT, root, 1, maxDepth);
+	AddXMLToTreeCtrl(TVI_ROOT, m_root, 1, maxDepth);
 }
 
 
@@ -232,7 +227,6 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 			AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
 		}
 	}
-
 	return maxDepth;
 }
 
@@ -245,12 +239,6 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
 
-/*	if (itemText == _T("Auftraggeber")) {
-		SwitchView(RUNTIME_CLASS(CAuftraggeberView));
-	}
-	else if (itemText == _T("Auftragnehmer")) {
-		SwitchView(RUNTIME_CLASS(CAuftragnehmerView));
-	}*/
 	 if (itemText == _T("Projekt")) {
 		SwitchView(RUNTIME_CLASS(CProjektInfosView));
 	}
@@ -277,7 +265,6 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 			SwitchView(RUNTIME_CLASS(CPositionView));
 		}
 	}
-	
 	
 	*pResult = 0;
 }
@@ -310,7 +297,6 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 	//RecalcLayout();
 }
 
-//CTreeCtrl
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -321,6 +307,45 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndRibbonBar.Create(this);
 	m_wndRibbonBar.LoadFromResource(IDR_RIBBON);
+
+	//Create font
+	LOGFONT lf;
+	::ZeroMemory(&lf, sizeof(LOGFONT));
+	lf.lfHeight = 18;
+	lf.lfWeight = FW_NORMAL;
+	_tcscpy_s(lf.lfFaceName, _T("Segoe UI"));
+	m_font.CreateFontIndirect(&lf);
+
+	LOGFONT lf_bold;
+	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
+	lf_bold.lfHeight = 20; // Font height
+	lf_bold.lfWeight = FW_BOLD;
+	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI"));
+	m_font_bold.CreateFontIndirect(&lf_bold);
+
+	LOGFONT lf_italic;
+	::ZeroMemory(&lf_italic, sizeof(LOGFONT));
+	lf_italic.lfHeight = 18; // Font height
+	lf_italic.lfWeight = FW_NORMAL;
+	lf_italic.lfItalic = TRUE; // Italic
+	_tcscpy_s(lf_italic.lfFaceName, _T("Segoe UI"));
+	m_font_italic.CreateFontIndirect(&lf_italic);
+
+	LOGFONT lf_underline;
+	::ZeroMemory(&lf_underline, sizeof(LOGFONT));
+	lf_underline.lfHeight = 18; // Font height
+	lf_underline.lfWeight = FW_NORMAL;
+	lf_underline.lfUnderline = TRUE; // Italic
+	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI"));
+	m_font_underline.CreateFontIndirect(&lf_underline);
+
+	LOGFONT lf_font_title;
+	::ZeroMemory(&lf_font_title, sizeof(LOGFONT));
+	lf_font_title.lfHeight = 18; // Font height
+	lf_font_title.lfWeight = FW_BOLD;
+	lf_font_title.lfItalic = TRUE; // Underline
+	_tcscpy_s(lf_font_title.lfFaceName, _T("Segoe UI"));
+	m_font_title.CreateFontIndirect(&lf_font_title);
 
 	if (!m_wndStatusBar.Create(this))
 	{
@@ -1111,4 +1136,28 @@ void CMainFrame::OnButton_Speichern()
 void CMainFrame::OnButton_SpeichernUnter()
 {
 	// TODO: Add your command handler code here
+}
+
+void CMainFrame::OnLangtext()
+{
+	// TODO: Add your command handler code here
+	SwitchView(RUNTIME_CLASS(CLangtextView));
+
+}
+
+void CMainFrame::OnUpdateLangtext(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+}
+
+void CMainFrame::OnKurztext()
+{
+	// TODO: Add your command handler code here
+	SwitchView(RUNTIME_CLASS(CLV_MainView));
+
+}
+
+void CMainFrame::OnUpdateKurztext(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
 }

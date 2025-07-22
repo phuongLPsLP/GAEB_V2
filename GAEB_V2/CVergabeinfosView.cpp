@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "GAEB_V2.h"
 #include "CVergabeinfosView.h"
+#include "MainFrm.h"
 
 
 // CVergabeinfosView
@@ -30,6 +31,29 @@ void CVergabeinfosView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 	// TODO: add draw code here
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	if (!pFrame) return;
+
+	// Use title font
+	CFont* pTitleFont = pFrame->GetFontTitle();
+	CFont* pOldFont = pDC->SelectObject(pTitleFont);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pFont = pFrame->GetFont();
+	pOldFont = pDC->SelectObject(pFont);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pBold = pFrame->GetFontBold();
+	pOldFont = pDC->SelectObject(pBold);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pItalic = pFrame->GetFontItalic();
+	pOldFont = pDC->SelectObject(pItalic);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pUnderline = pFrame->GetFontUnderline();
+	pOldFont = pDC->SelectObject(pUnderline);
+	pDC->SelectObject(pOldFont);
 }
 
 void CVergabeinfosView::OnInitialUpdate()
@@ -39,170 +63,14 @@ void CVergabeinfosView::OnInitialUpdate()
 
 	GetClientRect(&clientRect_Vergabe);
 	CClientDC dc(this);
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
-	LOGFONT lf;
-	::ZeroMemory(&lf, sizeof(LOGFONT));
-	lf.lfHeight = 18;
-	lf.lfWeight = FW_NORMAL;
-	_tcscpy_s(lf.lfFaceName, _T("Segoe UI"));
-	m_font.CreateFontIndirect(&lf);
-
-	LOGFONT lf_underline;
-	::ZeroMemory(&lf_underline, sizeof(LOGFONT));
-	lf_underline.lfHeight = 18;
-	lf_underline.lfWeight = FW_NORMAL;
-	lf_underline.lfItalic = TRUE;
-	_tcscpy_s(lf_underline.lfFaceName, _T("Segoe UI"));
-	m_font_underline.CreateFontIndirect(&lf_underline);
-
-	LOGFONT lf_bold;
-	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
-	lf_bold.lfHeight = 20; // Font height
-	lf_bold.lfWeight = FW_BOLD;
-	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
-	m_font_bold.CreateFontIndirect(&lf_bold);
-
-	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
-	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hof Berufschule Dachdeckerarbeiten 05.X81");
-	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
-	m_xmlDoc->parse<0>(m_xmlFile->data());
-	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
-
-	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
-	m_pProjektInfo = m_pGAEBInfo->next_sibling();
-	m_award = m_pProjektInfo->next_sibling();
-	/*	m_groupbox_Ausführung = new CButton();
-		m_groupbox_Gewährleistung = new CButton();
-		m_groupbox_Burgschaften = new CButton();
-		m_groupbox_Ausführung->Create(_T("Voraussichtliche Ausführung"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-			CRect(CPoint(20,260), CSize(900,80)), this, 1006);
-		m_groupbox_Ausführung->SetFont(&m_font);
-		m_groupbox_Gewährleistung->Create(_T("Gewährleistung"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-			CRect(CPoint(20, 360), CSize(900, 80)), this, 1006);
-		m_groupbox_Gewährleistung->SetFont(&m_font);
-		m_groupbox_Burgschaften->Create(_T("Bürgschaften"), WS_CHILD | WS_VISIBLE | BS_LEFTTEXT | BS_GROUPBOX,
-			CRect(CPoint(20, 460), CSize(900, 80)), this, 1006);
-		m_groupbox_Burgschaften->SetFont(&m_font);
-
-		m_staticText_Vergabeart.Create(_T("Vergabeart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(120, 20)), this, 1001);
-		m_staticText_Waehrung_vergabeinfos.Create(_T("Währung / Bez."), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 60), CSize(120, 20)), this, 1001);
-		m_staticText_Angebotsdatum.Create(_T("Angebotsdatum"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 100), CSize(120, 20)), this, 1001);
-		m_staticText_Abnahmedatum.Create(_T("Abnahmedatum"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 140), CSize(120, 20)), this, 1001);
-		m_staticText_Auftragsdatum.Create(_T("Auftragsdatum"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 180), CSize(120, 20)), this, 1001);
-
-		m_staticText_Sonderart.Create(_T("Sonderart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 20), CSize(120, 20)), this, 1001);
-		m_staticText_Abgabeort.Create(_T("Abgabeort"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 60), CSize(120, 20)), this, 1001);
-		m_staticText_Angebotszeit.Create(_T("Angebotszeit"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 100), CSize(120, 20)), this,1001);
-		m_staticText_Zuschlagsfrist.Create(_T("Zuschlagsfrist"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 140), CSize(120, 20)), this,1001);
-		m_staticText_Abnahmeart.Create(_T("Abnahmeart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 180), CSize(120, 20)), this,1001);
-		m_staticText_Auftragsnummer.Create(_T("Auftragsnummer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 220), CSize(120, 20)), this,1001);
-
-
-		m_combobox_Vergabeart.Create(WS_CHILD | WS_VISIBLE | WS_BORDER| ES_MULTILINE | CBS_DROPDOWNLIST,
-			CRect(CPoint(180, 20), CSize(250, 20)), this, 1007);
-		m_edit_Waehrung_vergabeinfos.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(180, 60), CSize(50, 20)), this, 1002);
-		m_edit_Bez_vergabeinfos.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(250, 60), CSize(180, 20)), this, 1002);
-		m_edit_Angebotsdatum.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(180, 100), CSize(120, 20)), this, 1002);
-		m_edit_Abnahmedatum.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(180, 140), CSize(250, 20)), this, 1002);
-		m_edit_Auftragsdatum.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(180, 180), CSize(250, 20)), this, 1002);
-
-		m_combobox_Sonderart.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | CBS_DROPDOWNLIST,
-			CRect(CPoint(670, 20), CSize(250, 20)), this, 1007);
-		m_edit_Abgabeort.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(670, 60), CSize(250, 20)), this, 1002);
-		m_edit_Angebotszeit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(670, 100), CSize(250, 20)), this, 1002);
-		m_edit_Zuschlagsfrist.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(670, 140), CSize(250, 20)), this, 1002);
-		m_edit_Abnahmeart.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(670, 180), CSize(250, 20)), this, 1002);
-		m_edit_Auftragsnummer.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-			CRect(CPoint(670, 220), CSize(250, 20)), this, 1002);
-
-		m_staticText_Beginn.Create(_T("Beginn"), WS_CHILD | WS_VISIBLE , CRect(CPoint(30, 300), CSize(120, 20)), this, 1001);
-		m_staticText_End_Ausführung.Create(_T("Ende"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 300), CSize(120, 20)), this, 1001);
-
-		m_staticText_Dauer.Create(_T("Dauer"), WS_CHILD | WS_VISIBLE, CRect(CPoint(30, 400), CSize(120, 20)), this, 1001);
-		m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE, CRect(CPoint(270, 400), CSize(80, 20)), this, 1001);
-		m_staticText_End_Gewährleistung.Create(_T("Ende"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 400), CSize(120, 20)), this, 1001);
-
-		m_staticText_Ausführung_Anteil.Create(_T("Ausführung [%]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(30, 500), CSize(120, 20)), this, 1001);
-		m_staticText_Gewährleist.Create(_T("Gewährleist. [%]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(510, 500), CSize(120, 20)), this, 1001);
-
-		m_edit_beginn.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 300), CSize(250, 20)), this, 1002);
-		m_edit_end_ausführung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(670, 300), CSize(250, 20)), this, 1002);
-
-		m_edit_dauer.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 400), CSize(50, 20)), this, 1002);
-		m_edit_einheit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(350, 400), CSize(80, 20)), this, 1002);
-		m_edit_ende_gewährleistung.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(670, 400), CSize(250, 20)), this, 1002);
-
-		m_edit_ausführung_anteil.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(180, 500), CSize(250, 20)), this, 1002);
-		m_edit_gewährleist_anteil.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(670, 500), CSize(250, 20)), this, 1002);
-
-		m_button_heute.Create( _T("heute"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(350,100), CSize(80,20)), this, 1004);
-		m_button_Zusatztext.Create(_T("Zusatztext"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(20, 570), CSize(120, 20)), this, 1004);
-
-		m_button_heute.SetFont(&m_font_button);
-		m_button_Zusatztext.SetFont(&m_font_button);
-
-		CStatic* staticControls[] = {
-		&m_staticText_Vergabeart,
-		&m_staticText_Waehrung_vergabeinfos,
-		&m_staticText_Angebotsdatum,
-		&m_staticText_Abnahmedatum,
-		&m_staticText_Auftragsdatum,
-		&m_staticText_Sonderart,
-		&m_staticText_Abgabeort,
-		&m_staticText_Angebotszeit,
-		&m_staticText_Zuschlagsfrist,
-		&m_staticText_Abnahmeart,
-		&m_staticText_Auftragsnummer,
-		&m_staticText_Beginn,
-		&m_staticText_End_Ausführung,
-		&m_staticText_Dauer,
-		&m_staticText_Einheit,
-		&m_staticText_End_Gewährleistung,
-		&m_staticText_Ausführung_Anteil,
-		&m_staticText_Gewährleist,
-		};
-
-		for (CStatic* pStatic : staticControls)
-		{
-			if (pStatic->GetSafeHwnd())
-				pStatic->SetFont(&m_font);
-		}
-
-		CEdit* editControls[] = {
-		&m_edit_Waehrung_vergabeinfos,
-		&m_edit_Bez_vergabeinfos,
-		&m_edit_Angebotsdatum,
-		&m_edit_Abnahmedatum,
-		&m_edit_Auftragsdatum,
-		&m_edit_Abgabeort,
-		&m_edit_Angebotszeit,
-		&m_edit_Zuschlagsfrist,
-		&m_edit_Abnahmeart,
-		&m_edit_Auftragsnummer,
-		&m_edit_beginn,
-		&m_edit_end_ausführung,
-		&m_edit_dauer,
-		&m_edit_einheit,
-		&m_edit_ende_gewährleistung,
-		&m_edit_ausführung_anteil,
-		&m_edit_gewährleist_anteil,
-		};
-		for (CEdit* pEdit : editControls)
-		{
-			if (pEdit->GetSafeHwnd())
-			{
-				pEdit->SetFont(&m_font_edit);
-			}
-		}*/
+	m_Doc = pMainFrame->GetXmlDoc();
+	m_Root = pMainFrame->GetRootNode();
+	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
+	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
+	m_award = pMainFrame->GetAwardNode();
+	
 	CStatic* staticControls_Vergabe[] =
 	{
 	&m_staticText_Datenaustauschphase,
@@ -216,7 +84,7 @@ void CVergabeinfosView::OnInitialUpdate()
 
 	m_staticText_Vergabeinfos.Create(_T("Informationen zur Vergabe"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Vergabeinfos.SetFont(&m_font_bold);
+	m_staticText_Vergabeinfos.SetFont(pMainFrame->GetFontBold());
 
 	m_staticText_Datenaustauschphase.Create(_T("Datenaustauschphase:"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 70), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
@@ -236,7 +104,7 @@ void CVergabeinfosView::OnInitialUpdate()
 
 	for (CStatic* pStatic_vergabe : staticControls_Vergabe)
 	{
-		pStatic_vergabe->SetFont(&m_font);
+		pStatic_vergabe->SetFont(pMainFrame->GetFont());
 	}
 
 	int yPos_Vergabe = 100;
@@ -253,50 +121,44 @@ void CVergabeinfosView::OnInitialUpdate()
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Leistungsbeschreibung"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 
 			else if (DP == 81) {
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Leistungsbeschreibung"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 			else if (DP == 82) {
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Kostenanschlag"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
-			}
-			else if (DP == 83) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Angebotsaufforderung"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 			else if (DP == 84) {
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Angebotsabgabe"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 			else if (DP == 85) {
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Nebenangebot"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 			else if (DP == 86) {
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Auftragserteilung"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 			else if (DP == 89) {
 				CStatic* pstaticValue_Vergabe = new CStatic();
 				pstaticValue_Vergabe->Create(_T("Rechnung"), WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(&m_font);
+				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
 			}
 
 		}	
@@ -310,7 +172,7 @@ void CVergabeinfosView::OnInitialUpdate()
 				pstaticValue_info->Create(subChildText, WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, yPos_Vergabe), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
 				yPos_Vergabe += 20;
-				pstaticValue_info->SetFont(&m_font);
+				pstaticValue_info->SetFont(pMainFrame->GetFont());
 			}
 		}
 		else if (award_node_text == "OWN") {	//Auftraggerber
@@ -325,9 +187,12 @@ void CVergabeinfosView::OnInitialUpdate()
 
 void CVergabeinfosView::Auftraggeber() {
 
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+
 	m_staticText_Auftraggeber.Create(_T("Auftraggeber"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 250), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Auftraggeber.SetFont(&m_font_bold);
+	m_staticText_Auftraggeber.SetFont(pMainFrame->GetFontBold());
 
 	m_staticText_Name.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 280), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
@@ -355,13 +220,13 @@ void CVergabeinfosView::Auftraggeber() {
 					if (adresse_node_text == "Fax") {
 						m_staticText_Fax.Create(_T("Fax:"), WS_CHILD | WS_VISIBLE,
 							CRect(CPoint(20, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-						m_staticText_Fax.SetFont(&m_font);
+						m_staticText_Fax.SetFont(pMainFrame->GetFont());
 					}
 					CStatic* pstaticValue = new CStatic();
 					pstaticValue->Create(adresse_node_value, WS_CHILD | WS_VISIBLE,
 						CRect(CPoint(270, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
 					yPos_Proj_Geber += 20;
-					pstaticValue->SetFont(&m_font);
+					pstaticValue->SetFont(pMainFrame->GetFont());
 				}
 			}
 		}
@@ -370,24 +235,24 @@ void CVergabeinfosView::Auftraggeber() {
 			CStatic* pstaticValue = new CStatic();
 			pstaticValue->Create(value, WS_CHILD | WS_VISIBLE,
 				CRect(CPoint(270, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-			pstaticValue->SetFont(&m_font);
+			pstaticValue->SetFont(pMainFrame->GetFont());
 		}
 		else if (own_node_text == "AwardNo") {
 			CString value(own_node->value());
 			CStatic* pstaticValue = new CStatic();
 			pstaticValue->Create(value, WS_CHILD | WS_VISIBLE,
 				CRect(CPoint(270, yPos_Proj_Geber+20), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-			pstaticValue->SetFont(&m_font);
+			pstaticValue->SetFont(pMainFrame->GetFont());
 		}
 		else if (own_node_text == "AcctRecNo") {
 			m_staticText_Deb_Nr.Create(_T("Debitoren-Nummer:"), WS_CHILD | WS_VISIBLE,
 				CRect(CPoint(20, yPos_Proj_Geber+40), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-			m_staticText_Deb_Nr.SetFont(&m_font);
+			m_staticText_Deb_Nr.SetFont(pMainFrame->GetFont());
 			CString value(own_node->value());
 			CStatic* pstaticValue = new CStatic();
 			pstaticValue->Create(value, WS_CHILD | WS_VISIBLE,
 				CRect(CPoint(270, yPos_Proj_Geber+40), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-			pstaticValue->SetFont(&m_font);
+			pstaticValue->SetFont(pMainFrame->GetFont());
 		}
 	}
 	m_staticText_Mail.Create(_T("E-mail:"), WS_CHILD | WS_VISIBLE,
@@ -412,11 +277,14 @@ void CVergabeinfosView::Auftraggeber() {
 
 	for (CStatic* pStatic_geber : staticControls_Geber)
 	{
-		pStatic_geber->SetFont(&m_font);
+		pStatic_geber->SetFont(pMainFrame->GetFont());
 	}
 }
 
 void CVergabeinfosView::Auftragnehmer() {
+
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
 	CStatic* staticControls_nehmer[] =
 	{
 	&m_staticText_Name_nehmer,
@@ -428,7 +296,7 @@ void CVergabeinfosView::Auftragnehmer() {
 
 	m_staticText_Auftragnehmer.Create(_T("Auftragnehmer"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 470), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Auftragnehmer.SetFont(&m_font_bold);
+	m_staticText_Auftragnehmer.SetFont(pMainFrame->GetFontBold());
 
 	m_staticText_Name_nehmer.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 500), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
@@ -451,15 +319,14 @@ void CVergabeinfosView::Auftragnehmer() {
 				pstaticValue->Create(ctr_node_value, WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(270, yPos_Proj_Nehmer), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
 				yPos_Proj_Nehmer += 20;
-				pstaticValue->SetFont(&m_font);
+				pstaticValue->SetFont(pMainFrame->GetFont());
 			}
 		}
-
 	}
 
 	for (CStatic* pStatic_nehmer : staticControls_nehmer)
 	{
-		pStatic_nehmer->SetFont(&m_font);
+		pStatic_nehmer->SetFont(pMainFrame->GetFont());
 	}
 
 }

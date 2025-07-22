@@ -4,6 +4,7 @@
 #include "pch.h"
 #include "GAEB_V2.h"
 #include "CLVInfosView.h"
+#include "MainFrm.h"
 
 
 // CKalkulationsInfosView
@@ -30,23 +31,33 @@ void CLVInfosView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 	// TODO: add draw code here
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	if (!pFrame) return;
 
-	CPen pen(PS_SOLID, 1, RGB(0,0,0));
-	CPen* pOldPen = pDC->SelectObject(&pen);
+	// Use title font
+	CFont* pTitleFont = pFrame->GetFontTitle();
+	CFont* pOldFont = pDC->SelectObject(pTitleFont);
+	pDC->SelectObject(pOldFont);
 
-	//pDC->MoveTo(30, 250);
-	//pDC->LineTo(220, 250);
+	CFont* pFont = pFrame->GetFont();
+	pOldFont = pDC->SelectObject(pFont);
+	pDC->SelectObject(pOldFont);
 
-	//pDC->SelectObject(pOldPen);
+	CFont* pBold = pFrame->GetFontBold();
+	pOldFont = pDC->SelectObject(pBold);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pItalic = pFrame->GetFontItalic();
+	pOldFont = pDC->SelectObject(pItalic);
+	pDC->SelectObject(pOldFont);
+
+	CFont* pUnderline = pFrame->GetFontUnderline();
+	pOldFont = pDC->SelectObject(pUnderline);
+	pDC->SelectObject(pOldFont);
 }
 
 void CLVInfosView::OnInitialUpdate()
 {
-
-	//StaticText 1001
-	//Edit 1002
-	//Groupbox 1003
-
 	CView::OnInitialUpdate();
 	Invalidate();
 	UpdateWindow();
@@ -54,44 +65,8 @@ void CLVInfosView::OnInitialUpdate()
 
 	GetClientRect(&clientRect);
 	CClientDC dc(this);
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
-	LOGFONT lf;
-	::ZeroMemory(&lf, sizeof(LOGFONT));
-	lf.lfHeight = 18;
-	lf.lfWeight = FW_NORMAL;
-	_tcscpy_s(lf.lfFaceName, _T("Segoe UI"));
-	m_font.CreateFontIndirect(&lf);
-
-	LOGFONT lf_edit_small;
-	::ZeroMemory(&lf_edit_small, sizeof(LOGFONT));
-	lf_edit_small.lfHeight = 16;
-	lf_edit_small.lfWeight = FW_NORMAL;
-	_tcscpy_s(lf_edit_small.lfFaceName, _T("Segoe UI"));
-	m_font_edit.CreateFontIndirect(&lf_edit_small);
-
-	LOGFONT lf_bold;
-	::ZeroMemory(&lf_bold, sizeof(LOGFONT));
-	lf_bold.lfHeight = 20; // Font height
-	lf_bold.lfWeight = FW_BOLD;
-	_tcscpy_s(lf_bold.lfFaceName, _T("Segoe UI")); // Or "Arial", etc.
-	m_font_bold.CreateFontIndirect(&lf_bold);
-
-	m_font_button.CreateFont(
-		18,                        // Height
-		0,                         // Width
-		0,                         // Escapement
-		0,                         // Orientation
-		FW_NORMAL,                  // Weight
-		FALSE,                    // Italic
-		FALSE,                    // Underline
-		0,                        // StrikeOut
-		ANSI_CHARSET,             // Charset
-		OUT_DEFAULT_PRECIS,
-		CLIP_DEFAULT_PRECIS,
-		DEFAULT_QUALITY,
-		DEFAULT_PITCH | FF_SWISS, // Pitch and Family
-		_T("Segoe UI")            // Font name
-	);
 
 	/*m_staticText_LV_Name.Create(_T("LV-Name"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(80, 20)), this, 1001);
 	m_staticText_LV_Datum.Create(_T("LV-Datum"), WS_CHILD | WS_VISIBLE, CRect(CPoint(260, 20), CSize(80, 20)), this,1001 );
@@ -256,18 +231,17 @@ void CLVInfosView::OnInitialUpdate()
 		pStatic->DestroyWindow();
 	}
 
+	m_Doc = pMainFrame->GetXmlDoc();
+	m_Root = pMainFrame->GetRootNode();
+	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
+	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
+	m_award = pMainFrame->GetAwardNode();
+
+
 	m_staticText_Title.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
-	m_staticText_Title.SetFont(&m_font_bold);
+	m_staticText_Title.SetFont(pMainFrame->GetFontBold());
 
-	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
-	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
-	m_xmlDoc->parse<0>(m_xmlFile->data());
-	rapidxml::xml_node<>* root = m_xmlDoc->first_node();
-
-	m_pGAEBInfo = root->first_node(); // Get GAEBInfo node
-	m_pProjektInfo = m_pGAEBInfo->next_sibling();
-	m_award = m_pProjektInfo->next_sibling();
 
 	for (CStatic* pStatic : staticControls)
 	{
@@ -289,29 +263,28 @@ void CLVInfosView::OnInitialUpdate()
 
 	int yPos_GaebInfo = 70;  // Starting y position for controls
 	//GEAB Info
-	xml_node<>* SubChild = m_pGAEBInfo->first_node();
-	for (SubChild; SubChild; SubChild = SubChild->next_sibling())
+	for (rapidxml::xml_node<>* SubChild = m_pGAEBInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
 	{
-		//CString subChildValue(SubChild->name());		
+		//CString subChildText(SubChild->name());
 		CString subChildText(SubChild->value());
 		CStatic* pstaticValue = new CStatic();
 		pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
 			CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
 		yPos_GaebInfo += 20;
-		pstaticValue->SetFont(&m_font);
+		pstaticValue->SetFont(pMainFrame->GetFont());
 		
 		CString cert_text(SubChild->name());
 		if (cert_text == "Certific")
 		{
 			m_staticText_Certificate.Create(_T("Prüfzertifikat:	"), WS_CHILD | WS_VISIBLE,
 				CRect(CPoint(20, 190), CSize(250, 20)), this, 1001);
-			m_staticText_Certificate.SetFont(&m_font);
+			m_staticText_Certificate.SetFont(pMainFrame->GetFont());
 		}
 
 	}
 	for (CStatic* pStatic : staticControls)
 	{
-		pStatic->SetFont(&m_font);
+		pStatic->SetFont(pMainFrame->GetFont());
 	}
 }
 
@@ -344,35 +317,16 @@ HBRUSH CLVInfosView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
 		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
 	}
-	//Combobox
-
-	/*if (ctrlID == 1003)
-	{
-		if (nCtlColor == CTLCOLOR_LISTBOX) // ListBox (Dropdown area)
-		{
-			pDC->SetBkColor(RGB(200, 220, 255)); // Light Blue Background
-			pDC->SetTextColor(RGB(255, 0, 0));     // Black Text
-			return m_brush_combobox;
-		}
-
-		else if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_STATIC) // ComboBox text area
-		{
-			pDC->SetBkColor(RGB(255, 255, 180)); // Light Yellow
-			pDC->SetTextColor(RGB(0, 0, 0));   // Black text
-			return m_brush_combobox;
-		}
-		return CView::OnCtlColor(pDC, pWnd, nCtlColor);
-	}
-	//Edit box
-	if (ctrlID == 1002)
-	{
-		m_textColor_editbox = RGB(0, 0, 0);
-		pDC->SetTextColor(m_textColor_editbox);       // Black text
-		pDC->SetBkColor(RGB(255, 255, 180));
-		// Return the brush for background color
-		return m_brush_editbox;
-
-	}*/
 
 	return hbr;
+}
+
+
+CString CLVInfosView::Utf8ToCString(const char* utf8Str)
+{
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;
 }

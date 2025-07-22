@@ -33,31 +33,20 @@ protected:
 	CEdit m_edit_Text;
 	CRect clientRect_VR;
 
-	CButton m_button_bold;
-	CButton m_button_italic;
-	CButton m_button_underline;
-
 	CComboBox m_combobox_textSize;
 	CComboBox m_combobox_textFont;
 
-	CFont m_font;
-	CFont m_font_bold;
-	CFont m_font_italic;
-	CFont m_font_underline;
-	CFont m_font_button;
-
 	CBrush m_edit_bg_color;
 
-	std::unique_ptr<rapidxml::file<>> m_xmlFile;
-	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
-	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
-	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
-	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
+	rapidxml::xml_document<>* m_Doc = nullptr;
+	rapidxml::xml_node<>* m_Root = nullptr;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
+	rapidxml::xml_node<>* m_award = nullptr;
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	afx_msg void OnEditBold();
 	CString Utf8ToCString(const char* utf8Str);
 
 };
