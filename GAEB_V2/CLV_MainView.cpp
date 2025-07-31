@@ -297,7 +297,7 @@ void CLV_MainView::PrintAllIDsRecursive(xml_node<>* node, int& index, std::vecto
 							cStatic_IT->SetFont(pMainFrame->GetFont());
 							m_vecStatics_GAEBInfo.push_back(cStatic_IT);
 						}
-						else if (tag == "TimeQu"){}
+						else if (tag == "TimeQu") {}
 						else if (tag == "Description")
 						{
 							xml_node<>* complete_txt_node = child->first_node();	//CompleteText
@@ -310,7 +310,7 @@ void CLV_MainView::PrintAllIDsRecursive(xml_node<>* node, int& index, std::vecto
 
 								//Langtext
 								if (compl_text_name == "DetailTxt") {
-									
+
 								}
 								//Kurztext
 								else if (compl_text_name == "OutlineText") {
@@ -346,9 +346,14 @@ void CLV_MainView::PrintAllIDsRecursive(xml_node<>* node, int& index, std::vecto
 					}
 					index += 20; // Increment index for next item
 				}
-			}		
-			if (child)
-				PrintAllIDsRecursive(child, index, currentPath);
+			}
+			for (xml_node<>* subCtgy = body->first_node("BoQCtgy"); subCtgy; subCtgy = subCtgy->next_sibling("BoQCtgy"))
+			{
+				PrintAllIDsRecursive(subCtgy, index, currentPath);
+			}
+			//if (child)
+			//	PrintAllIDsRecursive(child, index, currentPath);
+
 		}
 
 	}
