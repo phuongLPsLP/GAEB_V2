@@ -63,8 +63,10 @@ public:
 	void OnBnClickedToggleLeistungsverzeichnis();
 
 	CString Utf8ToCString(const char* utf8Str);
-	void PrintAllIDsRecursive(xml_node<>* node, int& index, std::vector<int> levelPath);
-
+	//void PrintAllIDsRecursive(xml_node<>* node, int& index, std::vector<int> levelPath);
+	void TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
+	void TraverseItemlist(xml_node<>* itemList, int& index, std::vector<int> levelPath);
+	CString FormatPath(const std::vector<int>& path);
 private:
 	void GetDeviceScrollSize(int& nMapMode,
 		SIZE& sizeTotal,
