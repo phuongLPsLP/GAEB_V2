@@ -41,6 +41,8 @@ protected:
 	CStatic m_staticText_LeiBe_LT;
 	CStatic m_staticText_Einheitpreis_LT;
 	CStatic m_staticText_Gesamtpreis_LT;
+	
+	int index_item;
 
 	int yPos_LV = 70; // Initial vertical position for the first item
 	int yPos_OZ = 100;
@@ -60,6 +62,8 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	void PrintAllIDs(xml_node<>* node, int& index, std::vector<int> levelPath);
 	CString Utf8ToCString(const char* utf8Str);
+	void TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
+	void TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath);
 };
 
 

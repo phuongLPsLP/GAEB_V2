@@ -195,10 +195,10 @@ CString CLV_MainView::Utf8ToCString(const char* utf8Str)
 
 void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector<int> path)
 {
-	int ctgyCount = 0;
-	ctgyCount++;
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+	int ctgyCount = 0;
 
+	ctgyCount++;
 	std::vector<int> currentPath = path;
 	currentPath.push_back(ctgyCount);
 
@@ -216,11 +216,11 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 		CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
 	staticCtrl->SetFont(pMainFrame->GetFont());
 	m_vecStatics_GAEBInfo.push_back(staticCtrl);
-
-
 	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
+
 	if (bodyNode)
 	{
+
 		// LblTx (optional)
 		xml_node<>* lblTx = ctgyNode->first_node("LblTx");
 		if (lblTx) {
@@ -241,7 +241,6 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 		xml_node<>* itemList = bodyNode->first_node("Itemlist");
 		if (itemList)
 			TraverseItemlist(itemList, index, currentPath);
-		int childCtgyIndex = 0;
 		// Recurse into nested categories
 		for (xml_node<>* subCtgy = bodyNode->first_node("BoQCtgy"); subCtgy; subCtgy = subCtgy->next_sibling("BoQCtgy"))
 		{
@@ -256,10 +255,31 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vector<int> levelPath)
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-
 	int itemCount = 0;
+
 	for (xml_node<>* item = itemList->first_node("Item"); item; item = item->next_sibling("Item"))
 	{
+
+		itemCount++;
+
+		std::vector<int> currentPath_item = levelPath;
+		currentPath_item.push_back(itemCount);
+
+		// Format like "1.2.3"
+		CString formattedPath_item;
+		for (size_t i = 0; i < currentPath_item.size(); ++i)
+		{
+			formattedPath_item.AppendFormat(_T("%d"), currentPath_item[i]);
+			if (i < currentPath_item.size() - 1)
+				formattedPath_item.Append(_T("."));
+		}
+
+		CStatic* staticCtrl_item = new CStatic();
+		staticCtrl_item->Create(formattedPath_item, WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
+		staticCtrl_item->SetFont(pMainFrame->GetFont());
+		m_vecStatics_GAEBInfo.push_back(staticCtrl_item);
+
 		// Iterate over item's children
 		for (xml_node<>* child = item->first_node(); child; child = child->next_sibling())
 		{
