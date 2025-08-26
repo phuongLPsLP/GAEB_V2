@@ -84,7 +84,6 @@ void CLV_MainView::OnInitialUpdate()
 
 void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 {
-	int state = SW_SHOW;
 	CStatic* staticControls_LV[] =
 	{
 	 &m_staticText_OZ,
@@ -141,7 +140,6 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 						std::vector<int> rootPath;
 						for (xml_node<>* ctgyNode = bodyNode->first_node("BoQCtgy"); ctgyNode; ctgyNode = ctgyNode->next_sibling("BoQCtgy"))
 						{
-							//PrintAllIDsRecursive(ctgyNode, yPos_LV, rootPath);
 							TraverseBoQCtgy(ctgyNode, yPos_LV, rootPath);
 						}
 					}
@@ -197,8 +195,59 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	int ctgyCount = 0;
+	if (auto* attr = ctgyNode->first_attribute("RNoPart"))
+		ctgyCount = atoi(attr->value());
+/*	for (xml_node<>* node = ctgyNode; node; node = ctgyNode->next_sibling("BoQCtgy"))
+	{
+		ctgyCount++;
+		std::vector<int> currentPath = path;
+		currentPath.push_back(ctgyCount);
 
-	ctgyCount++;
+		CString formattedPath;
+		for (size_t i = 0; i < currentPath.size(); ++i)
+		{
+			formattedPath.AppendFormat(_T("%d"), currentPath[i]);
+			if (i < currentPath.size() - 1)
+				formattedPath.Append(_T("."));
+		}
+		CStatic* staticCtrl = new CStatic();
+		staticCtrl->Create(formattedPath, WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
+		staticCtrl->SetFont(pMainFrame->GetFont());
+		m_vecStatics_GAEBInfo.push_back(staticCtrl);
+		xml_node<>* bodyNode = ctgyNode->first_node("BoQBody"); 
+
+		if (bodyNode)
+		{
+			// LblTx (optional)
+			xml_node<>* lblTx = ctgyNode->first_node("LblTx");
+			if (lblTx) {
+				CString lblText;
+				for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
+					lblText += Utf8ToCString(span->value());
+				}
+				CStatic* static_lbl = new CStatic();
+				static_lbl->Create(lblText, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(180, index), CSize(500, 20)), this, 1001);
+				static_lbl->SetFont(pMainFrame->GetFontTitle());
+				m_vecStatics_GAEBInfo.push_back(static_lbl);
+
+				index += 20;
+			}
+
+			// Traverse items if any
+			xml_node<>* itemList = bodyNode->first_node("Itemlist");
+			if (itemList)
+				TraverseItemlist(itemList, index, currentPath);
+			// Recurse into nested categories
+			for (xml_node<>* subCtgy = bodyNode->first_node("BoQCtgy"); subCtgy; subCtgy = subCtgy->next_sibling("BoQCtgy"))
+			{
+				TraverseBoQCtgy(subCtgy, index, currentPath);
+			}
+		}
+	}*/
+
+	//ctgyCount++;
 	std::vector<int> currentPath = path;
 	currentPath.push_back(ctgyCount);
 
@@ -216,8 +265,8 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 		CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
 	staticCtrl->SetFont(pMainFrame->GetFont());
 	m_vecStatics_GAEBInfo.push_back(staticCtrl);
-	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
 
+	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
 	if (bodyNode)
 	{
 
@@ -318,7 +367,6 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 			else if (tag == "Description")
 			{
 				xml_node<>* complete_txt_node = child->first_node();	//CompleteText
-				CString Fulltext_lang;
 				CString Fulltext_kurz;
 
 				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
@@ -335,8 +383,6 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 									for (xml_node<>* span_node_kurztext = p_node_kurztext->first_node(); span_node_kurztext; span_node_kurztext = span_node_kurztext->next_sibling())	//span
 									{
 										CString span_node_kurztext_text = Utf8ToCString(span_node_kurztext->value());
-										//span_node_text.Replace(_T("<br/>"), _T("\r\n"));
-										//span_node_text.Replace(_T("<br>"), _T("\r\n"));
 										if (!span_node_kurztext_text.IsEmpty()) {
 											Fulltext_kurz += span_node_kurztext_text;
 										}

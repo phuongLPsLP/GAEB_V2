@@ -60,7 +60,6 @@ protected:
 
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-	void PrintAllIDs(xml_node<>* node, int& index, std::vector<int> levelPath);
 	CString Utf8ToCString(const char* utf8Str);
 	void TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
 	void TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath);

@@ -55,6 +55,7 @@ protected:
 	CBrush m_brush_edit_bg_color;
 	CSize m_wndSize;
 
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
