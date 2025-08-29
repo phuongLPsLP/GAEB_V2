@@ -36,6 +36,7 @@ void CLangtextView::OnInitialUpdate()
 	GetClientRect(&clientRect);
 	CClientDC dc(this);
 	CSize sizeTotal;
+	int yPos_LV = 100;
 
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
@@ -97,7 +98,6 @@ void CLangtextView::OnInitialUpdate()
 					continue;
 				}
 				else {
-					int yPos_LV = 100;
 					xml_node<>* bodyNode = BoQChild_node; // should be BoQBody
 					if (CString(bodyNode->name()) == "BoQBody")
 					{
@@ -110,6 +110,9 @@ void CLangtextView::OnInitialUpdate()
 			}
 		}
 	}
+	CRect clientRect;
+	GetClientRect(&clientRect);
+	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), yPos_LV));
 }
 
 
@@ -239,7 +242,11 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 			TraverseBoQCtgy_LT(subCtgy, index, currentPath);
 		}
 	}
-	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
+
+	//CRect clientRect;
+	//GetClientRect(&clientRect);
+	//CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
+	//CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
 }
 
 void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath)
@@ -337,7 +344,7 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 										}
 									}
 
-									CRect textRect(420, index, clientRect.Width() - 600, 0); 
+									CRect textRect(420, index, clientRect.Width() - 50, index + 5000); 
 									CClientDC dc(this);
 									CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
 									dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
@@ -348,8 +355,9 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 									pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
 										this,
 										1001);
-									yPos_LV += textRect.Height() +20;
-									index += textRect.Height() + 20;
+									m_vecStatics_GAEBInfo.push_back(pstaticValue);
+									//index += textRect.Height() + 10;
+									index = static_cast<int>(textRect.bottom)+ 10;
 ;									pstaticValue->SetFont(pMainFrame->GetFont());
 								}
 							}
@@ -359,4 +367,9 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 			}
 		}
 	}
+
+	CRect clientRect;
+	GetClientRect(&clientRect);
+	// Scrollbereich setzen: Breite = ClientBreite, Höhe = letzter index
+	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
 }
