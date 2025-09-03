@@ -112,7 +112,9 @@ void CLangtextView::OnInitialUpdate()
 	}
 	CRect clientRect;
 	GetClientRect(&clientRect);
-	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), yPos_LV));
+	//CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), yPos_LV));
+	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), 100000));
+
 }
 
 
@@ -242,11 +244,6 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 			TraverseBoQCtgy_LT(subCtgy, index, currentPath);
 		}
 	}
-
-	//CRect clientRect;
-	//GetClientRect(&clientRect);
-	//CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
-	//CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
 }
 
 void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath)
@@ -273,6 +270,8 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 			CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
 		staticCtrl_item->SetFont(pMainFrame->GetFont());
 		m_vecStatics_GAEBInfo.push_back(staticCtrl_item);
+		
+
 
 		// Iterate over item's children
 		for (xml_node<>* child = item->first_node(); child; child = child->next_sibling())
@@ -312,7 +311,7 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 			else if (tag == "Description")
 			{
 				xml_node<>* complete_txt_node = child->first_node();
-				CString Fulltext_lang;
+				CString Fulltext;
 
 				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
 				{
@@ -327,8 +326,7 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 								{
 									//CString p_node_text(p_node->name());
 									//<p>		
-									CStatic* pstaticValue = new CStatic();
-									CString Fulltext;
+									//CStatic* pstaticValue = new CStatic();
 									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
 									{
 										CString nodeName(span_node->name());
@@ -344,32 +342,35 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 										}
 									}
 
-									CRect textRect(420, index, clientRect.Width() - 50, index + 5000); 
-									CClientDC dc(this);
-									CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
-									dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
-									dc.SelectObject(pOldFont);
-
-									//textRect.OffsetRect(20, yPos_LV); // apply margins
-
-									pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
-										this,
-										1001);
-									m_vecStatics_GAEBInfo.push_back(pstaticValue);
-									//index += textRect.Height() + 10;
-									index = static_cast<int>(textRect.bottom)+ 10;
-;									pstaticValue->SetFont(pMainFrame->GetFont());
 								}
 							}
 						}
 					}
 				}
+
+				CRect client_Rect;
+				GetClientRect(&client_Rect);
+				CRect textRect(420, index, client_Rect.Width() - 50, index + 20);
+
+				CClientDC dc(this);
+				CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
+
+				//dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+				dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+
+				CStatic* pstaticValue = new CStatic();
+				//pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
+				//	this, 1001);
+				pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, 
+					CRect(CPoint(420, index), CSize()), this, 1001);
+				pstaticValue->SetFont(pMainFrame->GetFont());
+				m_vecStatics_GAEBInfo.push_back(pstaticValue);
+				//index += textRect.Height() + 10;
+				index = static_cast<int>(textRect.bottom) + 10;
+				dc.SelectObject(pOldFont);
 			}
+
 		}
 	}
-
-	CRect clientRect;
-	GetClientRect(&clientRect);
 	// Scrollbereich setzen: Breite = ClientBreite, Höhe = letzter index
-	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect.Width(), index));
 }
