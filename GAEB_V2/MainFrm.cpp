@@ -167,6 +167,7 @@ void CMainFrame::FillClassView()
 	m_root = m_xmlDoc->first_node();
 	m_root->name("Leistungsverzeichnis");
 
+
 	m_pGAEBInfo = m_root->first_node("GAEBInfo");
 	m_pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling("PrjInfo") : nullptr;
 	m_award = m_pProjektInfo ? m_pProjektInfo->next_sibling("Award") : nullptr;
@@ -178,6 +179,7 @@ void CMainFrame::FillClassView()
 	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, TVI_LAST);
 	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, TVI_LAST);
 	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
+
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
 
@@ -193,13 +195,15 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 	if (!node) return currentDepth;
 	if (currentDepth > maxDepth)
 		maxDepth = currentDepth;
+
 	CString nodeLabel(node->name());
 
-	for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+
+	/*for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
 		CString attrName(attr->name());
 
-		//Check if root contains any context 
-		if (attrName.IsEmpty() == FALSE) 
+		//Check if root contains any context
+		if (attrName.IsEmpty() == FALSE)
 		{
 			attrName = "";	//set attribute to empty string if it is not empty
 		}
@@ -209,24 +213,38 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 			nodeLabel += attrStr;
 		}
 
-	}
+	}*/
+
 	HTREEITEM hItem = m_wndClassView.InsertItem(nodeLabel, parentItem);
 	const char* nodeValue = node->value();
-	if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
+
+	/*if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
 	{
-		//CString valueText;
-		//valueText.Format(CString(nodeValue));
-		CString valueText(nodeValue); 
+		CString valueText(nodeValue);
 		m_wndClassView.InsertItem(valueText, hItem);
-	}
-	
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) 
+	}*/
+
+	/*for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
 	{
-		if (child->type() == rapidxml::node_element)
-		{
-			AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
+		CString child_text(child->name());
+		if (child_text == "Award") { continue; }
+		else {
+			if (child->type() == rapidxml::node_element)
+			{
+				AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
+			}
+		}
+	}*/
+
+	for (xml_node<>* child_node = node->first_node(); child_node; child_node = child_node->next_sibling()) 
+	{
+		CString child_text(child_node->name());
+		if (child_text == "LblTx") {
+			AddXMLToTreeCtrl(hItem, child_node, currentDepth + 1, maxDepth);
 		}
 	}
+
+
 	return maxDepth;
 }
 

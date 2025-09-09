@@ -44,8 +44,6 @@ protected:
 	
 	int index_item;
 
-	int yPos_LV = 70; // Initial vertical position for the first item
-	int yPos_OZ = 100;
 	CSize m_wndSize;
 
 	CBrush m_brush_edit_bg_color;

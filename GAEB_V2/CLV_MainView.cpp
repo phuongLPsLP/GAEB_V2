@@ -369,6 +369,7 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 				xml_node<>* complete_txt_node = child->first_node();	//CompleteText
 				CString Fulltext_kurz;
 
+
 				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
 				{
 					CString compl_text_name(compl_text->name());			
@@ -389,9 +390,11 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 										CStatic* cStatic_kurztext = new CStatic();
 										cStatic_kurztext->Create(Fulltext_kurz, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
 											CRect(CPoint(420, index), CSize(1000, 20)), this, 1001);
+											//textRect, this, 1001);
 										cStatic_kurztext->SetFont(pMainFrame->GetFont());
 										m_vecStatics_GAEBInfo.push_back(cStatic_kurztext);
 										//index += 20;
+										
 									}
 								}
 							}
@@ -402,7 +405,6 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 				}
 			}
 		}
-
 		index += 20;
 	}
 }
