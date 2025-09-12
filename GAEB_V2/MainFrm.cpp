@@ -159,10 +159,10 @@ rapidxml::xml_node<>* CMainFrame::GetAwardNode()
 //CTreeCtrl
 void CMainFrame::FillClassView()
 {
-	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83"); 
+	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
 	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hagmans_01761.X86");
 
-	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();  
+	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
 	m_xmlDoc->parse<0>(m_xmlFile->data());
 	m_root = m_xmlDoc->first_node();
 	m_root->name("Leistungsverzeichnis");
@@ -179,27 +179,46 @@ void CMainFrame::FillClassView()
 	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, TVI_LAST);
 	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, TVI_LAST);
 	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
-
+	LV_Main = m_wndClassView.InsertItem(_T("Leistungsverzeichnis", TVI_ROOT, TVI_LAST));
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
 
 	if (!m_root) return;
 
-	int maxDepth = 0;
-	AddXMLToTreeCtrl(TVI_ROOT, m_root, 1, maxDepth);
+	if (!m_award) return;
+
+	xml_node<>* boqNode = m_award->first_node("BoQ");
+	if (!boqNode) return;
+
+	xml_node<>* boQbodyNode = boqNode->first_node("BoQBody");
+	if (!boQbodyNode) return;
+
+	std::vector<int> rootPath;
+
+
+	for (xml_node<>* child_node = boQbodyNode->first_node(); child_node; child_node = child_node->next_sibling()) {
+		Recursive_Node(child_node, rootPath);
+	}
+
+	m_wndClassView.Expand(LV_Main, TVE_EXPAND);	
+/*	HTREEITEM hChild = m_wndClassView.GetChildItem(LV_Main);
+	while (hChild != NULL)
+	{
+		m_wndClassView.Expand(hChild, TVE_EXPAND);
+		hChild = m_wndClassView.GetNextSiblingItem(hChild);
+	}*/
 }
 
-
-int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int currentDepth, int& maxDepth)
+HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
+//int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
 {
-	if (!node) return currentDepth;
+	if (!node) return parentItem;
+	//if (!node) return currentDepth;
 	if (currentDepth > maxDepth)
 		maxDepth = currentDepth;
 
-	CString nodeLabel(node->name());
-
-
-	/*for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+	/*CString nodeLabel(node->name());
+	for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
 		CString attrName(attr->name());
 
 		//Check if root contains any context
@@ -212,42 +231,80 @@ int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int cur
 			attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
 			nodeLabel += attrStr;
 		}
-
 	}*/
 
-	HTREEITEM hItem = m_wndClassView.InsertItem(nodeLabel, parentItem);
+	HTREEITEM hItem = m_wndClassView.InsertItem(string, parentItem);
+
+	/*if (nodeLabel == "span")
+	{
+		string = node->value();
+	}
 	const char* nodeValue = node->value();
 
-	/*if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
+	if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
 	{
 		CString valueText(nodeValue);
 		m_wndClassView.InsertItem(valueText, hItem);
 	}*/
 
-	/*for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
-	{
-		CString child_text(child->name());
-		if (child_text == "Award") { continue; }
-		else {
-			if (child->type() == rapidxml::node_element)
-			{
-				AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
-			}
-		}
-	}*/
+	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
+	{		
+		if (child->type() == rapidxml::node_element && CString(child->name()) != _T("LblTx"))
+		{
+			CString childText(child->name());
 
-	for (xml_node<>* child_node = node->first_node(); child_node; child_node = child_node->next_sibling()) 
+			if(child->value() && strlen(child->value()) > 0)
+			{
+				childText += _T(": ");
+				childText += Utf8ToString(child->value());	
+			}
+			AddXMLToTreeCtrl(hItem, childText, child, currentDepth + 1, maxDepth);
+		}
+	}
+	return hItem;
+}
+/*int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int currentDepth, int& maxDepth, bool skipCurrent)
+{
+	if (!node) return currentDepth;
+	if (currentDepth > maxDepth)
+		maxDepth = currentDepth;
+
+	HTREEITEM hItem = parentItem;
+
+	if (!skipCurrent)
 	{
-		CString child_text(child_node->name());
-		if (child_text == "LblTx") {
-			AddXMLToTreeCtrl(hItem, child_node, currentDepth + 1, maxDepth);
+		CString nodeLabel(node->name());
+
+		for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute())
+		{
+			CString attrStr;
+			attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
+			nodeLabel += attrStr;
+		}
+
+		hItem = m_wndClassView.InsertItem(nodeLabel, parentItem);
+
+		const char* nodeValue = node->value();
+		if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
+		{
+			CString valueText(nodeValue);
+			m_wndClassView.InsertItem(valueText, hItem);
 		}
 	}
 
+	// Kinder immer einfügen
+	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
+	{
+		if (child->type() == rapidxml::node_element)
+		{
+			//AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
+			AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth, true);
+
+		}
+	}
 
 	return maxDepth;
-}
-
+}*/
 
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -278,9 +335,6 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		if (hSelectedItem == m_wndClassView.GetChildItem(parent))
 		{
 			SwitchView(RUNTIME_CLASS(CHinweisText));
-		}
-		else {
-			SwitchView(RUNTIME_CLASS(CPositionView));
 		}
 	}
 	
@@ -313,6 +367,147 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
 	//RecalcLayout();
+}
+
+/*void CMainFrame::AddNodeToTree(HTREEITEM parentItem, xml_node<>* node)
+{
+	if (!node) return;
+
+	if (strcmp(node->name(), "span") == 0) {
+		CString lbtx_text;
+		if (node->value() && strlen(node->value()) > 0) {
+			lbtx_text = CString(node->value());
+		}
+		m_wndClassView.InsertItem(lbtx_text, parentItem);
+	}
+
+	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
+		AddNodeToTree(parentItem, child);
+	}
+}*/
+
+void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path)
+{
+	int ctgyCount = 0;
+	std::vector<int> currentPath = path;
+	if (auto* attr = ctgyNode->first_attribute("RNoPart"))
+		ctgyCount = atoi(attr->value());
+	currentPath.push_back(ctgyCount);
+
+	CString formattedPath;
+	for (size_t i = 0; i < currentPath.size(); ++i)
+	{
+		formattedPath.AppendFormat(_T("%d"), currentPath[i]);
+		//if (i < currentPath.size() - 1)
+		formattedPath.Append(_T(". "));
+	}
+
+	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
+	xml_node<>* ctgyNode_child = ctgyNode->first_node("BoQCtgy");
+
+	if (bodyNode) 
+	{
+		xml_node<>* lblTx = ctgyNode->first_node("LblTx");
+		xml_node<>* itemList = bodyNode->first_node("Itemlist");
+
+/*		for (xml_node<>* ctgy_firstChild = ctgyNode->first_node(); ctgy_firstChild; ctgy_firstChild = ctgy_firstChild->next_sibling()) {
+			CString ctgy_text(ctgy_firstChild->name());
+			if (ctgy_text == "LblTx")
+			{
+				CString lblText;
+				for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
+					lblText += Utf8ToString(span->value());
+					CString Full_lbltx = formattedPath + lblText;
+					int maxDepth = 0;
+					AddXMLToTreeCtrl(LV_Main, Full_lbltx, span, 1, maxDepth);
+				}
+			}
+			else {
+
+				Recursive_Node(ctgy_firstChild, currentPath);
+			}
+		}*/
+
+		// LblTx 
+		if (lblTx) {
+			CString lblText;
+			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
+				lblText += Utf8ToString(span->value());
+			}
+			CString Full_lbltx = formattedPath + lblText;
+			int maxDepth = 0;
+			AddXMLToTreeCtrl(LV_Main, Full_lbltx, lblTx, 1, maxDepth);
+			
+		}
+		if (itemList) {
+			Recursive_Item(itemList, currentPath);
+		}
+	}
+
+
+	for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node; ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
+		Recursive_Node(ctgy_child_node, currentPath);
+	}
+}
+
+void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path)
+{
+	int itemCount = 0;
+
+	for (xml_node<>* item = itemNode->first_node("Item"); item; item = item->next_sibling("Item"))
+	{
+		itemCount++;
+		std::vector<int> currentPath_item = path;
+		currentPath_item.push_back(itemCount);
+
+		// Format like "1.2.3"
+		CString formattedPath_item;
+		for (size_t i = 0; i < currentPath_item.size(); ++i)
+		{
+			formattedPath_item.AppendFormat(_T("%d"), currentPath_item[i]);
+			//if (i < currentPath_item.size() - 1)
+			formattedPath_item.Append(_T(". "));
+		}	
+
+		for(xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
+		{
+			CString tag(item_child->name());
+			if(tag == "Description")
+			{
+				xml_node<>* complete_txt_node = item_child->first_node();	
+				CString Fulltext;
+
+				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
+				{
+					CString compl_text_name(compl_text->name());
+					//Kurztext
+					if (compl_text_name == "OutlineText") {
+						for (xml_node<>* OutlTxt = compl_text->first_node(); OutlTxt; OutlTxt = OutlTxt->next_sibling()) //Text
+						{
+							for (xml_node<>* TextOutlTxt = OutlTxt->first_node(); TextOutlTxt; TextOutlTxt = TextOutlTxt->next_sibling()) //p
+							{
+								for (xml_node<>* p_node_kurztext = TextOutlTxt->first_node(); p_node_kurztext; p_node_kurztext = p_node_kurztext->next_sibling())	//span
+								{
+									for (xml_node<>* span_node_kurztext = p_node_kurztext->first_node(); span_node_kurztext; span_node_kurztext = span_node_kurztext->next_sibling())	//span
+									{
+										CString span_node_kurztext_text = Utf8ToString(span_node_kurztext->value());
+										if (!span_node_kurztext_text.IsEmpty()) {
+											Fulltext += span_node_kurztext_text;
+											Fulltext = formattedPath_item + Fulltext;
+											int maxDepth_item = 0;
+											AddXMLToTreeCtrl(LV_Main, Fulltext, span_node_kurztext, 1, maxDepth_item);
+										}
+
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+	}
 }
 
 
@@ -522,6 +717,7 @@ void CMainFrame::Dump(CDumpContext& dc) const
 {
 	CFrameWndEx::Dump(dc);
 }
+
 
 
 
@@ -1178,4 +1374,14 @@ void CMainFrame::OnKurztext()
 void CMainFrame::OnUpdateKurztext(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+}
+
+CString CMainFrame::Utf8ToString(const char* utf8Str)
+{
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;	
+	//return CString();
 }
