@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "GAEB_V2.h"
 #include "CPositionView.h"
-
+#include "MainFrm.h"
 
 // CPositionView
 
@@ -70,6 +70,14 @@ void CPositionView::OnInitialUpdate()
 	UpdateWindow();
 	m_edit_bg_color.CreateSolidBrush(RGB(255, 255, 200));
 
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	m_Doc = pMainFrame->GetXmlDoc();
+	m_Root = pMainFrame->GetRootNode();
+	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
+	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
+	m_award = pMainFrame->GetAwardNode();
+
 	CClientDC dc(this);
 
 	LOGFONT lf;
@@ -102,11 +110,13 @@ void CPositionView::OnInitialUpdate()
 	m_staticText_Langtext.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 250), CSize(80, 20)), this, 1001);
 	
 	m_edit_OZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160,50), CSize(120,20)), this, 1002);
+	m_edit_OZ.SetWindowTextW(m_text_OZ);
+
 	m_combobox_PosArt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT |WS_VSCROLL, 
 		CRect(CPoint(160, 100), CSize(250, 20)), this, 1003);
 	m_combobox_PosArt.SetFont(&m_font);
 	
-	CRect rcButton(160, 140, 280, 70);
+/*	CRect rcButton(160, 140, 280, 70);
 	m_combobox_textFont_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
 		rcButton, this, 1003);
 	m_combobox_textSize_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
@@ -117,12 +127,12 @@ void CPositionView::OnInitialUpdate()
 
 	m_button_bold_KT.SetFont(&m_font_bold);
 	m_button_italic_KT.SetFont(&m_font_italic);
-	m_button_underline_KT.SetFont(&m_font_underline);
+	m_button_underline_KT.SetFont(&m_font_underline);*/
 
 	m_edit_kurztext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 180), CSize(rect.Width(), 50)), this, 1005);
 	m_edit_kurztext.SetFont(&m_font);
 
-	m_combobox_textFont_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
+/*	m_combobox_textFont_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
 		CRect(CPoint(160, 250), CSize(120, 20)), this, 1003);
 	m_combobox_textSize_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
 		CRect(CPoint(310, 250), CSize(80, 20)), this, 1003);
@@ -132,7 +142,7 @@ void CPositionView::OnInitialUpdate()
 
 	m_button_bold_LT.SetFont(&m_font_bold);
 	m_button_italic_LT.SetFont(&m_font_italic);
-	m_button_underline_LT.SetFont(&m_font_underline);
+	m_button_underline_LT.SetFont(&m_font_underline);*/
 
 	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 290), CSize(rect.Width(), 270)), this, 1005);
 	m_edit_langtext.SetFont(&m_font);
@@ -152,15 +162,15 @@ void CPositionView::OnInitialUpdate()
 	m_edit_gesamt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 700), CSize(80, 20)), this, 1002);
 	m_edit_summe.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 760), CSize(80, 20)), this, 1002);
 
-	LOGFONT lf_textFont = {};
+	/*LOGFONT lf_textFont = {};
 	lf_textFont.lfCharSet = DEFAULT_CHARSET;
 	lf_textFont.lfFaceName[0] = '\0';
 
 	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont_KT, 0);
-	m_combobox_textFont_KT.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
+	m_combobox_textFont_KT.SelectString(-1, _T("Segoe UI"));  
 
 	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont_LT, 0);
-	m_combobox_textFont_LT.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
+	m_combobox_textFont_LT.SelectString(-1, _T("Segoe UI")); 
 
 
 	int standardFontSizes[] = {
@@ -176,7 +186,7 @@ void CPositionView::OnInitialUpdate()
 		m_combobox_textSize_LT.AddString(str);
 	}
 	m_combobox_textSize_KT.SelectString(-1, _T("11"));
-	m_combobox_textSize_LT.SelectString(-1, _T("11"));
+	m_combobox_textSize_LT.SelectString(-1, _T("11"));*/
 
 
 	if (pApp && pApp->m_einheitList.GetSize() > 0)
@@ -302,4 +312,17 @@ HBRUSH CPositionView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		return m_edit_bg_color;
 	}
 	return hbr;
+}
+
+void CPositionView::SetText(LPCTSTR lpszText)
+{
+	if (m_edit_OZ.GetSafeHwnd() != NULL && ::IsWindow(m_edit_OZ.m_hWnd))
+	{
+		m_edit_OZ.SetWindowText(lpszText);
+	}
+	else
+	{
+		m_text_OZ = lpszText;
+	}
+
 }

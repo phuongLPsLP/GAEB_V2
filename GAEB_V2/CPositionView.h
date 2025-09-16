@@ -1,5 +1,7 @@
 #pragma once
-
+#include "rapidxml-1.13/rapidxml.hpp"
+#include "rapidxml-1.13/rapidxml_print.hpp"
+#include "rapidxml-1.13/rapidxml_utils.hpp"
 
 // CPositionView view
 
@@ -21,6 +23,8 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 #endif
+public:
+	CString m_text_OZ;
 protected:
 
 	CStatic m_staticText_Position;
@@ -36,11 +40,13 @@ protected:
 	CStatic m_staticText_Summe;
 	
 	CEdit m_edit_OZ;
+
 	CEdit m_edit_Menge;
 	CEdit m_edit_Einheit;
 	CComboBox m_combobox_PosArt;
 	CEdit m_edit_langtext;
 	CEdit m_edit_kurztext;
+
 	CEdit m_edit_einheitpreis;
 	CEdit m_edit_nachlass;
 	CEdit m_edit_gesamt;
@@ -70,10 +76,18 @@ protected:
 
 	CBrush m_edit_bg_color;
 
+	rapidxml::xml_document<>* m_Doc = nullptr;
+	rapidxml::xml_node<>* m_Root = nullptr;
+	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;
+	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
+	rapidxml::xml_node<>* m_award = nullptr;
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+
+	void SetText(LPCTSTR lpszText);
 };
 
 

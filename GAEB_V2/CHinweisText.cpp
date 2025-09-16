@@ -91,94 +91,16 @@ void CHinweisText::OnInitialUpdate()
 	m_staticText_Hinweis.Create(_T("Hinweis Text"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(200, 30)), this, 1001);
 
-	m_staticText_Kurztext.Create(_T("Kurztext"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 70), CSize(80, 20)), this, 1001);
-
-	CRect rcButton(140, 70, 300, 70);
-	m_combobox_textFont_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
-		rcButton, this, 1003);
-	m_combobox_textSize_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
-		CRect(CPoint(330, 70), CSize(80, 20)), this, 1003);
-	m_button_bold_KT.Create(_T("B"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(430, 70), CSize(30, 20)), this, 1003);
-	m_button_italic_KT.Create(_T("I"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(470, 70), CSize(30, 20)), this, 1003);
-	m_button_underline_KT.Create(_T("U"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(510, 70), CSize(30, 20)), this, 1003);
-
-	m_button_bold_KT.SetFont(&m_font_bold);
-	m_button_italic_KT.SetFont(&m_font_italic);
-	m_button_underline_KT.SetFont(&m_font_underline);
-
-	m_edit_kurztext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, 
-		CRect(CPoint(20,110),CSize(rect.Width(), 100)), this, 1005);
-
-	//Langtext
-	m_staticText_Langtext.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 230), CSize(80, 20)), this, 1001);
-
-	m_combobox_textFont_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
-		CRect(CPoint(140, 230), CSize(160, 20)), this, 1003);
-	m_combobox_textSize_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
-		CRect(CPoint(330, 230), CSize(80, 20)), this, 1003);
-	m_button_bold_LT.Create(_T("B"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(430, 230), CSize(30, 20)), this, 1003);
-	m_button_italic_LT.Create(_T("I"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(470, 230), CSize(30, 20)), this, 1003);
-	m_button_underline_LT.Create(_T("U"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(510, 230), CSize(30, 20)), this, 1003);
-
-	m_button_bold_LT.SetFont(&m_font_bold);
-	m_button_italic_LT.SetFont(&m_font_italic);
-	m_button_underline_LT.SetFont(&m_font_underline);
-
-	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-		rect, this, 1005);
-
-	LOGFONT lf_textFont = {};
-	lf_textFont.lfCharSet = DEFAULT_CHARSET;
-	lf_textFont.lfFaceName[0] = '\0';
-
-	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont_KT, 0);
-	m_combobox_textFont_KT.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
-
-	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont_LT, 0);
-	m_combobox_textFont_LT.SelectString(-1, _T("Segoe UI"));  // Or any preferred font*/
-
-
-	int standardFontSizes[] = {
-	8, 9, 10, 11, 12, 14, 16, 18,
-	20, 22, 24, 26, 28, 36, 48, 72
-	};
-
-	for (int i = 0; i < _countof(standardFontSizes); ++i)
-	{
-		CString str;
-		str.Format(_T("%d"), standardFontSizes[i]);
-		m_combobox_textSize_KT.AddString(str);
-		m_combobox_textSize_LT.AddString(str);
-	}
-	m_combobox_textSize_KT.SelectString(-1, _T("11"));
-	m_combobox_textSize_KT.SelectString(-1, _T("11"));
 
 
 	CStatic* staticControls[] = {
-	&m_staticText_Hinweis,
-	&m_staticText_Kurztext,
-	&m_staticText_Langtext
+	&m_staticText_Hinweis
 	};
 
 	for (CStatic* pStatic : staticControls)
 	{
 		if (pStatic->GetSafeHwnd())
 			pStatic->SetFont(&m_font_bold);
-	}
-
-
-	CEdit* editControls[] = {
-		&m_edit_kurztext,
-		&m_edit_langtext
-	};
-	for (CEdit* pEdit : editControls)
-	{
-		if (pEdit->GetSafeHwnd())
-		{
-			pEdit->SetFont(&m_font);
-		}
 	}
 }
 

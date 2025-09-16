@@ -112,6 +112,11 @@ protected:  // control bar embedded members
 	BOOL m_checkbox_VA_M_Aufmaﬂ = FALSE;
 	BOOL m_checkbox_RE_M_Aufmaﬂ = FALSE;
 
+	CString m_path;
+	CString Kurz_text;	 
+
+	CStatic m_static_main;
+
 	HTREEITEM LV_Main;
 
 	std::unique_ptr<rapidxml::file<>> m_xmlFile;
@@ -135,6 +140,7 @@ public:
 	rapidxml::xml_node<>* GetAwardNode();
 
 	CView* m_pCurrentView = nullptr;
+	CMapPtrToPtr m_viewCache;
 	std::map<CRuntimeClass*, CView*> m_viewMap;
 
 protected:
@@ -149,8 +155,8 @@ protected:
 	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
 	afx_msg void OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void SwitchView(CRuntimeClass* pNewViewClass);
-	afx_msg void Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path);
-	afx_msg void Recursive_Item(xml_node<>* itemNode, std::vector<int> path);
+	afx_msg void Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTREEITEM parentItem);
+	afx_msg void Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTREEITEM parentItem);
 	
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 

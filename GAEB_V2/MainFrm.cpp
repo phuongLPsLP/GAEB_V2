@@ -17,6 +17,8 @@
 #include "GAEB_V2.h"
 #include "MainFrm.h"
 
+#define WM_UPDATE_SCROLLVIEW  (WM_APP + 1)
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -197,7 +199,7 @@ void CMainFrame::FillClassView()
 
 
 	for (xml_node<>* child_node = boQbodyNode->first_node(); child_node; child_node = child_node->next_sibling()) {
-		Recursive_Node(child_node, rootPath);
+		Recursive_Node(child_node, rootPath, LV_Main);
 	}
 
 	m_wndClassView.Expand(LV_Main, TVE_EXPAND);	
@@ -314,8 +316,11 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
 
-	 if (itemText == _T("Projekt")) {
+	if (itemText == _T("Projekt")) {
 		SwitchView(RUNTIME_CLASS(CProjektInfosView));
+	}
+	else if (itemText == _T("Informationen")) {
+		SwitchView(RUNTIME_CLASS(CHinweisText));
 	}
 	else if (itemText == _T("Vergabe")) {
 		SwitchView(RUNTIME_CLASS(CVergabeinfosView));
@@ -329,21 +334,107 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	else if (itemText == _T("Leistungsverzeichnis")) {
 		SwitchView(RUNTIME_CLASS(CLV_MainView));		
 	}
-	HTREEITEM parent = m_wndClassView.GetParentItem(hSelectedItem);
+	else {
+
+		SwitchView(RUNTIME_CLASS(CPositionView));
+		CPositionView* pposView = DYNAMIC_DOWNCAST(CPositionView, GetActiveView());
+		if(pposView) {
+			pposView->SetText(itemText);
+			//pposView->SetText(m_path);
+		}
+
+	 }
+	/*HTREEITEM parent = m_wndClassView.GetParentItem(hSelectedItem);
 	CString parent_itemText = m_wndClassView.GetItemText(parent);
 	if (parent_itemText == _T("Leistungsverzeichnis")) {
 		if (hSelectedItem == m_wndClassView.GetChildItem(parent))
 		{
-			SwitchView(RUNTIME_CLASS(CHinweisText));
+			SwitchView(RUNTIME_CLASS(CPositionView));
 		}
-	}
+	}*/
 	
 	*pResult = 0;
 }
 
 void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 {
-	CView* pOldView = GetActiveView();
+	if (m_pCurrentView && m_pCurrentView->IsKindOf(pNewViewClass)) {
+		return;
+	}
+
+	CView* pnewView = nullptr;
+	if (m_viewCache.Lookup(pNewViewClass, (void*&)pnewView)) {
+
+	}
+	else {
+		CDocument* pDoc = m_pCurrentView->GetDocument();
+		CCreateContext context;
+		context.m_pCurrentDoc = pDoc;
+		context.m_pNewViewClass = pNewViewClass;
+		// Create new view
+		CView* pNewView = (CView*)pNewViewClass->CreateObject();
+		ASSERT(pNewView->IsKindOf(RUNTIME_CLASS(CView)));
+
+		CRect rect;
+		m_pCurrentView->GetWindowRect(&rect);
+		ScreenToClient(&rect);
+
+		pNewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, AFX_IDW_PANE_FIRST, &context);
+		pNewView->OnInitialUpdate();
+
+		m_viewCache[pNewViewClass] = pNewView;
+
+		//SetActiveView(pNewView);
+		pNewView->ShowWindow(SW_SHOW);
+
+		m_pCurrentView->ShowWindow(SW_HIDE);
+		m_pCurrentView->DestroyWindow();
+	}
+	//Hide/show Views	
+		/*// If already showing the right view
+		if (m_pCurrentView && m_pCurrentView->IsKindOf(pNewViewClass))
+			return;
+
+		// Try to find an existing cached view
+		CView* pNewView = nullptr;
+		if (m_viewCache.Lookup(pNewViewClass, (void*&)pNewView))
+		{
+			// Found cached view
+		}
+		else
+		{
+			// Create it once
+			CCreateContext context;
+			context.m_pCurrentDoc = GetActiveDocument();
+			context.m_pNewViewClass = pNewViewClass;
+
+			pNewView = (CView*)pNewViewClass->CreateObject();
+			ASSERT(pNewView);
+
+			CRect rect;
+			GetClientRect(&rect);
+
+			pNewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW,
+				rect, this, AFX_IDW_PANE_FIRST, &context);
+			pNewView->OnInitialUpdate();
+
+			// Save into cache
+			m_viewCache[pNewViewClass] = pNewView;
+		}
+
+		// Hide old view
+		if (m_pCurrentView)
+			m_pCurrentView->ShowWindow(SW_HIDE);
+
+		// Show new view
+		pNewView->ShowWindow(SW_SHOW);
+		SetActiveView(pNewView);
+		m_pCurrentView = pNewView;
+	}*/
+
+	//Create / destro views
+
+	/*CView* pOldView = GetActiveView();
 	if (pOldView == nullptr || pOldView->IsKindOf(pNewViewClass)) {
 		return; // Already the correct view or invalid
 	}
@@ -366,7 +457,7 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
-	//RecalcLayout();
+	//RecalcLayout();*/
 }
 
 /*void CMainFrame::AddNodeToTree(HTREEITEM parentItem, xml_node<>* node)
@@ -386,7 +477,7 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 	}
 }*/
 
-void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path)
+void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTREEITEM parentItem)
 {
 	int ctgyCount = 0;
 	std::vector<int> currentPath = path;
@@ -401,6 +492,7 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path)
 		//if (i < currentPath.size() - 1)
 		formattedPath.Append(_T(". "));
 	}
+	m_path = formattedPath;
 
 	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
 	xml_node<>* ctgyNode_child = ctgyNode->first_node("BoQCtgy");
@@ -428,29 +520,34 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path)
 			}
 		}*/
 
+		CString Full_lbltx;
+
 		// LblTx 
 		if (lblTx) {
 			CString lblText;
 			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
 				lblText += Utf8ToString(span->value());
+				Kurz_text = lblText;
+				m_path = formattedPath;
 			}
-			CString Full_lbltx = formattedPath + lblText;
-			int maxDepth = 0;
-			AddXMLToTreeCtrl(LV_Main, Full_lbltx, lblTx, 1, maxDepth);
-			
+			Full_lbltx = formattedPath + lblText;
 		}
+		HTREEITEM thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
+
 		if (itemList) {
-			Recursive_Item(itemList, currentPath);
+			Recursive_Item(itemList, currentPath, thisItem);
+		}
+
+		for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node;
+			ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
+			Recursive_Node(ctgy_child_node, currentPath, thisItem);
 		}
 	}
 
 
-	for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node; ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
-		Recursive_Node(ctgy_child_node, currentPath);
-	}
 }
 
-void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path)
+void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTREEITEM parentItem)
 {
 	int itemCount = 0;
 
@@ -472,10 +569,11 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path)
 		for(xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
 		{
 			CString tag(item_child->name());
+			CString Fulltext;
+
 			if(tag == "Description")
 			{
 				xml_node<>* complete_txt_node = item_child->first_node();	
-				CString Fulltext;
 
 				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
 				{
@@ -493,20 +591,20 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path)
 										CString span_node_kurztext_text = Utf8ToString(span_node_kurztext->value());
 										if (!span_node_kurztext_text.IsEmpty()) {
 											Fulltext += span_node_kurztext_text;
-											Fulltext = formattedPath_item + Fulltext;
-											int maxDepth_item = 0;
-											AddXMLToTreeCtrl(LV_Main, Fulltext, span_node_kurztext, 1, maxDepth_item);
-										}
+											Fulltext = formattedPath_item + Fulltext;			
 
+											int maxDepth_item = 0;
+											m_wndClassView.InsertItem(Fulltext, parentItem);
+											//AddXMLToTreeCtrl(parentItem, Fulltext, item, 1, maxDepth_item);
+										}
 									}
 								}
 							}
 						}
 					}
-				}
+				}			
 			}
 		}
-
 	}
 }
 
@@ -606,6 +704,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// set the visual manager and style based on persisted value
 	OnApplicationLook(theApp.m_nAppLook);
 	FillClassView();
+
 	return 0;
 }
 
