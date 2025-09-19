@@ -96,6 +96,9 @@
     <ClInclude Include="CLangtextView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CProgressDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GAEB_V2.cpp">
@@ -153,6 +156,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CLangtextView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CProgressDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

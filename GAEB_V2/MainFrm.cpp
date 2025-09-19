@@ -363,78 +363,41 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 	}
 
 	CView* pnewView = nullptr;
-	if (m_viewCache.Lookup(pNewViewClass, (void*&)pnewView)) {
 
-	}
-	else {
-		CDocument* pDoc = m_pCurrentView->GetDocument();
+	if (!m_viewCache.Lookup(pNewViewClass, (void*&)pnewView)) {
+		CView* pOldView = GetActiveView();
+		CDocument* pDoc = pOldView ? pOldView->GetDocument() : nullptr;
 		CCreateContext context;
 		context.m_pCurrentDoc = pDoc;
 		context.m_pNewViewClass = pNewViewClass;
-		// Create new view
-		CView* pNewView = (CView*)pNewViewClass->CreateObject();
-		ASSERT(pNewView->IsKindOf(RUNTIME_CLASS(CView)));
+
+		pnewView = (CView*)pNewViewClass->CreateObject();
+		ASSERT(pnewView->IsKindOf(RUNTIME_CLASS(CView)));
 
 		CRect rect;
-		m_pCurrentView->GetWindowRect(&rect);
-		ScreenToClient(&rect);
-
-		pNewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, AFX_IDW_PANE_FIRST, &context);
-		pNewView->OnInitialUpdate();
-
-		m_viewCache[pNewViewClass] = pNewView;
-
-		//SetActiveView(pNewView);
-		pNewView->ShowWindow(SW_SHOW);
-
-		m_pCurrentView->ShowWindow(SW_HIDE);
-		m_pCurrentView->DestroyWindow();
-	}
-	//Hide/show Views	
-		/*// If already showing the right view
-		if (m_pCurrentView && m_pCurrentView->IsKindOf(pNewViewClass))
-			return;
-
-		// Try to find an existing cached view
-		CView* pNewView = nullptr;
-		if (m_viewCache.Lookup(pNewViewClass, (void*&)pNewView))
-		{
-			// Found cached view
+		if (pOldView) {
+			pOldView->GetWindowRect(&rect);
+			ScreenToClient(&rect);
 		}
-		else
-		{
-			// Create it once
-			CCreateContext context;
-			context.m_pCurrentDoc = GetActiveDocument();
-			context.m_pNewViewClass = pNewViewClass;
-
-			pNewView = (CView*)pNewViewClass->CreateObject();
-			ASSERT(pNewView);
-
-			CRect rect;
+		else {
 			GetClientRect(&rect);
-
-			pNewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW,
-				rect, this, AFX_IDW_PANE_FIRST, &context);
-			pNewView->OnInitialUpdate();
-
-			// Save into cache
-			m_viewCache[pNewViewClass] = pNewView;
 		}
 
-		// Hide old view
-		if (m_pCurrentView)
-			m_pCurrentView->ShowWindow(SW_HIDE);
+		pnewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, AFX_IDW_PANE_FIRST, &context);
+		pnewView->OnInitialUpdate();
 
-		// Show new view
-		pNewView->ShowWindow(SW_SHOW);
-		SetActiveView(pNewView);
-		m_pCurrentView = pNewView;
-	}*/
+		m_viewCache.SetAt(pNewViewClass, pnewView);
+	}
 
-	//Create / destro views
+	if (m_pCurrentView) {
+		m_pCurrentView->ShowWindow(SW_HIDE);
+	}
 
-	/*CView* pOldView = GetActiveView();
+	pnewView->ShowWindow(SW_SHOW);
+	SetActiveView(pnewView);
+	m_pCurrentView = pnewView;
+	/*
+	CView* pOldView = GetActiveView();
 	if (pOldView == nullptr || pOldView->IsKindOf(pNewViewClass)) {
 		return; // Already the correct view or invalid
 	}
@@ -458,24 +421,8 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
 	//RecalcLayout();*/
+
 }
-
-/*void CMainFrame::AddNodeToTree(HTREEITEM parentItem, xml_node<>* node)
-{
-	if (!node) return;
-
-	if (strcmp(node->name(), "span") == 0) {
-		CString lbtx_text;
-		if (node->value() && strlen(node->value()) > 0) {
-			lbtx_text = CString(node->value());
-		}
-		m_wndClassView.InsertItem(lbtx_text, parentItem);
-	}
-
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling()) {
-		AddNodeToTree(parentItem, child);
-	}
-}*/
 
 void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTREEITEM parentItem)
 {

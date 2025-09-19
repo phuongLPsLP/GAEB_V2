@@ -196,6 +196,7 @@
     <ClInclude Include="CLVView.h" />
     <ClInclude Include="CLV_MainView.h" />
     <ClInclude Include="CPositionView.h" />
+    <ClInclude Include="CProgressDialog.h" />
     <ClInclude Include="CProjektInfosView.h" />
     <ClInclude Include="CVergabeinfosView.h" />
     <ClInclude Include="CVertragView.h" />
@@ -224,6 +225,7 @@
     <ClCompile Include="CLVView.cpp" />
     <ClCompile Include="CLV_MainView.cpp" />
     <ClCompile Include="CPositionView.cpp" />
+    <ClCompile Include="CProgressDialog.cpp" />
     <ClCompile Include="CProjektInfosView.cpp" />
     <ClCompile Include="CVergabeinfosView.cpp" />
     <ClCompile Include="CVertragView.cpp" />
