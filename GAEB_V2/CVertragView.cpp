@@ -107,7 +107,7 @@ void CVertragView::OnInitialUpdate()
 	{
 		pStatic->SetFont(pMainFrame->GetFontBold());
 	}
-	int yPos_LV = 70;
+	y_pos_vertrag = 70;
 
 	for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
 	{
@@ -121,9 +121,7 @@ void CVertragView::OnInitialUpdate()
 				//OutlineAddText / DetailAddText
 
 				for (xml_node<>* p_node = addtext_node->first_node(); p_node; p_node = p_node->next_sibling())
-				{
-					//CString p_node_text(p_node->name());
-					//<p>		
+				{	
 					CStatic* pstaticValue = new CStatic();
 					CString Fulltext;
 					for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
@@ -141,21 +139,41 @@ void CVertragView::OnInitialUpdate()
 					dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
 					dc.SelectObject(pOldFont);
 
-					textRect.OffsetRect(20, yPos_LV); // apply margins
+					textRect.OffsetRect(20, y_pos_vertrag); // apply margins
 
 
 					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
-						this,
-						1001);
-						//CRect(CPoint(20, yPos_LV), CSize(clientRect_VR.Width(), yPos_LV+100)), this, 1001);
-					//m_vecStatics_RegInfo.push_back(pstaticValue);  // store pointer
-					yPos_LV += textRect.Height() + 20;
+						this, 1001);
+					y_pos_vertrag += textRect.Height() + 20;
 					pstaticValue->SetFont(pMainFrame->GetFont());
 				}
 			}
 		}
 	}
-	int finalY = yPos_LV;
+
+	for (xml_node<>* addtext_node = m_Root->first_node("AddText"); addtext_node; addtext_node = addtext_node->next_sibling("AddText")) {
+		for (xml_node<>* detailtext_node = addtext_node->first_node(); detailtext_node; detailtext_node = detailtext_node->next_sibling())
+		{
+			for (xml_node<>* p_node = detailtext_node->first_node(); p_node; p_node = p_node->next_sibling())
+			{
+				CStatic* pstaticValue = new CStatic();
+				CString Fulltext;
+				for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+				{
+					CString span_node_text = Utf8ToCString(span_node->value());
+					if (!span_node_text.IsEmpty()) {
+						Fulltext += span_node_text;
+					}
+				}
+				CRect textRect(0, 0, clientRect_VR.Width() - 40, 0); 
+				pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, 
+					CRect(CPoint(20, y_pos_vertrag), CSize(clientRect_VR.Width(), 30)), this, 1001);
+				y_pos_vertrag += textRect.Height() + 20;
+				pstaticValue->SetFont(pMainFrame->GetFont());
+			}
+		}
+	}
+	int finalY = y_pos_vertrag;
 	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect_VR.Width(), finalY + 20));
 }
 

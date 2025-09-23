@@ -36,6 +36,7 @@
 #include "CLV_MainView.h"
 #include "CDocumentClass.h"
 #include "CLangtextView.h"
+#include "CProgressDialog.h"
 
 #include <memory>
 
@@ -158,30 +159,49 @@ rapidxml::xml_node<>* CMainFrame::GetAwardNode()
 {
 	return m_award;  // if you're using unique_ptr
 }
-//CTreeCtrl
-void CMainFrame::FillClassView()
+void CMainFrame::LoadXMLFile()
 {
-	m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
-	//m_xmlFile = std::make_unique<rapidxml::file<>>("Hagmans_01761.X86");
+	CProgressDialog dlg;
+	dlg.Create(IDD_PROGRESS, this);
+	dlg.ShowWindow(SW_SHOW);
+
+	for (int i = 0; i <= 100; i++)
+	{
+		CString msg;
+		msg.Format(_T("GAEB Daten werden eingelesen [%d%%]"), i);
+		dlg.SetMessage(msg);
+		
+		dlg.SetProgress(i);
+		AfxPumpMessage();
+		Sleep(20);  
+
+	}
+	dlg.DestroyWindow();
+}
+//void CMainFrame::FillClassView()
+void CMainFrame::FillClassView(const CString& filePath)
+{
+	CT2A asciiPath(filePath);
+	m_xmlFile = std::make_unique<rapidxml::file<>>(asciiPath);
+	//m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
 
 	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
 	m_xmlDoc->parse<0>(m_xmlFile->data());
 	m_root = m_xmlDoc->first_node();
 	m_root->name("Leistungsverzeichnis");
 
-
 	m_pGAEBInfo = m_root->first_node("GAEBInfo");
 	m_pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling("PrjInfo") : nullptr;
 	m_award = m_pProjektInfo ? m_pProjektInfo->next_sibling("Award") : nullptr;
+	m_addtext = m_award ? m_award->next_sibling("AddText") : nullptr;
 
 	m_wndClassView.DeleteAllItems();
 
 	HTREEITEM info = m_wndClassView.InsertItem(_T("Informationen"), TVI_ROOT, TVI_LAST);
-	HTREEITEM gabe_info = m_wndClassView.InsertItem(_T("GAEB-Datenaustausch"), info, TVI_LAST);
 	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, TVI_LAST);
 	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, TVI_LAST);
 	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
-	LV_Main = m_wndClassView.InsertItem(_T("Leistungsverzeichnis", TVI_ROOT, TVI_LAST));
+	LV_Main = m_wndClassView.InsertItem(_T("Leistungsverzeichnis"), TVI_ROOT, TVI_LAST);
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
 
@@ -203,12 +223,13 @@ void CMainFrame::FillClassView()
 	}
 
 	m_wndClassView.Expand(LV_Main, TVE_EXPAND);	
-/*	HTREEITEM hChild = m_wndClassView.GetChildItem(LV_Main);
-	while (hChild != NULL)
-	{
-		m_wndClassView.Expand(hChild, TVE_EXPAND);
-		hChild = m_wndClassView.GetNextSiblingItem(hChild);
-	}*/
+	HTREEITEM hDefault = m_wndClassView.GetChildItem(info);
+	if (!hDefault) {
+		hDefault = info;
+	}
+	m_wndClassView.SelectItem(hDefault);
+	m_wndClassView.EnsureVisible(hDefault);
+	OnTreeSelectedItem(nullptr, nullptr);
 }
 
 HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
@@ -219,35 +240,7 @@ HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml
 	if (currentDepth > maxDepth)
 		maxDepth = currentDepth;
 
-	/*CString nodeLabel(node->name());
-	for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-		CString attrName(attr->name());
-
-		//Check if root contains any context
-		if (attrName.IsEmpty() == FALSE)
-		{
-			attrName = "";	//set attribute to empty string if it is not empty
-		}
-		else {
-			CString attrStr;
-			attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
-			nodeLabel += attrStr;
-		}
-	}*/
-
 	HTREEITEM hItem = m_wndClassView.InsertItem(string, parentItem);
-
-	/*if (nodeLabel == "span")
-	{
-		string = node->value();
-	}
-	const char* nodeValue = node->value();
-
-	if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
-	{
-		CString valueText(nodeValue);
-		m_wndClassView.InsertItem(valueText, hItem);
-	}*/
 
 	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
 	{		
@@ -265,48 +258,7 @@ HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml
 	}
 	return hItem;
 }
-/*int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int currentDepth, int& maxDepth, bool skipCurrent)
-{
-	if (!node) return currentDepth;
-	if (currentDepth > maxDepth)
-		maxDepth = currentDepth;
 
-	HTREEITEM hItem = parentItem;
-
-	if (!skipCurrent)
-	{
-		CString nodeLabel(node->name());
-
-		for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute())
-		{
-			CString attrStr;
-			attrStr.Format(_T(" [%S=\"%S\"]"), attr->name(), attr->value());
-			nodeLabel += attrStr;
-		}
-
-		hItem = m_wndClassView.InsertItem(nodeLabel, parentItem);
-
-		const char* nodeValue = node->value();
-		if (nodeValue && strlen(nodeValue) > 0 && CString(nodeValue).Trim().GetLength() > 0)
-		{
-			CString valueText(nodeValue);
-			m_wndClassView.InsertItem(valueText, hItem);
-		}
-	}
-
-	// Kinder immer einfügen
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
-	{
-		if (child->type() == rapidxml::node_element)
-		{
-			//AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth);
-			AddXMLToTreeCtrl(hItem, child, currentDepth + 1, maxDepth, true);
-
-		}
-	}
-
-	return maxDepth;
-}*/
 
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -316,17 +268,14 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
 
-	if (itemText == _T("Projekt")) {
-		SwitchView(RUNTIME_CLASS(CProjektInfosView));
+	if (itemText == _T("Informationen")) {
+		SwitchView(RUNTIME_CLASS(CLVInfosView));	
 	}
-	else if (itemText == _T("Informationen")) {
-		SwitchView(RUNTIME_CLASS(CHinweisText));
+	else if (itemText == _T("Projekt")) {
+		SwitchView(RUNTIME_CLASS(CProjektInfosView));
 	}
 	else if (itemText == _T("Vergabe")) {
 		SwitchView(RUNTIME_CLASS(CVergabeinfosView));
-	}
-	else if (itemText == _T("GAEB-Datenaustausch")) {
-		SwitchView(RUNTIME_CLASS(CLVInfosView));
 	}
 	else if (itemText == _T("Vertragliche Regelung")) {
 		SwitchView(RUNTIME_CLASS(CVertragView));
@@ -338,34 +287,26 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 
 		SwitchView(RUNTIME_CLASS(CPositionView));
 		CPositionView* pposView = DYNAMIC_DOWNCAST(CPositionView, GetActiveView());
-		if(pposView) {
+		if (pposView) {
 			pposView->SetText(itemText);
-			//pposView->SetText(m_path);
 		}
+	}
+	if (pResult) {
+		*pResult = 0;
+	}
 
-	 }
-	/*HTREEITEM parent = m_wndClassView.GetParentItem(hSelectedItem);
-	CString parent_itemText = m_wndClassView.GetItemText(parent);
-	if (parent_itemText == _T("Leistungsverzeichnis")) {
-		if (hSelectedItem == m_wndClassView.GetChildItem(parent))
-		{
-			SwitchView(RUNTIME_CLASS(CPositionView));
-		}
-	}*/
-	
-	*pResult = 0;
 }
 
 void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 {
-	if (m_pCurrentView && m_pCurrentView->IsKindOf(pNewViewClass)) {
+	/*if (m_pCurrentView && m_pCurrentView->IsKindOf(pNewViewClass)) {
 		return;
 	}
 
 	CView* pnewView = nullptr;
-
+	CView* pOldView;
 	if (!m_viewCache.Lookup(pNewViewClass, (void*&)pnewView)) {
-		CView* pOldView = GetActiveView();
+		pOldView = GetActiveView();
 		CDocument* pDoc = pOldView ? pOldView->GetDocument() : nullptr;
 		CCreateContext context;
 		context.m_pCurrentDoc = pDoc;
@@ -382,21 +323,23 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 		else {
 			GetClientRect(&rect);
 		}
-
 		pnewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, AFX_IDW_PANE_FIRST, &context);
 		pnewView->OnInitialUpdate();
 
 		m_viewCache.SetAt(pNewViewClass, pnewView);
 	}
 
-	if (m_pCurrentView) {
+	if (m_pCurrentView) 
+	{
 		m_pCurrentView->ShowWindow(SW_HIDE);
+
 	}
 
 	pnewView->ShowWindow(SW_SHOW);
 	SetActiveView(pnewView);
-	m_pCurrentView = pnewView;
-	/*
+	m_pCurrentView = pnewView;*/
+
+	
 	CView* pOldView = GetActiveView();
 	if (pOldView == nullptr || pOldView->IsKindOf(pNewViewClass)) {
 		return; // Already the correct view or invalid
@@ -420,7 +363,7 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
-	//RecalcLayout();*/
+	//RecalcLayout();
 
 }
 
@@ -448,27 +391,7 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 	{
 		xml_node<>* lblTx = ctgyNode->first_node("LblTx");
 		xml_node<>* itemList = bodyNode->first_node("Itemlist");
-
-/*		for (xml_node<>* ctgy_firstChild = ctgyNode->first_node(); ctgy_firstChild; ctgy_firstChild = ctgy_firstChild->next_sibling()) {
-			CString ctgy_text(ctgy_firstChild->name());
-			if (ctgy_text == "LblTx")
-			{
-				CString lblText;
-				for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
-					lblText += Utf8ToString(span->value());
-					CString Full_lbltx = formattedPath + lblText;
-					int maxDepth = 0;
-					AddXMLToTreeCtrl(LV_Main, Full_lbltx, span, 1, maxDepth);
-				}
-			}
-			else {
-
-				Recursive_Node(ctgy_firstChild, currentPath);
-			}
-		}*/
-
 		CString Full_lbltx;
-
 		// LblTx 
 		if (lblTx) {
 			CString lblText;
@@ -650,7 +573,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableAutoHidePanes(CBRS_ALIGN_RIGHT);
 	// set the visual manager and style based on persisted value
 	OnApplicationLook(theApp.m_nAppLook);
-	FillClassView();
+
+	//FillClassView();
 
 	return 0;
 }
@@ -719,39 +643,6 @@ BOOL CMainFrame::CreateOutlookBar(CMFCOutlookBar& bar, UINT uiID, CTreeCtrl& tre
 	return TRUE;
 }
 
-/*BOOL CMainFrame::CreateCaptionBar()
-{
-	if (!m_wndCaptionBar.Create(WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS, this, ID_VIEW_CAPTION_BAR, -1, TRUE))
-	{
-		TRACE0("Failed to create caption bar\n");
-		return FALSE;
-	}
-
-	BOOL bNameValid;
-
-	CString strTemp, strTemp2;
-	bNameValid = strTemp.LoadString(IDS_CAPTION_BUTTON);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetButton(strTemp, ID_TOOLS_OPTIONS, CMFCCaptionBar::ALIGN_LEFT, FALSE);
-	bNameValid = strTemp.LoadString(IDS_CAPTION_BUTTON_TIP);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetButtonToolTip(strTemp);
-
-	bNameValid = strTemp.LoadString(IDS_CAPTION_TEXT);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetText(strTemp, CMFCCaptionBar::ALIGN_LEFT);
-
-	m_wndCaptionBar.SetBitmap(IDB_INFO, RGB(255, 255, 255), FALSE, CMFCCaptionBar::ALIGN_LEFT);
-	bNameValid = strTemp.LoadString(IDS_CAPTION_IMAGE_TIP);
-	ASSERT(bNameValid);
-	bNameValid = strTemp2.LoadString(IDS_CAPTION_IMAGE_TEXT);
-	ASSERT(bNameValid);
-	m_wndCaptionBar.SetImageToolTip(strTemp, strTemp2);
-
-	return TRUE;
-}*/
-
-// CMainFrame diagnostics
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const
@@ -763,13 +654,7 @@ void CMainFrame::Dump(CDumpContext& dc) const
 {
 	CFrameWndEx::Dump(dc);
 }
-
-
-
-
-
 #endif //_DEBUG
-
 
 // CMainFrame message handlers
 
@@ -856,17 +741,6 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
 }
 
-/*void CMainFrame::OnViewCaptionBar()
-{
-	m_wndCaptionBar.ShowWindow(m_wndCaptionBar.IsVisible() ? SW_HIDE : SW_SHOW);
-	RecalcLayout(FALSE);
-}
-
-void CMainFrame::OnUpdateViewCaptionBar(CCmdUI* pCmdUI)
-{
-	pCmdUI->SetCheck(m_wndCaptionBar.IsVisible());
-}
-*/
 void CMainFrame::OnOptions()
 {
 	CMFCRibbonCustomizeDialog *pOptionsDlg = new CMFCRibbonCustomizeDialog(this, &m_wndRibbonBar);
@@ -926,16 +800,79 @@ void CMainFrame::OnNew()
 
 void CMainFrame::OnOpenFile()
 {
-	// TODO: Add your command handler code here
-	/*ASSERT(AfxGetMainWnd() != NULL);
-	AfxGetMainWnd()->SendMessage(STD_FILEOPEN);*/
 	CFileDialog fileDlg(TRUE, _T("txt"), nullptr, OFN_FILEMUSTEXIST | OFN_HIDEREADONLY, _T("alle Formate (*.*) | *.*||"), this);
 	if (fileDlg.DoModal() == IDOK) {
 		CString filePath = fileDlg.GetPathName();
-		AfxMessageBox(_T("Selected file: ") + filePath);
-		//CDocument* pdoc = GetDocument();
-		//OpenFileInExplorer(filePath);
+		CString fileName = fileDlg.GetFileName();
 
+		CString ext = PathFindExtension(filePath);
+		if (ext.CompareNoCase(_T(".X80")) == 0) {
+			m_string_phase = _T("X80 Universelle LV-Daten");
+		}
+		else if (ext.CompareNoCase(_T(".X81")) == 0) {
+			m_string_phase = _T("X81 Leistungsbeschreibung");
+		}
+		else if (ext.CompareNoCase(_T(".X82")) == 0) {
+			m_string_phase = _T("X82 Kostenanschlag");
+		}
+		else if (ext.CompareNoCase(_T(".X83")) == 0) {
+			m_string_phase = _T("X83 Angebotsaufforderung");
+		}
+		else if (ext.CompareNoCase(_T(".X84")) == 0) {
+			m_string_phase = _T("X84 Angebotsabgabe");
+		}
+		else if (ext.CompareNoCase(_T(".X85")) == 0) {
+			m_string_phase = _T("X85 Nebenangebot");
+		}
+		else if (ext.CompareNoCase(_T(".X86")) == 0) {
+			m_string_phase = _T("X86 Auftragserteilung");
+		}
+
+//GAEB 2000
+		else if (ext.CompareNoCase(_T(".P81")) == 0) {
+			m_string_phase = _T("P81 Leistungsbeschreibung");
+		}
+		else if (ext.CompareNoCase(_T(".P82")) == 0) {
+			m_string_phase = _T("P82 Kostenanschlag");
+		}
+		else if (ext.CompareNoCase(_T(".P83")) == 0) {
+			m_string_phase = _T("P83 Angebotsaufforderung");
+		}
+		else if (ext.CompareNoCase(_T(".P84")) == 0) {
+			m_string_phase = _T("P84 Angebotsabgabe");
+		}
+		else if (ext.CompareNoCase(_T(".P85")) == 0) {
+			m_string_phase = _T("P85 Nebenangebot");
+		}
+		else if (ext.CompareNoCase(_T(".P86")) == 0) {
+			m_string_phase = _T("P86 Auftragserteilung");
+		}
+//GAEB 90
+		else if (ext.CompareNoCase(_T(".D81")) == 0) {
+			m_string_phase = _T("D81 Leistungsbeschreibung");
+		}
+		else if (ext.CompareNoCase(_T(".D82")) == 0) {
+			m_string_phase = _T("D82 Kostenanschlag");
+		}
+		else if (ext.CompareNoCase(_T(".D83")) == 0) {
+			m_string_phase = _T("D83 Angebotsaufforderung");
+		}
+		else if (ext.CompareNoCase(_T(".D84")) == 0) {
+			m_string_phase = _T("D84 Angebotsabgabe");
+		}
+		else if (ext.CompareNoCase(_T(".D85")) == 0) {
+			m_string_phase = _T("D85 Nebenangebot");
+		}
+		else if (ext.CompareNoCase(_T(".D86")) == 0) {
+			m_string_phase = _T("D86 Auftragserteilung");
+		}
+
+		FillClassView(filePath);
+
+		CDocument* pDoc = GetActiveDocument();
+		if (pDoc) {
+			pDoc->SetTitle(fileName);
+		}
 	}
 }
 

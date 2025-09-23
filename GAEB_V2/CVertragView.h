@@ -38,6 +38,8 @@ protected:
 
 	CBrush m_edit_bg_color;
 
+	int y_pos_vertrag;
+
 	rapidxml::xml_document<>* m_Doc = nullptr;
 	rapidxml::xml_node<>* m_Root = nullptr;
 	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;

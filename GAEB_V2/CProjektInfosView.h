@@ -33,12 +33,6 @@ protected:
 	CButton m_button_Zusatztext;*/
 	CStatic m_static_text_Title_project;
 
-	CStatic m_staticText_Name;
-	CStatic m_staticText_Bezeichnung;
-	CStatic m_staticText_Kurzbeschreibung;
-	CStatic m_staticText_Waehrung;
-	CStatic m_staticText_WaehrungBez;
-
 	CBrush m_brush_edit_bg_color;
 
 	rapidxml::xml_document<>* m_Doc = nullptr;
@@ -46,6 +40,8 @@ protected:
 	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
 	rapidxml::xml_node<>* m_award = nullptr;
+
+	int y_pos_projectinfo;
 
 	CRect clientRect;
 public:

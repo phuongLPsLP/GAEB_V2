@@ -78,55 +78,43 @@ void CProjektInfosView::OnInitialUpdate()
 		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
 	m_static_text_Title_project.SetFont(pMainFrame->GetFontBold());
 
-	CStatic* staticControls_PrjInfo[] =
-	{
-	 &m_staticText_Name,
-	 &m_staticText_Bezeichnung,
-	 &m_staticText_Kurzbeschreibung,
-	 &m_staticText_Waehrung,
-	 &m_staticText_WaehrungBez,
-	};
 
-	for (CStatic* pStatic_PrjInfo : staticControls_PrjInfo)
-	{
-		pStatic_PrjInfo->DestroyWindow();
-	}
-	m_staticText_Name.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
-	m_staticText_Bezeichnung.Create(_T("Bezeichnung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 90), CSize(120, 20)), this, 1001);
-	m_staticText_Kurzbeschreibung.Create(_T("Kurzbeschreibung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 110), CSize(120, 20)), this, 1001);
-	m_staticText_Waehrung.Create(_T("Währung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 130), CSize(120, 20)), this, 1001);
-	m_staticText_WaehrungBez.Create(_T("Bezeichnung der Währung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 150), CSize(250, 20)), this, 1001);
+	y_pos_projectinfo = 70;
 
-	int yPos_ProjInfo = 70;
-	for (xml_node<>* SubChild = m_pProjektInfo->first_node(); SubChild; SubChild = SubChild->next_sibling())
+	for (xml_node<>* prjInfo_node = m_pProjektInfo->first_node(); prjInfo_node; prjInfo_node = prjInfo_node->next_sibling())
 	{
-		CString subChildText = Utf8ToCString(SubChild->value());		 
-		//CString subChildText(SubChild->value());
-		if (subChildText == "") {
-			subChildText = SubChild->first_node()->value();
-			CStatic* pstaticValue = new CStatic();
-			pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
-			yPos_ProjInfo += 20;
-			pstaticValue->SetFont(pMainFrame->GetFont());
+		CString value = Utf8ToCString(prjInfo_node->value()); ;
+		CString name(Utf8ToCString(prjInfo_node->name()));
+
+		if (name == "NamePrj"){ name = _T("Name:"); }
+		else if( name == "LblPrj"){ name = _T("Bezeichnung:");}
+		else if (name == "Cur"){ name = _T("Währung:"); }
+		else if (name == "CurLbl"){ name = _T("Bezeichnung der Währung:"); }
+		else if (name == "BidCommPerm")
+		{
+			name = _T("Bieter Kommentar zugelassen:"); 
+			if (value == "No") { value = _T("Nein"); }
+			else if (value == "Yes") { value = _T("Ja"); }
 		}
-		else {
-			CStatic* pstaticValue = new CStatic();
-			pstaticValue->Create(subChildText, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(270, yPos_ProjInfo), CSize(clientRect.Width(), 20)), this, 1001);
-			yPos_ProjInfo += 20;
-			pstaticValue->SetFont(pMainFrame->GetFont());
+		else if (name == "Descrip") 
+		{ 
+			name = _T("Kurzbeschreibung:"); 
+			xml_node<>* des_span = prjInfo_node->first_node("span");
+			if (des_span) {
+				value = Utf8ToCString(des_span->value());
+			}
 		}
+
+		CStatic* pstaticValue_name = new CStatic();
+		CStatic* pstaticValue_value = new CStatic();
+		pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+			CRect(CPoint(20, y_pos_projectinfo), CSize(clientRect.Width(), 20)), this, 1001);
+		pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(270, y_pos_projectinfo), CSize(clientRect.Width(), 20)), this, 1001);
+		pstaticValue_value->SetFont(pMainFrame->GetFont());
+		pstaticValue_name->SetFont(pMainFrame->GetFont());
+		y_pos_projectinfo += 20;
 	}
-	for (CStatic* pStatic : staticControls_PrjInfo)
-	{
-		pStatic->SetFont(pMainFrame->GetFont());
-	}	
 }
 
 #ifdef _DEBUG

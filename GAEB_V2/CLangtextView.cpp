@@ -57,6 +57,7 @@ void CLangtextView::OnInitialUpdate()
 	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
 	m_award = pMainFrame->GetAwardNode();
 
+	x_pos_leitung = 20;
 
 	CStatic* staticControls_LV_Langtext[] =
 	{
@@ -81,9 +82,9 @@ void CLangtextView::OnInitialUpdate()
 	m_staticText_LeiBe_LT.Create(_T("Leitungsbeschreibung"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(420, 70), CSize(700, 20)), this, 1001);
 	m_staticText_Einheitpreis_LT.Create(_T("Einheitpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(1160, 70), CSize(120, 20)), this, 1001);
+		CRect(CPoint(1250, 70), CSize(180, 20)), this, 1001);
 	m_staticText_Gesamtpreis_LT.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(1320, 70), CSize(180, 20)), this, 1001);
+		CRect(CPoint(1450, 70), CSize(180, 20)), this, 1001);
 
 	for (CStatic* pStatic_LV : staticControls_LV_Langtext)
 	{
@@ -308,14 +309,14 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 			else if (tag == "UP") {
 				CStatic* cStatic_UP = new CStatic();
 				cStatic_UP->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(960, index), CSize(120, 20)), this, 1001);
+					CRect(CPoint(1250, index), CSize(120, 20)), this, 1001);
 				cStatic_UP->SetFont(pMainFrame->GetFont());
 				m_vecStatics_GAEBInfo.push_back(cStatic_UP);
 			}
 			else if (tag == "IT") {
 				CStatic* cStatic_IT = new CStatic();
 				cStatic_IT->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(1120, index), CSize(120, 20)), this, 1001);
+					CRect(CPoint(1450, index), CSize(120, 20)), this, 1001);
 				cStatic_IT->SetFont(pMainFrame->GetFont());
 				m_vecStatics_GAEBInfo.push_back(cStatic_IT);
 			}
@@ -355,7 +356,7 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 				}
 				CRect client_Rect;
 				GetClientRect(&client_Rect);
-				CRect textRect(420, index, client_Rect.Width() - 50, index);
+				CRect textRect(420, index, client_Rect.Width() - 500, index);
 
 				CClientDC dc(this);
 				CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
@@ -377,9 +378,4 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 
 		}
 	}
-	
-	CStatic* cStatic_test = new CStatic();
-	cStatic_test->Create(_T("test"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(420, 42000), CSize(120, 20)), this, 1001);
-	cStatic_test->SetFont(pMainFrame->GetFont());
 }

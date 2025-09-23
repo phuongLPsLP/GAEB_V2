@@ -71,115 +71,125 @@ void CVergabeinfosView::OnInitialUpdate()
 	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
 	m_award = pMainFrame->GetAwardNode();
 	
-	CStatic* staticControls_Vergabe[] =
-	{
-	&m_staticText_Datenaustauschphase,
-	&m_staticText_Vergabeart,
-	&m_staticText_Waehrung,
-	&m_staticText_Waehrung_Bez,
-	&m_staticText_Erˆffnungstermins_Datum,
-	&m_staticText_Erˆffnungstermins_Uhrzeit,
-	&m_staticText_Zuschlagsfrist,
-	};
 
 	m_staticText_Vergabeinfos.Create(_T("Informationen zur Vergabe"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 	m_staticText_Vergabeinfos.SetFont(pMainFrame->GetFontBold());
 
-	m_staticText_Datenaustauschphase.Create(_T("Datenaustauschphase:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 70), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
+	y_pos_vergabeinfo = 70;
 
-	m_staticText_Vergabeart.Create(_T("Vergabeart:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 100), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Waehrung.Create(_T("W‰hrung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 120), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Waehrung_Bez.Create(_T("Bezeichnung der W‰hrung:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 140), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Erˆffnungstermins_Datum.Create(_T("Datum des Erˆffnungstermins:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 160), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Erˆffnungstermins_Uhrzeit.Create(_T("Uhrzeit des Erˆffnungstermins:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 180), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Zuschlagsfrist.Create(_T("Ende der Zuschlagsfrist:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 200), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);	
-
-	for (CStatic* pStatic_vergabe : staticControls_Vergabe)
-	{
-		pStatic_vergabe->SetFont(pMainFrame->GetFont());
-	}
-
-	int yPos_Vergabe = 100;
-
+	CString year;
+	CString month;
+	CString day;
+	CSize size = CSize(clientRect_Vergabe.Width(), 20);
 	for (award_node = m_award->first_node(); award_node; award_node = award_node->next_sibling())
 	{
 		CString award_node_text(award_node->name());
-
-		//Datenaustauschphase
-		if (award_node_text == "DP") {
-			int DP = atoi(award_node->value());
-
-			if (DP == 83) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Leistungsbeschreibung"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-
-			else if (DP == 81) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Leistungsbeschreibung"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-			else if (DP == 82) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Kostenanschlag"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-			else if (DP == 84) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Angebotsabgabe"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-			else if (DP == 85) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Nebenangebot"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-			else if (DP == 86) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Auftragserteilung"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-			else if (DP == 89) {
-				CStatic* pstaticValue_Vergabe = new CStatic();
-				pstaticValue_Vergabe->Create(_T("Rechnung"), WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, 70), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				pstaticValue_Vergabe->SetFont(pMainFrame->GetFont());
-			}
-
-		}	
-
+		
 		//Vergabeinfo
-		else if (award_node_text == "AwardInfo") {
-			for (xml_node<>* award_info = award_node->first_node(); award_info; award_info = award_info->next_sibling())
-			{
-				CString subChildText(award_info->value());
-				CStatic* pstaticValue_info = new CStatic();
-				pstaticValue_info->Create(subChildText, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, yPos_Vergabe), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				yPos_Vergabe += 20;
-				pstaticValue_info->SetFont(pMainFrame->GetFont());
+		if (award_node_text == "AwardInfo") {
+			for (xml_node<>* awardinfo_node = award_node->first_node(); awardinfo_node; awardinfo_node = awardinfo_node->next_sibling()) {
+				CString value = Utf8ToCString(awardinfo_node->value());
+				CString name = Utf8ToCString(awardinfo_node->name());
+
+
+				if (name == "Cat") {
+					name = "Vergabeart:";
+					if (value == "OpenProc") {
+						value = _T("Offenes Verfahren");
+					}
+					else if (value == "ClosedProc") {
+						value = _T("Nichtoffenes Verfahren");
+					}
+					else if (value == "NegProc" || value == "NegProcOpen") {
+						value = _T("Verhandlungsverfahren");
+					}
+					else if (value == "OpenCall") {
+						value = _T("÷ffentliche Ausschreibung");
+					}
+					else if (value == "SelectCall") {
+						value = _T("Beschr‰nkte Ausschreibung ohne ˆffentlichem Teilnahmewettbewerb");
+					}
+					else if (value == "SelectCallPostOpen") {
+						value = _T("Beschr‰nkte Ausschreibung nach ˆffentlichem Teilnahmewettbewerb");
+					}
+					else if (value == "NegCont") {
+						value = _T("Freih‰ndige Vergabe");
+					}
+					else if (value == "IntNATO") {
+						value = _T("Internationale NATO-Ausschreibung");
+					}
+					else if (value == "CompetDialog") {
+						value = _T("Wettbewerblicher Dialog");
+					}
+					else if (value == "InnovationPartnership") {
+						value = _T("Innovationspartnerschaft");
+					}
+
+				}
+				else if (name == "Cur") { name = _T("W‰hrung:"); }
+				else if (name == "CurLbl"){ name = _T("Bezeichnung der W‰hrung:"); }
+				else if (name == "OpenDate")
+				{
+					name = _T("Datum des Erˆffnungstermins:"); 
+					CString rawOpenDate(value);
+					year = rawOpenDate.Mid(0, 4);
+					month = rawOpenDate.Mid(5, 2);
+					day = rawOpenDate.Mid(8, 2);
+					value.Format(_T("%s.%s.%s"), day, month, year);
+				}
+				else if (name == "OpenTime"){ name = _T("Uhrzeit des Erˆffnungstermins:"); }
+				else if (name == "EvalEnd")
+				{
+					name = _T("Ende der Zuschlagsfrist:"); 
+					CString rawEvalDate(value);
+					year = rawEvalDate.Mid(0, 4);
+					month = rawEvalDate.Mid(5, 2);
+					day = rawEvalDate.Mid(8, 2);
+					value.Format(_T("%s.%s.%s"), day, month, year);
+				}
+				else if (name == "SubmLoc"){ name = _T("Abgabeort:"); }
+				else if (name == "CnstStart")
+				{
+					name = _T("Voraussichtlicher Beginn \nder Ausf¸hrungszeit:");
+					CString rawBeginnDate(value);
+					year = rawBeginnDate.Mid(0, 4);
+					month = rawBeginnDate.Mid(5, 2);
+					day = rawBeginnDate.Mid(8, 2);
+					value.Format(_T("%s.%s.%s"), day, month, year);
+					size = CSize(clientRect_Vergabe.Width(), 50);
+				}
+				else if (name == "CnstEnd")
+				{
+					name = _T("Voraussichtlicher Ende \nder Ausf¸hrungszeit:"); 
+					CString rawEndDate(value);
+					year = rawEndDate.Mid(0, 4);
+					month = rawEndDate.Mid(5, 2);
+					day = rawEndDate.Mid(8, 2);
+					value.Format(_T("%s.%s.%s"), day, month, year);
+					size = CSize(clientRect_Vergabe.Width(), 50);
+					y_pos_vergabeinfo += 20;
+				}
+
+				CStatic* pstaticValue_name = new CStatic();
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+					CRect(CPoint(20, y_pos_vergabeinfo), size), this, 1001);
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(270, y_pos_vergabeinfo), size), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+				pstaticValue_name->SetFont(pMainFrame->GetFont());
+				y_pos_vergabeinfo += 20;
 			}
 		}
-		else if (award_node_text == "OWN") {	//Auftraggerber
+
+		//Auftraggerber
+		else if (award_node_text == "OWN") {	
 			Auftraggeber();
 		}
 
-		else if (award_node_text == "CTR") {	//Auftragnehmer
+		//Auftragnehmer
+		else if (award_node_text == "CTR") {	
 			Auftragnehmer();
 		}
 	}
@@ -189,95 +199,105 @@ void CVergabeinfosView::Auftraggeber() {
 
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
+	y_pos_auftraggeber = 300;
 
 	m_staticText_Auftraggeber.Create(_T("Auftraggeber"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 250), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 	m_staticText_Auftraggeber.SetFont(pMainFrame->GetFontBold());
 
-	m_staticText_Name.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 280), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Str_Nr.Create(_T("Straﬂe und Hausnummer:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 300), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_PLZ.Create(_T("Postleitzahl:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 320), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Ort.Create(_T("Ort:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 340), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Tel.Create(_T("Telefon:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 360), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-
-
-
-	int yPos_Proj_Geber = 280;
-
 	for (xml_node<>* own_node = award_node->first_node(); own_node; own_node = own_node->next_sibling()) {
-		CString own_node_text(own_node->name());
-		if (own_node_text == "Address") {
-			for(xml_node<>* adresse_node= own_node->first_node(); adresse_node; adresse_node = adresse_node->next_sibling()) {
-				CString adresse_node_value = Utf8ToCString(adresse_node->value());
-				CString adresse_node_text(adresse_node->name());				
-				if (adresse_node_value.IsEmpty()) { continue; }
-				else {
-					if (adresse_node_text == "Fax") {
-						m_staticText_Fax.Create(_T("Fax:"), WS_CHILD | WS_VISIBLE,
-							CRect(CPoint(20, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-						m_staticText_Fax.SetFont(pMainFrame->GetFont());
-					}
-					CStatic* pstaticValue = new CStatic();
-					pstaticValue->Create(adresse_node_value, WS_CHILD | WS_VISIBLE,
-						CRect(CPoint(270, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-					yPos_Proj_Geber += 20;
-					pstaticValue->SetFont(pMainFrame->GetFont());
+		CString own_node_name(own_node->name());
+		CString value = Utf8ToCString(own_node->value());
+		CString name = Utf8ToCString(own_node->name());
+
+		if (own_node_name == "Address") {
+
+			for (xml_node<>* address_node = own_node->first_node(); address_node; address_node = address_node->next_sibling()) {
+
+				CString address_value = Utf8ToCString(address_node->value());
+				CString address_name = Utf8ToCString(address_node->name());
+
+				if (address_name == "Street") {
+					address_name = "Straﬂe und Hausnummer:";
 				}
+				else if (address_name == "PCode") {
+					address_name = "Postleitzahl:";
+				}
+				else if (address_name == "City") {
+					address_name = "Ort:";
+				}
+				else if (address_name == "Phone") {
+					address_name = "Telefon:";
+				}
+				else if (address_name == "Fax") {
+					address_name = "Fax:";
+				}
+				else if (address_name == "Email") {
+					address_name = "E-Mail:";
+				}
+				else if (address_name == "Name1") {
+					address_name = "Name:";
+				}
+				else if (address_name == "Name2") {
+					address_name = "";
+				}
+				else if (address_name == "Name3") {
+					address_name = "";
+				}
+				else if (address_name == "Name4") {
+					address_name = "";
+				}
+				CStatic* pstaticValue_name = new CStatic();
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_name->Create(address_name, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(20, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+				pstaticValue_value->Create(address_value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(270, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+				pstaticValue_name->SetFont(pMainFrame->GetFont());
+				y_pos_auftraggeber += 20;
 			}
 		}
-		else if (own_node_text == "DPNo") {
-			CString value(own_node->value());
-			CStatic* pstaticValue = new CStatic();
-			pstaticValue->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(270, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-			pstaticValue->SetFont(pMainFrame->GetFont());
-		}
-		else if (own_node_text == "AwardNo") {
-			CString value(own_node->value());
-			CStatic* pstaticValue = new CStatic();
-			pstaticValue->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(270, yPos_Proj_Geber+20), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-			pstaticValue->SetFont(pMainFrame->GetFont());
-		}
-		else if (own_node_text == "AcctRecNo") {
-			m_staticText_Deb_Nr.Create(_T("Debitoren-Nummer:"), WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(20, yPos_Proj_Geber+40), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-			m_staticText_Deb_Nr.SetFont(pMainFrame->GetFont());
-			CString value(own_node->value());
-			CStatic* pstaticValue = new CStatic();
-			pstaticValue->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(270, yPos_Proj_Geber+40), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-			pstaticValue->SetFont(pMainFrame->GetFont());
-		}
-	}
-	m_staticText_Mail.Create(_T("E-mail:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, yPos_Proj_Geber-20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_DV.Create(_T("DV-Nummer:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, yPos_Proj_Geber), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Vergabe_Nr.Create(_T("Vergabenummer:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, yPos_Proj_Geber+20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 
+		else if (own_node_name == "DPNo") {
+			CStatic* pstaticValue_name = new CStatic();
+			CStatic* pstaticValue_value = new CStatic();	
+			name = _T("DV-Nummer:");
+			pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(20, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+			pstaticValue_name->SetFont(pMainFrame->GetFont());
+			y_pos_auftraggeber += 20;
 
-	CStatic* staticControls_Geber[] =
-	{
-	&m_staticText_Name,
-	&m_staticText_Str_Nr,
-	&m_staticText_PLZ,
-	&m_staticText_Ort,
-	&m_staticText_Tel,
-	&m_staticText_Mail,
-	&m_staticText_DV,
-	&m_staticText_Vergabe_Nr,
-	};
+		}
 
-	for (CStatic* pStatic_geber : staticControls_Geber)
-	{
-		pStatic_geber->SetFont(pMainFrame->GetFont());
+		else if (own_node_name == "AwardNo") {
+			CStatic* pstaticValue_name = new CStatic();
+			CStatic* pstaticValue_value = new CStatic();	
+			name = _T("Vergabenummer:");
+			pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(20, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+			pstaticValue_name->SetFont(pMainFrame->GetFont());
+			y_pos_auftraggeber += 20;
+
+		}
+		else if (own_node_name == "AcctRecNo") {
+			CStatic* pstaticValue_name = new CStatic();
+			CStatic* pstaticValue_value = new CStatic();
+			name = _T("Debitoren-Nummer:");
+			pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(20, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, y_pos_auftraggeber), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+			pstaticValue_name->SetFont(pMainFrame->GetFont());
+			y_pos_auftraggeber += 20;
+		}
 	}
 }
 
@@ -285,48 +305,55 @@ void CVergabeinfosView::Auftragnehmer() {
 
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
-	CStatic* staticControls_nehmer[] =
-	{
-	&m_staticText_Name_nehmer,
-	&m_staticText_Str_Nr_nehmer,
-	&m_staticText_PLZ_nehmer,
-	&m_staticText_Ort_nehmer,
-	};
-	int yPos_Proj_Nehmer = 500;
+	y_pos_auftragnehmer = 520;
 
 	m_staticText_Auftragnehmer.Create(_T("Auftragnehmer"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 470), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 	m_staticText_Auftragnehmer.SetFont(pMainFrame->GetFontBold());
 
-	m_staticText_Name_nehmer.Create(_T("Name:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 500), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Str_Nr_nehmer.Create(_T("Straﬂe und Hausnummer:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 520), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_PLZ_nehmer.Create(_T("Postleitzahl:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 540), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-	m_staticText_Ort_nehmer.Create(_T("Ort:"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 560), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
-
 	for (xml_node<>* ctr_node = award_node->first_node(); ctr_node; ctr_node = ctr_node->next_sibling() )
 	{
 		CString ctr_node_text(ctr_node->name());
 		if (ctr_node_text == "Address") {
-
 			for (xml_node<>* adresse_node_ctr = ctr_node->first_node(); adresse_node_ctr; adresse_node_ctr = adresse_node_ctr->next_sibling()) {
-
 				CString ctr_node_value = Utf8ToCString(adresse_node_ctr->value());
-				CStatic* pstaticValue = new CStatic();
-				pstaticValue->Create(ctr_node_value, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, yPos_Proj_Nehmer), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
-				yPos_Proj_Nehmer += 20;
-				pstaticValue->SetFont(pMainFrame->GetFont());
+				CString ctr_node_name = Utf8ToCString(adresse_node_ctr->name());
+				if (ctr_node_name == "Street") {
+					ctr_node_name = "Straﬂe und Hausnummer:";
+				}
+				else if (ctr_node_name == "PCode") {
+					ctr_node_name = "Postleitzahl:";
+				}
+				else if (ctr_node_name == "City") {
+					ctr_node_name = "Ort:";
+				}
+				else if (ctr_node_name == "Name1") {
+					ctr_node_name = "Name:";
+				}
+				else if (ctr_node_name == "Name2") {
+					ctr_node_name = "";
+				}
+				else if (ctr_node_name == "Name3") {
+					ctr_node_name = "";
+				}
+				else if (ctr_node_name == "Name4") {
+					ctr_node_name = "";
+				}
+				if (ctr_node_value.IsEmpty()) { continue; }
+
+				else {
+					CStatic* pstaticValue_name = new CStatic();
+					CStatic* pstaticValue_value = new CStatic();
+					pstaticValue_name->Create(ctr_node_name, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(20, y_pos_auftragnehmer), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+					pstaticValue_value->Create(ctr_node_value, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(270, y_pos_auftragnehmer), CSize(clientRect_Vergabe.Width(), 20)), this, 1001);
+					pstaticValue_value->SetFont(pMainFrame->GetFont());
+					pstaticValue_name->SetFont(pMainFrame->GetFont());
+					y_pos_auftragnehmer += 20;
+				}
 			}
 		}
-	}
-
-	for (CStatic* pStatic_nehmer : staticControls_nehmer)
-	{
-		pStatic_nehmer->SetFont(pMainFrame->GetFont());
 	}
 
 }

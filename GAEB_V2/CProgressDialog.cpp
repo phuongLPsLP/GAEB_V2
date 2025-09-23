@@ -41,6 +41,8 @@ BOOL CProgressDialog::OnInitDialog()
 	m_progressCtrl.SubclassDlgItem(IDC_PROGRESS_BAR, this);
 	m_progressCtrl.SetRange(0, 100);
 	m_progressCtrl.SetPos(0);
+
+	CenterWindow(GetParent());
 	return true;
 }
 

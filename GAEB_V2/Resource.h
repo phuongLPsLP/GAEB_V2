@@ -61,11 +61,9 @@
 #define IDD_DIALOG2                     319
 #define IDD_DIALOG_INFO                 319
 #define IDB_BITMAP1                     321
-#define IDD_DIALOG3                     323
 #define IDD_PROGRESS                    327
 #define IDC_LIST1                       1000
 #define IDC_STATIC_INFO                 1009
-#define IDC_PROGRESS1                   1010
 #define IDC_PROGRESS_BAR                1010
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_RADIO_OPTION1                32771

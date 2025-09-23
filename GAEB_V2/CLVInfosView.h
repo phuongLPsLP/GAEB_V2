@@ -29,13 +29,6 @@ public:
 protected: 
 
 	CStatic m_staticText_Title;
-	CStatic m_staticText_Version;
-	CStatic m_staticText_Ausgabejahr;
-	CStatic m_staticText_Erstellungdatum;
-	CStatic m_staticText_Erstellungszeit;
-	CStatic m_staticText_Programm;
-	CStatic m_staticText_Umsetzprogramm;
-	CStatic m_staticText_Certificate;
 
 	CRect clientRect;
 
@@ -47,11 +40,14 @@ protected:
 
 	CBrush m_brush_edit_bg_color;
 
+	int y_pos_gaebinfo;
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	CString Utf8ToCString(const char* utf8Str);
+
 };
 
 

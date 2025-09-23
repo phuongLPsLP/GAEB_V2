@@ -109,9 +109,9 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 	m_staticText_LeiBe.Create(_T("Leitungsbeschreibung"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(420, 70), CSize(700, 20)), this, 1001);
 	m_staticText_Einheitpreis.Create(_T("Einheitpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(1160, 70), CSize(120, 20)), this, 1001);
+		CRect(CPoint(1250, 70), CSize(180, 20)), this, 1001);
 	m_staticText_Gesamtpreis.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(1320, 70), CSize(180, 20)), this, 1001);
+		CRect(CPoint(1450, 70), CSize(180, 20)), this, 1001);
 
 	for (CStatic* pStatic_LV : staticControls_LV)
 	{
@@ -336,14 +336,14 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 			CString tag(child->name());
 			CString val(Utf8ToCString(child->value()));
 
-			if (tag == "Qty") {
+			if (tag == "Qty") {	//Menge
 				CStatic* cStatic_Qty = new CStatic();
 				cStatic_Qty->Create(val, WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(180, index), CSize(120, 20)), this, 1001);
 				cStatic_Qty->SetFont(pMainFrame->GetFont());
 				m_vecStatics_GAEBInfo.push_back(cStatic_Qty);
 			}
-			else if (tag == "QU") {
+			else if (tag == "QU") {	//Einheit
 				CStatic* cStatic_QU = new CStatic();
 				cStatic_QU->Create(val, WS_CHILD | WS_VISIBLE,
 					CRect(CPoint(300, index), CSize(120, 20)), this, 1001);
@@ -353,14 +353,14 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 			else if (tag == "UP") {
 				CStatic* cStatic_UP = new CStatic();
 				cStatic_UP->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(960, index), CSize(120, 20)), this, 1001);
+					CRect(CPoint(1250, index), CSize(120, 20)), this, 1001);
 				cStatic_UP->SetFont(pMainFrame->GetFont());
 				m_vecStatics_GAEBInfo.push_back(cStatic_UP);
 			}
 			else if (tag == "IT") {
 				CStatic* cStatic_IT = new CStatic();
 				cStatic_IT->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(1120, index), CSize(120, 20)), this, 1001);
+					CRect(CPoint(1450, index), CSize(120, 20)), this, 1001);
 				cStatic_IT->SetFont(pMainFrame->GetFont());
 				m_vecStatics_GAEBInfo.push_back(cStatic_IT);
 			}

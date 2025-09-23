@@ -43,6 +43,7 @@ protected:
 	CStatic m_staticText_Gesamtpreis_LT;
 	
 	int index_item;
+	int x_pos_leitung;
 
 	CSize m_wndSize;
 

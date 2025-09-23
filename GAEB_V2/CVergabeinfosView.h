@@ -31,34 +31,9 @@ protected:
 
 	CStatic m_staticText_Vergabeinfos;
 
-	CStatic m_staticText_Datenaustauschphase;
-
-	CStatic m_staticText_Vergabe;
-	CStatic m_staticText_Vergabeart;
-	CStatic m_staticText_Waehrung;
-	CStatic m_staticText_Waehrung_Bez;
-	CStatic m_staticText_Eröffnungstermins_Datum;
-	CStatic m_staticText_Eröffnungstermins_Uhrzeit;
-	CStatic m_staticText_Zuschlagsfrist;
-
 	CStatic m_staticText_Auftraggeber;
-	CStatic m_staticText_Name;
-	CStatic m_staticText_Str_Nr;
-	CStatic m_staticText_PLZ;
-	CStatic m_staticText_Ort;
-	CStatic m_staticText_Tel;
-	CStatic m_staticText_Fax;
-	CStatic m_staticText_Mail;
-	CStatic m_staticText_DV;
-	CStatic m_staticText_Vergabe_Nr;
-	CStatic m_staticText_Deb_Nr;
 
 	CStatic m_staticText_Auftragnehmer;
-	CStatic m_staticText_Adresse_nehmer;
-	CStatic m_staticText_Name_nehmer;
-	CStatic m_staticText_Str_Nr_nehmer;
-	CStatic m_staticText_PLZ_nehmer;
-	CStatic m_staticText_Ort_nehmer;
 
 	CBrush m_brush_edit_bg_color;
 
@@ -69,6 +44,10 @@ protected:
 	rapidxml::xml_node<>* m_award = nullptr;
 
 	rapidxml::xml_node<>* award_node = nullptr;
+
+	int y_pos_auftraggeber;
+	int y_pos_auftragnehmer;
+	int y_pos_vergabeinfo;
 
 protected:
 	DECLARE_MESSAGE_MAP()

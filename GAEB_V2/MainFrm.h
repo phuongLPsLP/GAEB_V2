@@ -74,6 +74,8 @@ protected:  // control bar embedded members
 	CFont m_font_title;
 	CFont m_font_button;
 
+	CString m_string_phase;
+
 	CMFCRibbonBar     m_wndRibbonBar;
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
@@ -115,9 +117,11 @@ protected:  // control bar embedded members
 	CString m_path;
 	CString Kurz_text;	 
 
-	CStatic m_static_main;
-
 	HTREEITEM LV_Main;
+
+	CStatic m_static_Titel;
+	CStatic m_static_austauschphase;
+	CStatic m_static_version;
 
 	std::unique_ptr<rapidxml::file<>> m_xmlFile;
 	std::unique_ptr<rapidxml::xml_document<>> m_xmlDoc;
@@ -125,10 +129,13 @@ protected:  // control bar embedded members
 	rapidxml::xml_node<>* m_pGAEBInfo = nullptr; //FirstChild = GAEBInfo
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
 	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
+	rapidxml::xml_node<>* m_addtext = nullptr;
 
-	void FillClassView();
-	//CCalendarBar      m_wndCalendar;
-	//CMFCCaptionBar    m_wndCaptionBar;
+	void LoadXMLFile();
+
+	void FillClassView(const CString& filePath);
+	//void FillClassView();
+
 
 // Generated message map functions
 
