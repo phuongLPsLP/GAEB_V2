@@ -396,9 +396,20 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 		if (lblTx) {
 			CString lblText;
 			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
-				lblText += Utf8ToString(span->value());
-				Kurz_text = lblText;
-				m_path = formattedPath;
+				CString node_name(span->name());
+				if (node_name == "p") {
+					for (xml_node<>* p_node = span->first_node(); p_node; p_node = p_node->next_sibling()){
+						CString span_text = Utf8ToString(p_node->value());
+						if (!span_text.IsEmpty()) {
+							lblText += span_text;
+						}
+					}
+				}
+				else if (node_name == "span") {
+					lblText += Utf8ToString(span->value());
+					//Kurz_text = lblText;
+					//m_path = formattedPath;
+				}
 			}
 			Full_lbltx = formattedPath + lblText;
 		}

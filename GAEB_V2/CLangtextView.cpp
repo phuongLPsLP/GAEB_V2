@@ -227,7 +227,16 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 		if (lblTx) {
 			CString lblText;
 			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
-				lblText += Utf8ToCString(span->value());
+				CString node_name(span->name());
+				if (node_name == "p") {
+					for (xml_node<>* p_node = span->first_node(); p_node; p_node = p_node->next_sibling()) {
+						CString spantext = Utf8ToCString(p_node->value());
+						lblText += spantext;
+					}
+				}
+				else if (node_name == "span") {
+					lblText += Utf8ToCString(span->value());
+				}
 			}
 			CStatic* static_lbl = new CStatic();
 			static_lbl->Create(lblText, WS_CHILD | WS_VISIBLE,
@@ -256,126 +265,163 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	int itemCount = 0;
-	for (xml_node<>* item = itemList->first_node("Item"); item; item = item->next_sibling("Item"))
+	for (xml_node<>* item = itemList->first_node(); item; item = item->next_sibling())
 	{
-		itemCount++;
-		std::vector<int> currentPath_item = levelPath;
-		currentPath_item.push_back(itemCount);
+		CString item_name(item->name());
+		if (item_name == "Item") {
+			itemCount++;
+			std::vector<int> currentPath_item = levelPath;
+			currentPath_item.push_back(itemCount);
 
-		// Format like "1.2.3"
-		CString formattedPath_item;
-		for (size_t i = 0; i < currentPath_item.size(); ++i)
-		{
-			formattedPath_item.AppendFormat(_T("%d"), currentPath_item[i]);
-			if (i < currentPath_item.size() - 1)
-				formattedPath_item.Append(_T("."));
-		}
-
-		CStatic* staticCtrl_item = new CStatic();
-		staticCtrl_item->Create(formattedPath_item, WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
-		staticCtrl_item->SetFont(pMainFrame->GetFont());
-		m_vecStatics_GAEBInfo.push_back(staticCtrl_item);
-		
-		// Iterate over item's children
-		for (xml_node<>* child = item->first_node(); child; child = child->next_sibling())
-		{
-			xml_node<>* complete_txt_node = child->first_node();
-			CString Fulltext;
-
-			CString tag(child->name());
-			CString val(Utf8ToCString(child->value()));
-
-			CString idValue;
-			if (auto* idAttr = item->first_attribute("ID"))
+			// Format like "1.2.3"
+			CString formattedPath_item;
+			for (size_t i = 0; i < currentPath_item.size(); ++i)
 			{
-				idValue = Utf8ToCString(idAttr->value());
-			}			
+				formattedPath_item.AppendFormat(_T("%d"), currentPath_item[i]);
+				if (i < currentPath_item.size() - 1)
+					formattedPath_item.Append(_T("."));
+			}
 
-			if (tag == "Qty") {
-				CStatic* cStatic_Qty = new CStatic();
-				cStatic_Qty->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(180, index), CSize(120, 20)), this, 1001);
-				cStatic_Qty->SetFont(pMainFrame->GetFont());
-				m_vecStatics_GAEBInfo.push_back(cStatic_Qty);
-			}
-			else if (tag == "QU") {
-				CStatic* cStatic_QU = new CStatic();
-				cStatic_QU->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(300, index), CSize(120, 20)), this, 1001);
-				cStatic_QU->SetFont(pMainFrame->GetFont());
-				m_vecStatics_GAEBInfo.push_back(cStatic_QU);
-			}
-			else if (tag == "UP") {
-				CStatic* cStatic_UP = new CStatic();
-				cStatic_UP->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(1250, index), CSize(120, 20)), this, 1001);
-				cStatic_UP->SetFont(pMainFrame->GetFont());
-				m_vecStatics_GAEBInfo.push_back(cStatic_UP);
-			}
-			else if (tag == "IT") {
-				CStatic* cStatic_IT = new CStatic();
-				cStatic_IT->Create(val, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(1450, index), CSize(120, 20)), this, 1001);
-				cStatic_IT->SetFont(pMainFrame->GetFont());
-				m_vecStatics_GAEBInfo.push_back(cStatic_IT);
-			}
-			else if (tag == "Description")
+			CStatic* staticCtrl_item = new CStatic();
+			staticCtrl_item->Create(formattedPath_item, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(20, index), CSize(120, 20)), this, 1001);
+			staticCtrl_item->SetFont(pMainFrame->GetFont());
+			m_vecStatics_GAEBInfo.push_back(staticCtrl_item);
+
+			// Iterate over item's children
+			for (xml_node<>* child = item->first_node(); child; child = child->next_sibling())
 			{
-				
-				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
+				xml_node<>* complete_txt_node = child->first_node();
+				CString Fulltext;
+
+				CString tag(child->name());
+				CString val(Utf8ToCString(child->value()));
+
+				CString idValue;
+				if (auto* idAttr = item->first_attribute("ID"))
 				{
-					CString compl_text_name(compl_text->name());
-					//Langtext
-					if (compl_text_name == "DetailTxt") {
-						for (xml_node<>* DetailTxt_Text = compl_text->first_node(); DetailTxt_Text; DetailTxt_Text = DetailTxt_Text->next_sibling()) //Text
-						{
-							CString DetailTxt_Text_name(DetailTxt_Text->name());
-							if (DetailTxt_Text_name == "Text") {
-								for (xml_node<>* p_node = DetailTxt_Text->first_node(); p_node; p_node = p_node->next_sibling())
-								{
-									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
-									{
-										CString nodeName(span_node->name());
+					idValue = Utf8ToCString(idAttr->value());
+				}
 
-										if (nodeName.CompareNoCase(_T("br")) == 0)
+				if (tag == "Qty") {
+					CStatic* cStatic_Qty = new CStatic();
+					cStatic_Qty->Create(val, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(180, index), CSize(120, 20)), this, 1001);
+					cStatic_Qty->SetFont(pMainFrame->GetFont());
+					m_vecStatics_GAEBInfo.push_back(cStatic_Qty);
+				}
+				else if (tag == "QU") {
+					CStatic* cStatic_QU = new CStatic();
+					cStatic_QU->Create(val, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(300, index), CSize(120, 20)), this, 1001);
+					cStatic_QU->SetFont(pMainFrame->GetFont());
+					m_vecStatics_GAEBInfo.push_back(cStatic_QU);
+				}
+				else if (tag == "UP") {
+					CStatic* cStatic_UP = new CStatic();
+					cStatic_UP->Create(val, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(1250, index), CSize(120, 20)), this, 1001);
+					cStatic_UP->SetFont(pMainFrame->GetFont());
+					m_vecStatics_GAEBInfo.push_back(cStatic_UP);
+				}
+				else if (tag == "IT") {
+					CStatic* cStatic_IT = new CStatic();
+					cStatic_IT->Create(val, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(1450, index), CSize(120, 20)), this, 1001);
+					cStatic_IT->SetFont(pMainFrame->GetFont());
+					m_vecStatics_GAEBInfo.push_back(cStatic_IT);
+				}
+				else if (tag == "Description")
+				{
+
+					for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
+					{
+						CString compl_text_name(compl_text->name());
+						//Langtext
+						if (compl_text_name == "DetailTxt") {
+							for (xml_node<>* DetailTxt_Text = compl_text->first_node(); DetailTxt_Text; DetailTxt_Text = DetailTxt_Text->next_sibling()) //Text
+							{
+								CString DetailTxt_Text_name(DetailTxt_Text->name());
+								if (DetailTxt_Text_name == "Text") {
+									for (xml_node<>* p_node = DetailTxt_Text->first_node(); p_node; p_node = p_node->next_sibling())
+									{
+										for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
 										{
-											Fulltext += _T("\r\n");
+											CString nodeName(span_node->name());
+
+											if (nodeName.CompareNoCase(_T("br")) == 0)
+											{
+												Fulltext += _T("\r\n");
+											}
+											else if (nodeName.CompareNoCase(_T("span")) == 0)
+											{
+												CString spanText = Utf8ToCString(span_node->value());
+												Fulltext += spanText;
+											}
 										}
-										else if (nodeName.CompareNoCase(_T("span")) == 0)
-										{
-											CString spanText = Utf8ToCString(span_node->value());
-											Fulltext += spanText;
-										}
+
+									}
+								}
+							}
+						}
+					}
+					CRect client_Rect;
+					GetClientRect(&client_Rect);
+					CRect textRect(420, index, client_Rect.Width() - 500, index);
+
+					CClientDC dc(this);
+					CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
+					dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+
+					CStatic* pstaticValue = new CStatic();
+					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX | SS_EDITCONTROL,
+						textRect, this, 1001);
+
+					TRACE(_T("Description-Block: index=%d -> id=%s  height=%d \n"),
+						index, idValue, textRect.Height());
+
+					pstaticValue->SetFont(pMainFrame->GetFont());
+					m_vecStatics_GAEBInfo.push_back(pstaticValue);
+					//index = static_cast<int>(textRect.bottom) + 10;
+					index = index + textRect.Height() + 10;
+					dc.SelectObject(pOldFont);
+				}
+			}
+			index += 20;
+		}
+		else if (item_name == "Remark") 
+		{
+			CString remark_text;
+			for (xml_node<>* description_node = item->first_node("Description"); description_node; description_node = description_node->next_sibling("Description"))
+			{
+				for (xml_node<>* compl_text = description_node->first_node("CompleteText"); compl_text; compl_text = compl_text->next_sibling("CompleteText")) {
+					for (xml_node<>* detail_text = compl_text->first_node("DetailTxt"); detail_text; detail_text = detail_text->next_sibling("DetailTxt")) {
+						for (xml_node<>* text_node = detail_text->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
+							for(xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling())
+							{
+								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+								{
+									CString span_text = Utf8ToCString(span_node->value());
+									CString span_name(span_node->name());
+									if(!span_text.IsEmpty())
+									{
+										remark_text += span_text;
 									}
 
+									if (span_name.CompareNoCase(_T("br")) == 0)
+									{
+										remark_text += _T("\r\n");
+									}
+									else if (span_name.CompareNoCase(_T("span")) == 0)
+									{
+										remark_text +=  span_text;
+									}
 								}
 							}
 						}
 					}
 				}
-				CRect client_Rect;
-				GetClientRect(&client_Rect);
-				CRect textRect(420, index, client_Rect.Width() - 500, index);
-
-				CClientDC dc(this);
-				CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
-				dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
-
-				CStatic* pstaticValue = new CStatic();
-				pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX | SS_EDITCONTROL,
-					textRect, this, 1001);
-
-				TRACE(_T("Description-Block: index=%d -> id=%s  height=%d \n"),
-					index, idValue, textRect.Height());
-
-				pstaticValue->SetFont(pMainFrame->GetFont());
-				m_vecStatics_GAEBInfo.push_back(pstaticValue);
-				//index = static_cast<int>(textRect.bottom) + 10;
-				index = index + textRect.Height() + 10;
-				dc.SelectObject(pOldFont);
-			}		
-
+			}
 		}
 	}
 }
