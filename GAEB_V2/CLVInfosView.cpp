@@ -99,7 +99,12 @@ void CLVInfosView::OnInitialUpdate()
 			year = rawAusgabe.Mid(0, 4);
 			month = rawAusgabe.Mid(5, 2);
 			day = rawAusgabe.Mid(8, 2);
-			value.Format(_T("%s.%s.%s"), day, month, year);
+			if (rawAusgabe.GetLength() >= 10) {
+				value.Format(_T("%s.%s.%s"), day, month, year);
+			}
+			else if (rawAusgabe.GetLength() <= 7) {
+				value.Format(_T("%s.%s"), month, year);
+			}
 		}
 		else if (name == "Date")
 		{
@@ -108,7 +113,12 @@ void CLVInfosView::OnInitialUpdate()
 			year = rawErstellung.Mid(0, 4);
 			month = rawErstellung.Mid(5, 2);
 			day = rawErstellung.Mid(8, 2);
-			value.Format(_T("%s.%s.%s"), day, month, year);
+			if (rawErstellung.GetLength() >= 10) {
+				value.Format(_T("%s.%s.%s"), day, month, year);
+			}
+			else if(rawErstellung.GetLength() <= 7){
+				value.Format(_T("%s.%s"), month, year);
+			}
 		}
 		else if (name == "Time"){ name = _T("Erstellungszeit der Datei:"); }
 		else if (name == "ProgSystem"){ name = _T("Programmsystem:"); }

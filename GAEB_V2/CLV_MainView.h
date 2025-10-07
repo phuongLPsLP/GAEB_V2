@@ -67,6 +67,7 @@ public:
 	//void PrintAllIDsRecursive(xml_node<>* node, int& index, std::vector<int> levelPath);
 	void TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
 	void TraverseItemlist(xml_node<>* itemList, int& index, std::vector<int> levelPath);
+	void TraverseRemark(xml_node<>* remark, int& index);
 	CString FormatPath(const std::vector<int>& path);
 private:
 	void GetDeviceScrollSize(int& nMapMode,

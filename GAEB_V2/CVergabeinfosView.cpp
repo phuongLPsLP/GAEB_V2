@@ -136,7 +136,12 @@ void CVergabeinfosView::OnInitialUpdate()
 					year = rawOpenDate.Mid(0, 4);
 					month = rawOpenDate.Mid(5, 2);
 					day = rawOpenDate.Mid(8, 2);
-					value.Format(_T("%s.%s.%s"), day, month, year);
+					if (rawOpenDate.GetLength() >= 10) {
+						value.Format(_T("%s.%s.%s"), day, month, year);
+					}
+					else if (rawOpenDate.GetLength() <= 7) {
+						value.Format(_T("%s.%s"), month, year);
+					}
 				}
 				else if (name == "OpenTime"){ name = _T("Uhrzeit des Eröffnungstermins:"); }
 				else if (name == "EvalEnd")
@@ -146,7 +151,12 @@ void CVergabeinfosView::OnInitialUpdate()
 					year = rawEvalDate.Mid(0, 4);
 					month = rawEvalDate.Mid(5, 2);
 					day = rawEvalDate.Mid(8, 2);
-					value.Format(_T("%s.%s.%s"), day, month, year);
+					if (rawEvalDate.GetLength() >= 10) {
+						value.Format(_T("%s.%s.%s"), day, month, year);
+					}
+					else if (rawEvalDate.GetLength() <= 7) {
+						value.Format(_T("%s.%s"), month, year);
+					}
 				}
 				else if (name == "SubmLoc"){ name = _T("Abgabeort:"); }
 				else if (name == "CnstStart")
@@ -156,7 +166,12 @@ void CVergabeinfosView::OnInitialUpdate()
 					year = rawBeginnDate.Mid(0, 4);
 					month = rawBeginnDate.Mid(5, 2);
 					day = rawBeginnDate.Mid(8, 2);
-					value.Format(_T("%s.%s.%s"), day, month, year);
+					if (rawBeginnDate.GetLength() >= 10) {
+						value.Format(_T("%s.%s.%s"), day, month, year);
+					}
+					else if (rawBeginnDate.GetLength() <= 7) {
+						value.Format(_T("%s.%s"), month, year);
+					}
 					size = CSize(clientRect_Vergabe.Width(), 50);
 				}
 				else if (name == "CnstEnd")
@@ -166,7 +181,12 @@ void CVergabeinfosView::OnInitialUpdate()
 					year = rawEndDate.Mid(0, 4);
 					month = rawEndDate.Mid(5, 2);
 					day = rawEndDate.Mid(8, 2);
-					value.Format(_T("%s.%s.%s"), day, month, year);
+					if (rawEndDate.GetLength() >= 10) {
+						value.Format(_T("%s.%s.%s"), day, month, year);
+					}
+					else if (rawEndDate.GetLength() <= 7) {
+						value.Format(_T("%s.%s"), month, year);
+					}
 					size = CSize(clientRect_Vergabe.Width(), 50);
 					y_pos_vergabeinfo += 20;
 				}
