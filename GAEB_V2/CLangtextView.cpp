@@ -450,67 +450,69 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 		}
 		else if (item_name == "Remark") 
 		{
-			CString remark_text;
-			for (xml_node<>* description_node = item->first_node("Description"); description_node; description_node = description_node->next_sibling("Description"))
-			{
-				for (xml_node<>* compl_text = description_node->first_node("CompleteText"); compl_text; compl_text = compl_text->next_sibling("CompleteText")) {
-					for (xml_node<>* detail_text = compl_text->first_node("DetailTxt"); detail_text; detail_text = detail_text->next_sibling("DetailTxt")) {
-						for (xml_node<>* text_node = detail_text->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
-							for(xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling())
-							{
-								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
-								{
-									CString span_text = Utf8ToCString(span_node->value());
-									CString span_name(span_node->name());
-									if(!span_text.IsEmpty())
-									{
-										remark_text += span_text;
-									}
-
-									if (span_name.CompareNoCase(_T("br")) == 0)
-									{
-										remark_text += _T("\r\n");
-									}
-									else if (span_name.CompareNoCase(_T("span")) == 0)
-									{
-										remark_text +=  span_text + _T(" ");
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			CRect remark_itemlist_clienrect;
-			GetClientRect(&remark_itemlist_clienrect);
-			const int leftmargin_itemlist = 420;
-			const int rightmargin_itemlist = remark_itemlist_clienrect.Width() * 0.3;
-			const int topposition_itemlist = index;
-			const int maxWidth_itemlist = remark_itemlist_clienrect.Width() - leftmargin_itemlist - rightmargin_itemlist;
-
-			CRect remark_itemlist_textrect(leftmargin_itemlist, topposition_itemlist, leftmargin_itemlist + maxWidth_itemlist, topposition_itemlist);
-			CClientDC dc_remark_itemlist(this);
-			dc_remark_itemlist.DrawText(remark_text, & remark_itemlist_textrect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
-
-			CStatic* remark_itemlist_value = new CStatic();
-			remark_itemlist_value->Create(remark_text, WS_CHILD|WS_VISIBLE |SS_LEFT | SS_NOPREFIX | SS_EDITCONTROL,
-				remark_itemlist_textrect, this, 1001);
-			remark_itemlist_value->SetFont(pMainFrame->GetFont());
-			m_vecStatics_GAEBInfo.push_back(remark_itemlist_value);
-			index = remark_itemlist_textrect.bottom + 20;
+			TraverseDescription_LT(item, index);			
 		}
 	}
 }
 
-void CLangtextView::TraverseDescription_LT(xml_node<>* descNode, int& index, std::vector<int> levelPath)
+void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 {
-	int ctgyCount = 0;
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-	std::vector<int> currentPath = levelPath;
-	currentPath.push_back(ctgyCount);
-	for (xml_node<>* child_node = descNode->first_node(); child_node; child_node = child_node->next_sibling()) {
-		TraverseDescription_LT(child_node, index, currentPath);
+	CString remark_Fulltext_LT;
+	xml_node<>* descr_node_LT = remarknode->first_node();
+
+	CStatic* cstatic_hinweis_LT = new CStatic();
+	cstatic_hinweis_LT->Create(_T("Hinweis"), WS_CHILD | WS_VISIBLE,
+		CRect(CPoint(180, index), CSize(120,20)), this, 1001);
+	cstatic_hinweis_LT->SetFont(pMainFrame->GetFontItalic());
+	m_vecStatics_GAEBInfo.push_back(cstatic_hinweis_LT);
+
+	for (xml_node<>* descr_childNode = descr_node_LT->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling())
+	{
+		CString desct_childNode_name(descr_childNode->name());
+
+		if (desct_childNode_name == "CompleteText") {
+			for (xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
+				for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
+					for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling())
+					{
+						for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+						{
+							CString span_text = Utf8ToCString(span_node->value());
+							if (!span_text.IsEmpty())
+							{
+								remark_Fulltext_LT += span_text + _T(" ");
+								
+							}
+							remark_Fulltext_LT += _T("\r\n");
+						}
+					}
+				}
+			}
+
+		}
 	}
+	CRect remark_itemlist_clienrect;
+	GetClientRect(&remark_itemlist_clienrect);
+	const int leftmargin_itemlist = 420;
+	const int rightmargin_itemlist = remark_itemlist_clienrect.Width() * 0.3;
+	const int topposition_itemlist = index;
+	const int maxWidth_itemlist = remark_itemlist_clienrect.Width() - leftmargin_itemlist - rightmargin_itemlist;
+
+	CRect remark_itemlist_textrect(leftmargin_itemlist, topposition_itemlist, leftmargin_itemlist + maxWidth_itemlist, topposition_itemlist);
+	CClientDC dc_remark_itemlist(this);
+	dc_remark_itemlist.DrawText(remark_Fulltext_LT, &remark_itemlist_textrect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+
+	CStatic* remark_itemlist_value = new CStatic();
+	remark_itemlist_value->Create(remark_Fulltext_LT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX | SS_EDITCONTROL,
+		remark_itemlist_textrect, this, 1001);
+	remark_itemlist_value->SetFont(pMainFrame->GetFont());
+	m_vecStatics_GAEBInfo.push_back(remark_itemlist_value);
+	index = remark_itemlist_textrect.bottom + 20;
 }
+
+
+
+
 
 

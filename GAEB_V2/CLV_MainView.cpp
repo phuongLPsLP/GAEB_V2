@@ -400,7 +400,7 @@ void CLV_MainView::TraverseItemlist(xml_node<>* itemList, int& index, std::vecto
 										{
 											CString span_node_kurztext_text = Utf8ToCString(span_node_kurztext->value());
 											if (!span_node_kurztext_text.IsEmpty()) {
-												Fulltext_kurz += span_node_kurztext_text;
+												Fulltext_kurz += span_node_kurztext_text + _T(" ");
 											}
 											CStatic* cStatic_kurztext = new CStatic();
 											cStatic_kurztext->Create(Fulltext_kurz, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
