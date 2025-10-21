@@ -72,8 +72,10 @@
 #define ID_CHECK2                       32775
 #define ID_CHECK3                       32776
 #define ID_CHECK_DETAILS                32776
+#define ID_LANGTEXT                     32776
 #define ID_CHECK4                       32777
 #define ID_CHECK_TABELLE                32777
+#define ID_KURZTEXT                     32777
 #define ID_CHECK5                       32778
 #define ID_CHECK7                       32780
 #define ID_CHECK8                       32781
@@ -105,7 +107,6 @@
 #define ID_BUTTON26                     32809
 #define ID_BUTTON29                     32812
 #define ID_BUTTON30                     32813
-#define ID_KURZTEXT                     32813
 #define ID_BUTTON31                     32814
 #define ID_BUTTON32                     32815
 #define ID_BUTTON33                     32816
@@ -138,7 +139,6 @@
 #define ID_BUTTON51                     32844
 #define ID_BUTTON52                     32845
 #define ID_BUTTON2                      32846
-#define ID_LANGTEXT                     32846
 #define ID_BUTTON3                      32847
 #define ID_BUTTON4                      32848
 #define ID_CHECK_STRUKTUR               32849

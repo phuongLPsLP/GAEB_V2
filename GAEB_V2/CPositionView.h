@@ -25,10 +25,13 @@ public:
 #endif
 public:
 	CString m_text_OZ;
+	CString m_text_KT;
+	CString m_text_bez;
 protected:
 
 	CStatic m_staticText_Position;
 	CStatic m_staticText_Ordnungszahl;
+	CStatic m_staticText_Bezeichnung;
 	CStatic m_staticText_Positionsart;
 	CStatic m_staticText_Menge;
 	CStatic m_staticText_Einheit;
@@ -38,8 +41,11 @@ protected:
 	CStatic m_staticText_Nachlass;
 	CStatic m_staticText_Gesamtpreis;
 	CStatic m_staticText_Summe;
+	CStatic m_staticText_Zeitansatz;
+	CStatic m_staticText_Stunden;
 	
 	CEdit m_edit_OZ;
+	CEdit m_edit_bez;
 
 	CEdit m_edit_Menge;
 	CEdit m_edit_Einheit;
@@ -51,6 +57,7 @@ protected:
 	CEdit m_edit_nachlass;
 	CEdit m_edit_gesamt;
 	CEdit m_edit_summe;
+	CEdit m_edit_zeit;
 
 	CButton m_button_bold_KT;
 	CButton m_button_italic_KT;
@@ -86,8 +93,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
-
-	void SetText(LPCTSTR lpszText);
+	void SetTextOZ(CString text);
+	void SetTextPosArt(CString text);
 };
 
 

@@ -64,10 +64,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_BUTTON47, &CMainFrame::OnOpenFile)
 	ON_COMMAND(ID_BUTTON5, &CMainFrame::OnExport)
 
-	ON_COMMAND(ID_CHECK3, &CMainFrame::OnDetailsAnsicht)
-	ON_UPDATE_COMMAND_UI(ID_CHECK3, &CMainFrame::OnUpdateDetailsAnsicht)
-	ON_COMMAND(ID_CHECK4, &CMainFrame::OnTabelleAnsicht)
-	ON_UPDATE_COMMAND_UI(ID_CHECK4, &CMainFrame::OnUpdateTabelleAnsicht)
 	ON_COMMAND(ID_BUTTON3, &CMainFrame::OnIndex)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON3, &CMainFrame::OnUpdateIndex)
 	ON_COMMAND(ID_BUTTON3, &CMainFrame::OnIndex)
@@ -76,57 +72,26 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_BUTTON4, &CMainFrame::OnUpdateInfo)
 	ON_COMMAND(ID_CHECK_STRUKTUR, &CMainFrame::OnStrukturAnsicht)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_STRUKTUR, &CMainFrame::OnUpdateStrukturAnsicht)
-	ON_COMMAND(ID_CHECK2, &CMainFrame::OnCheck_G90)
-	ON_UPDATE_COMMAND_UI(ID_CHECK2, &CMainFrame::OnUpdateCheck_G90)
 	ON_COMMAND(ID_CHECK_G2000, &CMainFrame::OnCheck_G2000)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_G2000, &CMainFrame::OnUpdateCheck_G2000)
 	ON_COMMAND(ID_CHECK_GXML, &CMainFrame::OnCheck_GXML)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_GXML, &CMainFrame::OnUpdateCheck_GXML)
 	ON_COMMAND(ID_CHECK_G90, &CMainFrame::OnCheck_G90)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_G90, &CMainFrame::OnUpdateCheck_G90)
-	ON_COMMAND(ID_CHECK_81, &CMainFrame::OnCheck_Phase81)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_81, &CMainFrame::OnUpdateCheck_Phase81)
-	ON_COMMAND(ID_CHECK_82, &CMainFrame::OnCheck_Phase82)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_82, &CMainFrame::OnUpdateCheck_Phase82)
-	ON_COMMAND(ID_CHECK_83, &CMainFrame::OnCheck_Phase83)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_83, &CMainFrame::OnUpdateCheck_Phase83)
-	ON_COMMAND(ID_CHECK_84, &CMainFrame::OnCheck_Phase84)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_84, &CMainFrame::OnUpdateCheck_Phase84)
-	ON_COMMAND(ID_CHECK_85, &CMainFrame::OnCheck_Phase85)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_85, &CMainFrame::OnUpdateCheck_Phase85)
-	ON_COMMAND(ID_CHECK_86, &CMainFrame::OnCheck_Phase86)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_86, &CMainFrame::OnUpdateCheck_Phase86)
-	ON_COMMAND(ID_CHECK_89, &CMainFrame::OnCheck_Phase89)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_89, &CMainFrame::OnUpdateCheck_Phase89)
-	ON_COMMAND(ID_CHECK_93, &CMainFrame::OnCheck_Phase93)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_93, &CMainFrame::OnUpdateCheck_Phase93)
-	ON_COMMAND(ID_CHECK_94, &CMainFrame::OnCheck_Phase94)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_94, &CMainFrame::OnUpdateCheck_Phase94)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_G90, &CMainFrame::OnUpdateCheck_G90)	
 	ON_COMMAND(ID_CHECK_LV_MENGE, &CMainFrame::OnCheck_LVMenge)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_LV_MENGE, &CMainFrame::OnUpdateCheck_LVMenge)
 	ON_COMMAND(ID_CHECK_VA_MENGE, &CMainFrame::OnCheck_VAMenge)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_VA_MENGE, &CMainFrame::OnUpdateCheck_VAMenge)
 	ON_COMMAND(ID_CHECK_RE_MENGE, &CMainFrame::OnCheck_REMenge)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_RE_MENGE, &CMainFrame::OnUpdateCheck_REMenge)
-	ON_COMMAND(ID_CHECK18, &CMainFrame::OnCheck_GAEB_2000)
-	ON_UPDATE_COMMAND_UI(ID_CHECK18, &CMainFrame::OnUpdateCheck_GAEB_2000)
-	ON_COMMAND(ID_CHECK19, &CMainFrame::OnCheck_GAEB_XML_REB)
-	ON_UPDATE_COMMAND_UI(ID_CHECK19, &CMainFrame::OnUpdateCheck_GAEB_XML_REB)
-	ON_COMMAND(ID_CHECK20, &CMainFrame::OnCheck_GAEB_VB)
-	ON_UPDATE_COMMAND_UI(ID_CHECK20, &CMainFrame::OnUpdateCheck_GAEB_VB)
-	ON_COMMAND(ID_CHECK21, &CMainFrame::OnCheck_LV_M_Aufmaﬂ)
-	ON_UPDATE_COMMAND_UI(ID_CHECK21, &CMainFrame::OnUpdateCheck_LV_M_Aufmaﬂ)
-	ON_COMMAND(ID_CHECK22, &CMainFrame::OnCheck_VA_M_Aufmaﬂ)
-	ON_UPDATE_COMMAND_UI(ID_CHECK22, &CMainFrame::OnUpdateCheck_VA_M_Aufmaﬂ)
-	ON_COMMAND(ID_CHECK23, &CMainFrame::OnCheck_RE_M_Aufmaﬂ)
-	ON_UPDATE_COMMAND_UI(ID_CHECK23, &CMainFrame::OnUpdateCheck_RE_M_Aufmaﬂ)
 	ON_COMMAND(ID_BUTTON_Speichern, &CMainFrame::OnButton_Speichern)
 	ON_COMMAND(ID_BUTTON_SPEICHERN_UNTER, &CMainFrame::OnButton_SpeichernUnter)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &CMainFrame::OnTreeSelectedItem)
-	ON_COMMAND(ID_LANGTEXT, &CMainFrame::OnLangtext)
-	ON_UPDATE_COMMAND_UI(ID_LANGTEXT, &CMainFrame::OnUpdateLangtext)
+
 	ON_COMMAND(ID_KURZTEXT, &CMainFrame::OnKurztext)
 	ON_UPDATE_COMMAND_UI(ID_KURZTEXT, &CMainFrame::OnUpdateKurztext)
+	ON_COMMAND(ID_LANGTEXT, &CMainFrame::OnLangtext)
+	ON_UPDATE_COMMAND_UI(ID_LANGTEXT, &CMainFrame::OnUpdateLangtext)
 END_MESSAGE_MAP()
 
 
@@ -263,10 +228,15 @@ HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	if (!pNMTreeView) return;  // safety check
+	HTREEITEM hItem = pNMTreeView->itemNew.hItem;
+	if (!hItem) return;
 	HTREEITEM hSelectedItem = m_wndClassView.GetSelectedItem();
 	HTREEITEM hroot = m_wndClassView.GetRootItem();
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
+
+	m_wndClassView.SetFocus();
 
 	if (itemText == _T("Informationen")) {
 		SwitchView(RUNTIME_CLASS(CLVInfosView));	
@@ -281,14 +251,22 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		SwitchView(RUNTIME_CLASS(CVertragView));
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
+		m_checkbox_KT = TRUE;
+		m_checkbox_LT = FALSE;
+
 		SwitchView(RUNTIME_CLASS(CLV_MainView));		
 	}
 	else {
+		/*SwitchView(RUNTIME_CLASS(CLangtextView));
+		CLangtextView* plistView = DYNAMIC_DOWNCAST(CLangtextView, pView);
+		if (plistView) {
+			plistView->SelectItemByText(itemText);
+		}*/
 
-		SwitchView(RUNTIME_CLASS(CPositionView));
 		CPositionView* pposView = DYNAMIC_DOWNCAST(CPositionView, GetActiveView());
-		if (pposView) {
-			pposView->SetText(itemText);
+		if (pposView) 
+		{
+			pposView->SetTextOZ(itemText);	//Ornungszahl und Bezeichnung setzen
 		}
 	}
 	if (pResult) {
@@ -819,63 +797,90 @@ void CMainFrame::OnOpenFile()
 		CString ext = PathFindExtension(filePath);
 		if (ext.CompareNoCase(_T(".X80")) == 0) {
 			m_string_phase = _T("X80 Universelle LV-Daten");
+			m_checkbox_GXML = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".X81")) == 0) {
 			m_string_phase = _T("X81 Leistungsbeschreibung");
+			m_checkbox_GXML = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".X82")) == 0) {
 			m_string_phase = _T("X82 Kostenanschlag");
+			m_checkbox_GXML = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".X83")) == 0) {
 			m_string_phase = _T("X83 Angebotsaufforderung");
+			m_checkbox_GXML = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".X84")) == 0) {
 			m_string_phase = _T("X84 Angebotsabgabe");
+			m_checkbox_GXML = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".X85")) == 0) {
 			m_string_phase = _T("X85 Nebenangebot");
+			m_checkbox_GXML = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".X86")) == 0) {
 			m_string_phase = _T("X86 Auftragserteilung");
+			m_checkbox_GXML = TRUE;
+		}
+		else if (ext.CompareNoCase(_T(".X94")) == 0) {
+			m_string_phase = _T("X94 Handel - Preisangebot");
+			m_checkbox_GXML = TRUE;
 		}
 
 //GAEB 2000
 		else if (ext.CompareNoCase(_T(".P81")) == 0) {
 			m_string_phase = _T("P81 Leistungsbeschreibung");
+			m_checkbox_G2000 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".P82")) == 0) {
 			m_string_phase = _T("P82 Kostenanschlag");
+			m_checkbox_G2000 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".P83")) == 0) {
 			m_string_phase = _T("P83 Angebotsaufforderung");
+			m_checkbox_G2000 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".P84")) == 0) {
 			m_string_phase = _T("P84 Angebotsabgabe");
+			m_checkbox_G2000 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".P85")) == 0) {
 			m_string_phase = _T("P85 Nebenangebot");
+			m_checkbox_G2000 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".P86")) == 0) {
 			m_string_phase = _T("P86 Auftragserteilung");
+			m_checkbox_G2000 = TRUE;
+		}
+		else if (ext.CompareNoCase(_T(".P94")) == 0) {
+			m_string_phase = _T("P94 Handel - Preisangebot");
+			m_checkbox_G2000 = TRUE;
 		}
 //GAEB 90
 		else if (ext.CompareNoCase(_T(".D81")) == 0) {
 			m_string_phase = _T("D81 Leistungsbeschreibung");
+			m_checkbox_G90 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".D82")) == 0) {
 			m_string_phase = _T("D82 Kostenanschlag");
+			m_checkbox_G90 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".D83")) == 0) {
 			m_string_phase = _T("D83 Angebotsaufforderung");
+			m_checkbox_G90 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".D84")) == 0) {
 			m_string_phase = _T("D84 Angebotsabgabe");
+			m_checkbox_G90 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".D85")) == 0) {
 			m_string_phase = _T("D85 Nebenangebot");
+			m_checkbox_G90 = TRUE;
 		}
 		else if (ext.CompareNoCase(_T(".D86")) == 0) {
 			m_string_phase = _T("D86 Auftragserteilung");
+			m_checkbox_G90 = TRUE;
 		}
 
 		FillClassView(filePath);
@@ -1346,30 +1351,6 @@ void CMainFrame::OnButton_SpeichernUnter()
 	// TODO: Add your command handler code here
 }
 
-void CMainFrame::OnLangtext()
-{
-	// TODO: Add your command handler code here
-	SwitchView(RUNTIME_CLASS(CLangtextView));
-
-}
-
-void CMainFrame::OnUpdateLangtext(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-}
-
-void CMainFrame::OnKurztext()
-{
-	// TODO: Add your command handler code here
-	SwitchView(RUNTIME_CLASS(CLV_MainView));
-
-}
-
-void CMainFrame::OnUpdateKurztext(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-}
-
 CString CMainFrame::Utf8ToString(const char* utf8Str)
 {
 	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
@@ -1378,4 +1359,36 @@ CString CMainFrame::Utf8ToString(const char* utf8Str)
 	result.ReleaseBuffer();
 	return result;	
 	//return CString();
+}
+
+
+
+void CMainFrame::OnKurztext()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_KT = !m_checkbox_KT;
+	m_checkbox_LT = FALSE;
+	SwitchView(RUNTIME_CLASS(CLV_MainView));
+}
+
+void CMainFrame::OnUpdateKurztext(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_KT ? 1 : 0);
+	pCmdUI->Enable(TRUE);
+}
+
+void CMainFrame::OnLangtext()
+{
+	// TODO: Add your command handler code here
+	m_checkbox_LT = !m_checkbox_LT;
+	m_checkbox_KT = FALSE;
+	SwitchView(RUNTIME_CLASS(CLangtextView));
+}
+
+void CMainFrame::OnUpdateLangtext(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_checkbox_LT ? 1 : 0);
+	pCmdUI->Enable(TRUE);
 }

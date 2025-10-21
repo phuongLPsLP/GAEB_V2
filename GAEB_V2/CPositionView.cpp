@@ -115,34 +115,10 @@ void CPositionView::OnInitialUpdate()
 	m_combobox_PosArt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT |WS_VSCROLL, 
 		CRect(CPoint(160, 100), CSize(250, 20)), this, 1003);
 	m_combobox_PosArt.SetFont(&m_font);
-	
-/*	CRect rcButton(160, 140, 280, 70);
-	m_combobox_textFont_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
-		rcButton, this, 1003);
-	m_combobox_textSize_KT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
-		CRect(CPoint(310, 140), CSize(80, 20)), this, 1003);
-	m_button_bold_KT.Create(_T("B"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(410, 140), CSize(30, 20)), this, 1003);
-	m_button_italic_KT.Create(_T("I"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(450, 140), CSize(30, 20)), this, 1003);
-	m_button_underline_KT.Create(_T("U"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(490, 140), CSize(30, 20)), this, 1003);
-
-	m_button_bold_KT.SetFont(&m_font_bold);
-	m_button_italic_KT.SetFont(&m_font_italic);
-	m_button_underline_KT.SetFont(&m_font_underline);*/
 
 	m_edit_kurztext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 180), CSize(rect.Width(), 50)), this, 1005);
 	m_edit_kurztext.SetFont(&m_font);
 
-/*	m_combobox_textFont_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
-		CRect(CPoint(160, 250), CSize(120, 20)), this, 1003);
-	m_combobox_textSize_LT.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST,
-		CRect(CPoint(310, 250), CSize(80, 20)), this, 1003);
-	m_button_bold_LT.Create(_T("B"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(410, 250), CSize(30, 20)), this, 1003);
-	m_button_italic_LT.Create(_T("I"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(450, 250), CSize(30, 20)), this, 1003);
-	m_button_underline_LT.Create(_T("U"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, CRect(CPoint(490, 250), CSize(30, 20)), this, 1003);
-
-	m_button_bold_LT.SetFont(&m_font_bold);
-	m_button_italic_LT.SetFont(&m_font_italic);
-	m_button_underline_LT.SetFont(&m_font_underline);*/
 
 	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 290), CSize(rect.Width(), 270)), this, 1005);
 	m_edit_langtext.SetFont(&m_font);
@@ -154,6 +130,16 @@ void CPositionView::OnInitialUpdate()
 	m_staticText_Gesamtpreis.Create(_T("Gesamtbetrag [Euro]"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 700), CSize(150, 20)), this, 1001);
 	m_staticText_Summe.Create(_T("Summe Pos. [Euro]"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 760), CSize(150, 20)), this, 1001);
 
+	m_staticText_Zeitansatz.Create(_T("Zeitansatz"), WS_CHILD | WS_VISIBLE, CRect(CPoint(600,580), CSize(80,20)), this, 1001);
+	m_staticText_Stunden.Create(_T("Stunden"), WS_CHILD | WS_VISIBLE, CRect(CPoint(860, 580), CSize(80, 20)), this, 1001);
+	m_edit_zeit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
+		CRect(CPoint(760,580), CSize(80,20)), this, 1002);
+
+	m_staticText_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(600,50), CSize(120,50)), this, 1001);
+	m_edit_bez.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
+		CRect(CPoint(760,50), CSize(300,20)), this, 1002);
+
+
 	m_edit_Menge.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 580), CSize(80, 20)), this, 1002);
 	m_combobox_einheit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
 		CRect(CPoint(260, 580), CSize(80, 20)), this, 1003);
@@ -161,33 +147,6 @@ void CPositionView::OnInitialUpdate()
 	m_edit_nachlass.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 660), CSize(80, 20)), this, 1002);
 	m_edit_gesamt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 700), CSize(80, 20)), this, 1002);
 	m_edit_summe.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 760), CSize(80, 20)), this, 1002);
-
-	/*LOGFONT lf_textFont = {};
-	lf_textFont.lfCharSet = DEFAULT_CHARSET;
-	lf_textFont.lfFaceName[0] = '\0';
-
-	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont_KT, 0);
-	m_combobox_textFont_KT.SelectString(-1, _T("Segoe UI"));  
-
-	EnumFontFamiliesEx(dc.GetSafeHdc(), &lf_textFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)&m_combobox_textFont_LT, 0);
-	m_combobox_textFont_LT.SelectString(-1, _T("Segoe UI")); 
-
-
-	int standardFontSizes[] = {
-	8, 9, 10, 11, 12, 14, 16, 18,
-	20, 22, 24, 26, 28, 36, 48, 72
-	};
-
-	for (int i = 0; i < _countof(standardFontSizes); ++i)
-	{
-		CString str;
-		str.Format(_T("%d"), standardFontSizes[i]);
-		m_combobox_textSize_KT.AddString(str);
-		m_combobox_textSize_LT.AddString(str);
-	}
-	m_combobox_textSize_KT.SelectString(-1, _T("11"));
-	m_combobox_textSize_LT.SelectString(-1, _T("11"));*/
-
 
 	if (pApp && pApp->m_einheitList.GetSize() > 0)
 	{
@@ -226,7 +185,10 @@ void CPositionView::OnInitialUpdate()
 	&m_staticText_Einheit,
 	&m_staticText_Einheitpreis,
 	&m_staticText_Nachlass,
-	&m_staticText_Gesamtpreis
+	&m_staticText_Gesamtpreis,
+	&m_staticText_Zeitansatz,
+	&m_staticText_Stunden,
+	&m_staticText_Bezeichnung,
 	};
 
 	for (CStatic* pStatic : staticControls_normal)
@@ -244,13 +206,20 @@ void CPositionView::OnInitialUpdate()
 		&m_edit_nachlass,
 		&m_edit_summe,
 		&m_edit_OZ,
+		&m_edit_zeit,
+		&m_edit_kurztext,
+		&m_edit_langtext,
+		&m_edit_bez,
 	};
 	for (CEdit* pEdit : editControls)
 	{
 		if (pEdit->GetSafeHwnd())
 		{
 			pEdit->SetFont(&m_font_edit);
+			pEdit->SetReadOnly(TRUE);
 		}
+
+		
 	}
 }
 
@@ -314,15 +283,52 @@ HBRUSH CPositionView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	return hbr;
 }
 
-void CPositionView::SetText(LPCTSTR lpszText)
+void CPositionView::SetTextOZ(CString text)
 {
-	if (m_edit_OZ.GetSafeHwnd() != NULL && ::IsWindow(m_edit_OZ.m_hWnd))
-	{
-		m_edit_OZ.SetWindowText(lpszText);
-	}
-	else
-	{
-		m_text_OZ = lpszText;
+	CString oz_part;
+	CString text_part;
+	int i = 0;
+	int len = text.GetLength();
+
+	while (i < len) {
+		TCHAR ch = text[i];
+		if (_istdigit(ch)) {
+			oz_part += ch;
+			i++;
+		}
+		else if (ch == '.') {
+			oz_part += ch;
+			i++;
+		}
+		else if (_istspace(ch)) {
+			oz_part += ch;
+			text_part += ch;
+			i++;
+			//break;
+		}
+		else {
+			text_part += ch;
+			i++;
+		}
 	}
 
+	if (m_edit_OZ.GetSafeHwnd() != NULL && ::IsWindow(m_edit_OZ.m_hWnd))
+	{	
+		m_edit_OZ.SetWindowText(oz_part);
+	}
+
+	else {
+		m_text_OZ = oz_part;
+	}
+
+	if (m_edit_bez.GetSafeHwnd() != NULL && ::IsWindow(m_edit_bez.m_hWnd)) {
+		m_edit_bez.SetWindowText(text_part);
+	}
+	else {
+		m_text_bez = text_part;
+	}
+}
+
+void CPositionView::SetTextPosArt(CString text)
+{
 }

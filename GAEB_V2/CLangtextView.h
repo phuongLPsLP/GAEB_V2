@@ -51,6 +51,14 @@ protected:
 	std::vector<CStatic*> m_vecStatics_GAEBInfo;
 
 
+	/*struct SStaticItem {
+		CStatic* pCtrl;
+		CString id;
+	};
+
+	std::vector<SStaticItem> m_staticItems;*/
+
+
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual void OnInitialUpdate();     // first time after construct
@@ -63,6 +71,8 @@ public:
 	void TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
 	void TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath);
 	void TraverseDescription_LT(xml_node<>* descNode, int& index);
+
+	void SelectItemByText(const CString& text);
 };
 
 

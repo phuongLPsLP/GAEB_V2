@@ -109,6 +109,24 @@ void CLangtextView::OnInitialUpdate()
 					xml_node<>* bodyNode = BoQChild_node; // should be BoQBody
 					if (CString(bodyNode->name()) == "BoQBody")
 					{
+						xml_node<>* remark_node = bodyNode->first_node("Remark");
+						if (remark_node) 
+						{
+							for (xml_node<>* desc_node = remark_node->first_node("Description"); desc_node; desc_node = desc_node->next_sibling("Description"))
+							{
+								for(xml_node<>* compl_node= desc_node->first_node("CompleteText"); compl_node; compl_node= compl_node->next_sibling("CompleteText"))
+								{										
+									for(xml_node<>* detailtext_node = compl_node->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt"))
+									{
+										for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text"))
+										{
+											
+										}
+								}
+							}
+						}
+
+						}
 						std::vector<int> rootPath;
 						for (xml_node<>* ctgyNode = bodyNode->first_node("BoQCtgy"); ctgyNode; ctgyNode = ctgyNode->next_sibling("BoQCtgy")) {
 							TraverseBoQCtgy_LT(ctgyNode, yPos_LV,rootPath);
@@ -255,6 +273,13 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 		xml_node<>* remark = bodyNode->first_node("Remark");
 		if (remark) {
 			CString remark_boqbody;
+
+			xml_attribute<>* remark_attr = remark->first_attribute();
+			CString attr(remark_attr->name());
+			CString attr_value(remark_attr->value());
+			AfxMessageBox(attr);
+			AfxMessageBox(attr_value);
+
 			for (xml_node<>* desc_node = remark->first_node("Description"); desc_node; desc_node = desc_node->next_sibling("Description")) {
 				for (xml_node<>* compltext_node = desc_node->first_node("CompleteText"); compltext_node; compltext_node = compltext_node->next_sibling("CompleteText")) {
 					for (xml_node<>* detailtext_node = compltext_node->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
@@ -509,6 +534,28 @@ void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 	remark_itemlist_value->SetFont(pMainFrame->GetFont());
 	m_vecStatics_GAEBInfo.push_back(remark_itemlist_value);
 	index = remark_itemlist_textrect.bottom + 20;
+}
+
+void CLangtextView::SelectItemByText(const CString& text)
+{
+
+	struct SStaticItem {
+		CStatic* pCtrl;
+		CString id;
+	};
+
+	std::vector<SStaticItem> m_staticItems;
+
+	for (auto& item : m_staticItems) {
+		if (item.id == text) {
+			CRect rcItem;
+			item.pCtrl->GetWindowRect(&rcItem);
+
+			ScrollToPosition(CPoint(0, rcItem.top));
+			break;
+		}
+	}
+
 }
 
 

@@ -114,6 +114,9 @@ protected:  // control bar embedded members
 	BOOL m_checkbox_VA_M_Aufmaﬂ = FALSE;
 	BOOL m_checkbox_RE_M_Aufmaﬂ = FALSE;
 
+	BOOL m_checkbox_LT = FALSE;
+	BOOL m_checkbox_KT = FALSE;
+
 	CString m_path;
 	CString Kurz_text;	 
 
@@ -237,10 +240,8 @@ public:
 	afx_msg void OnUpdateCheck_RE_M_Aufmaﬂ(CCmdUI* pCmdUI);
 	afx_msg void OnButton_Speichern();
 	afx_msg void OnButton_SpeichernUnter();
-	afx_msg void OnLangtext();
-	afx_msg void OnUpdateLangtext(CCmdUI* pCmdUI);
-	afx_msg void OnKurztext();
-	afx_msg void OnUpdateKurztext(CCmdUI* pCmdUI);
+
+
 
 	CFont* GetFont() { return &m_font; }
 	CFont* GetFontBold() { return &m_font_bold; }
@@ -250,6 +251,10 @@ public:
 
 	CString Utf8ToString(const char* utf8Str);
 
+	afx_msg void OnKurztext();
+	afx_msg void OnUpdateKurztext(CCmdUI* pCmdUI);
+	afx_msg void OnLangtext();
+	afx_msg void OnUpdateLangtext(CCmdUI* pCmdUI);
 };
 
 
