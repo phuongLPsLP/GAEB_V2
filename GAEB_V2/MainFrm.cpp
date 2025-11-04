@@ -231,7 +231,10 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	if (!pNMTreeView) return;  // safety check
 	HTREEITEM hItem = pNMTreeView->itemNew.hItem;
 	if (!hItem) return;
+
 	HTREEITEM hSelectedItem = m_wndClassView.GetSelectedItem();
+ 	
+
 	HTREEITEM hroot = m_wndClassView.GetRootItem();
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
@@ -257,17 +260,19 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		SwitchView(RUNTIME_CLASS(CLV_MainView));		
 	}
 	else {
-		/*SwitchView(RUNTIME_CLASS(CLangtextView));
-		CLangtextView* plistView = DYNAMIC_DOWNCAST(CLangtextView, pView);
-		if (plistView) {
-			plistView->SelectItemByText(itemText);
-		}*/
+		SwitchView(RUNTIME_CLASS(CPositionView));
+		Item_data* pInfo = (Item_data*)m_wndClassView.GetItemData(hSelectedItem);
+		//if (pInfo) {
+			//AfxMessageBox(pInfo->Full_Langtext_data);
+		//}
 
-		CPositionView* pposView = DYNAMIC_DOWNCAST(CPositionView, GetActiveView());
-		if (pposView) 
-		{
-			pposView->SetTextOZ(itemText);	//Ornungszahl und Bezeichnung setzen
+		CView* pNewView = GetActiveView();
+		CPositionView* plistView = DYNAMIC_DOWNCAST(CPositionView, pNewView);
+		if (plistView) {
+			plistView->SetTextOZ(itemText);
+			plistView->SetLangtext(pInfo->Full_Langtext_data);
 		}
+
 	}
 	if (pResult) {
 		*pResult = 0;
@@ -392,9 +397,13 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 			Full_lbltx = formattedPath + lblText;
 		}
 		HTREEITEM thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
+		Item_data* pnewData = new Item_data;
+		pnewData->Full_Langtext_data = _T("");
+		m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+
 
 		if (itemList) {
-			Recursive_Item(itemList, currentPath, thisItem);
+			Recursive_Item(itemList, currentPath, thisItem); 
 		}
 
 		for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node;
@@ -409,7 +418,6 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTREEITEM parentItem)
 {
 	int itemCount = 0;
-
 	for (xml_node<>* item = itemNode->first_node("Item"); item; item = item->next_sibling("Item"))
 	{
 		itemCount++;
@@ -429,14 +437,41 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 		{
 			CString tag(item_child->name());
 			CString Fulltext;
+			CString Full_Langtext;
 
 			if(tag == "Description")
 			{
-				xml_node<>* complete_txt_node = item_child->first_node();	
+				xml_node<>* complete_txt_node = item_child->first_node("CompleteText");
 
 				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
 				{
 					CString compl_text_name(compl_text->name());
+					Item_data* pData = new Item_data;
+
+
+					//Langtext
+					if (compl_text_name == "DetailTxt") {
+						for (xml_node<>* detail_text = compl_text->first_node(); detail_text; detail_text = detail_text->next_sibling()) {
+							CString detail_text_name(detail_text->name());
+							if (detail_text_name == "Text") {
+								for (xml_node<>* p_node = detail_text->first_node(); p_node; p_node = p_node->next_sibling())
+								{
+									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())	//span
+									{
+										CString span_node_text = Utf8ToString(span_node->value());
+										if (!span_node_text.IsEmpty()) {
+											Full_Langtext += span_node_text;
+										}
+									}
+								}
+
+							}
+						}
+					}
+					pData->Full_Langtext_data = Full_Langtext;
+
+
+
 					//Kurztext
 					if (compl_text_name == "OutlineText") {
 						for (xml_node<>* OutlTxt = compl_text->first_node(); OutlTxt; OutlTxt = OutlTxt->next_sibling()) //Text
@@ -453,8 +488,8 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 											Fulltext = formattedPath_item + Fulltext;			
 
 											int maxDepth_item = 0;
-											m_wndClassView.InsertItem(Fulltext, parentItem);
-											//AddXMLToTreeCtrl(parentItem, Fulltext, item, 1, maxDepth_item);
+											HTREEITEM item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
+											m_wndClassView.SetItemData(item_added, (DWORD_PTR)pData);											
 										}
 									}
 								}

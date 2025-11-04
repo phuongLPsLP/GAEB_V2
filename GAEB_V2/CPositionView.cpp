@@ -327,8 +327,25 @@ void CPositionView::SetTextOZ(CString text)
 	else {
 		m_text_bez = text_part;
 	}
+
+	if (m_edit_kurztext.GetSafeHwnd() != NULL && ::IsWindow(m_edit_kurztext.m_hWnd)) {
+		m_edit_kurztext.SetWindowText(text_part);
+	}
+	else {
+		m_text_bez = text_part;
+	}
+
+
 }
 
-void CPositionView::SetTextPosArt(CString text)
+void CPositionView::SetLangtext(CString text)
 {
+	if(m_edit_langtext.GetSafeHwnd() != NULL && ::IsWindow(m_edit_langtext.m_hWnd))
+	{
+		m_edit_langtext.SetWindowText(text);
+	}
+	else {
+		m_text_FullLangtext = text;
+	}
 }
+

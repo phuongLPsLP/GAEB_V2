@@ -120,6 +120,13 @@ protected:  // control bar embedded members
 	CString m_path;
 	CString Kurz_text;	 
 
+	struct Item_data
+	{
+		CString Full_Langtext_data;
+		CString Full_Preis_data;
+		CString ID_data;
+	};
+
 	HTREEITEM LV_Main;
 
 	CStatic m_static_Titel;

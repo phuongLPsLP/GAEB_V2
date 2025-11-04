@@ -277,8 +277,6 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 			xml_attribute<>* remark_attr = remark->first_attribute();
 			CString attr(remark_attr->name());
 			CString attr_value(remark_attr->value());
-			AfxMessageBox(attr);
-			AfxMessageBox(attr_value);
 
 			for (xml_node<>* desc_node = remark->first_node("Description"); desc_node; desc_node = desc_node->next_sibling("Description")) {
 				for (xml_node<>* compltext_node = desc_node->first_node("CompleteText"); compltext_node; compltext_node = compltext_node->next_sibling("CompleteText")) {
@@ -536,27 +534,6 @@ void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 	index = remark_itemlist_textrect.bottom + 20;
 }
 
-void CLangtextView::SelectItemByText(const CString& text)
-{
-
-	struct SStaticItem {
-		CStatic* pCtrl;
-		CString id;
-	};
-
-	std::vector<SStaticItem> m_staticItems;
-
-	for (auto& item : m_staticItems) {
-		if (item.id == text) {
-			CRect rcItem;
-			item.pCtrl->GetWindowRect(&rcItem);
-
-			ScrollToPosition(CPoint(0, rcItem.top));
-			break;
-		}
-	}
-
-}
 
 
 

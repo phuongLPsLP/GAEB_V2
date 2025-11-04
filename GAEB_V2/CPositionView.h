@@ -27,6 +27,7 @@ public:
 	CString m_text_OZ;
 	CString m_text_KT;
 	CString m_text_bez;
+	CString m_text_FullLangtext;
 protected:
 
 	CStatic m_staticText_Position;
@@ -94,7 +95,7 @@ protected:
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	void SetTextOZ(CString text);
-	void SetTextPosArt(CString text);
+	void SetLangtext(CString text);
 };
 
 
