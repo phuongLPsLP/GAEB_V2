@@ -27,7 +27,13 @@ public:
 	CString m_text_OZ;
 	CString m_text_KT;
 	CString m_text_bez;
-	CString m_text_FullLangtext;
+	CString m_text_FullLangtext;	
+	CString m_text_Menge;
+	CString m_text_Einheit;
+	CString m_text_Einheitpreis;
+	CString m_text_Gesamtpreis;
+	CString m_text_Nachlass;
+	CString m_text_Zeitansatz;
 protected:
 
 	CStatic m_staticText_Position;
@@ -96,6 +102,12 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	void SetTextOZ(CString text);
 	void SetLangtext(CString text);
+	void SetMenge(CString text);
+	void SetEinheitpreis(CString text);
+	void SetEinheit(CString text);
+	void SetGesamtpreis(CString text);
+	void SetNachlass(CString text);
+	void SetZeit(CString text);
 };
 
 

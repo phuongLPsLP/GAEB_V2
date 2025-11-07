@@ -155,15 +155,8 @@ void CPositionView::OnInitialUpdate()
 			m_combobox_einheit.AddString(pApp->m_einheitList[i]);
 		}
 	}
-
-	if (pApp && pApp->m_PosArtList.GetSize() > 0) 
-	{
-		for (int i = 0; i < pApp->m_PosArtList.GetSize(); ++i) 
-		{
-			m_combobox_PosArt.AddString(pApp->m_PosArtList[i]);
-		}
-	}
 	m_combobox_einheit.SetFont(&m_font);
+
 
 
 	CStatic* staticControls_bold[] = {
@@ -199,7 +192,6 @@ void CPositionView::OnInitialUpdate()
 
 
 	CEdit* editControls[] = {
-		&m_edit_Einheit,
 		&m_edit_einheitpreis,
 		&m_edit_gesamt,
 		&m_edit_Menge,
@@ -346,6 +338,83 @@ void CPositionView::SetLangtext(CString text)
 	}
 	else {
 		m_text_FullLangtext = text;
+	}
+}
+
+void CPositionView::SetMenge(CString text)
+{
+	if (m_edit_Menge.GetSafeHwnd() != NULL && ::IsWindow(m_edit_Menge.m_hWnd)) 
+	{
+		m_edit_Menge.SetWindowText(text);
+	}
+	else {
+		m_text_Menge = text;
+	}
+}
+
+void CPositionView::SetEinheitpreis(CString text)
+{
+	if (m_edit_einheitpreis.GetSafeHwnd() != NULL && ::IsWindow(m_edit_einheitpreis.m_hWnd))
+	{
+		m_edit_einheitpreis.SetWindowText(text);
+	}
+	else {
+		m_text_Einheitpreis = text;
+	}
+}
+
+void CPositionView::SetEinheit(CString text)
+{
+	if (text == "St") {
+		text = _T("Stk");
+	}
+
+	
+	if (m_combobox_einheit.GetSafeHwnd() != NULL && ::IsWindow(m_combobox_einheit.m_hWnd))
+	{
+		// Try to select the matching item
+		int index = m_combobox_einheit.FindStringExact(-1, text);
+		if (index != CB_ERR)
+		{
+			m_combobox_einheit.SetCurSel(index);
+		}
+		else
+		{
+			// Optional: add the text if it doesn't exist
+			index = m_combobox_einheit.AddString(text);
+			m_combobox_einheit.SetCurSel(index);
+		}
+	}
+	else
+	{
+		// Combo box not ready yet — store value for later
+		m_text_Einheit = text;
+	}
+}
+
+void CPositionView::SetGesamtpreis(CString text)
+{
+	if (m_edit_gesamt.GetSafeHwnd() != NULL && ::IsWindow(m_edit_gesamt.m_hWnd))
+	{
+		m_edit_gesamt.SetWindowText(text);
+	}
+	else {
+		m_text_Gesamtpreis = text;
+	}
+}
+
+void CPositionView::SetNachlass(CString text)
+{
+}
+
+void CPositionView::SetZeit(CString text)
+{
+	if (m_edit_zeit.GetSafeHwnd() != NULL && ::IsWindow(m_edit_zeit.m_hWnd))
+	{
+		m_edit_zeit.SetWindowText(text);
+	}
+	else {
+		m_text_Zeitansatz = text;
 	}
 }
 

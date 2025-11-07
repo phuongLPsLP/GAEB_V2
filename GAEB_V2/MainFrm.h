@@ -123,8 +123,18 @@ protected:  // control bar embedded members
 	struct Item_data
 	{
 		CString Full_Langtext_data;
-		CString Full_Preis_data;
-		CString ID_data;
+		CString Full_Kurztext_data;
+		CString Qty;
+		CString QU;
+		CString UP;
+		CString UP1;
+		CString UP2;
+		CString UP3;
+		CString UP4;
+		CString UP5;
+		CString UP6;
+		CString IT;
+		CString TimeQu;
 	};
 
 	HTREEITEM LV_Main;

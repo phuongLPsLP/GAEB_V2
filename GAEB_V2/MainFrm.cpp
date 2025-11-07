@@ -262,15 +262,27 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	else {
 		SwitchView(RUNTIME_CLASS(CPositionView));
 		Item_data* pInfo = (Item_data*)m_wndClassView.GetItemData(hSelectedItem);
-		//if (pInfo) {
-			//AfxMessageBox(pInfo->Full_Langtext_data);
-		//}
 
 		CView* pNewView = GetActiveView();
+
+		//AfxMessageBox(pInfo->QU);
+		//AfxMessageBox(pInfo->UP);
+
 		CPositionView* plistView = DYNAMIC_DOWNCAST(CPositionView, pNewView);
 		if (plistView) {
 			plistView->SetTextOZ(itemText);
 			plistView->SetLangtext(pInfo->Full_Langtext_data);
+			plistView->SetMenge(pInfo->Qty);
+			plistView->SetEinheit(pInfo->QU);
+			plistView->SetEinheitpreis(pInfo->UP);
+			//plistView->SetEinheitpreis(pInfo->UP1);
+			//plistView->SetEinheitpreis(pInfo->UP2);
+			//plistView->SetEinheitpreis(pInfo->UP3);
+			//plistView->SetEinheitpreis(pInfo->UP4);
+			//plistView->SetEinheitpreis(pInfo->UP5);
+			//plistView->SetEinheitpreis(pInfo->UP6);
+			plistView->SetGesamtpreis(pInfo->IT);
+			plistView->SetZeit(pInfo->TimeQu);
 		}
 
 	}
@@ -433,11 +445,14 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 			formattedPath_item.Append(_T(". "));
 		}	
 
+		CString Fulltext, Full_Langtext, menge, einheit, einheitpreis, gesamtpreis, nachlass, zeitansatz, com1, comp2, comp3, comp4, comp5, comp6;
+		Item_data* pData = new Item_data;
+		HTREEITEM item_added = nullptr;
+
 		for(xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
 		{
 			CString tag(item_child->name());
-			CString Fulltext;
-			CString Full_Langtext;
+			CString val(Utf8ToString(item_child->value()));
 
 			if(tag == "Description")
 			{
@@ -446,7 +461,6 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 				for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
 				{
 					CString compl_text_name(compl_text->name());
-					Item_data* pData = new Item_data;
 
 
 					//Langtext
@@ -468,9 +482,7 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 							}
 						}
 					}
-					pData->Full_Langtext_data = Full_Langtext;
-
-
+					//pData->Full_Langtext_data = Full_Langtext;
 
 					//Kurztext
 					if (compl_text_name == "OutlineText") {
@@ -486,18 +498,50 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 										if (!span_node_kurztext_text.IsEmpty()) {
 											Fulltext += span_node_kurztext_text;
 											Fulltext = formattedPath_item + Fulltext;			
-
-											int maxDepth_item = 0;
-											HTREEITEM item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
-											m_wndClassView.SetItemData(item_added, (DWORD_PTR)pData);											
+											int maxDepth_item = 0;		
+											//HTREEITEM item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
+											//m_wndClassView.SetItemData(item_added, (DWORD_PTR)pData);
 										}
 									}
 								}
 							}
 						}
+						item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
 					}
-				}			
+				}	
 			}
+
+			else if (tag == "Qty") {
+				menge = val;
+			}
+
+			else if (tag == "UP")
+			{
+				einheitpreis = val;
+			}
+			else if (tag == "IT") {
+				gesamtpreis = val;
+			}
+			else if (tag == "TimeQu") {
+				zeitansatz = val;
+			}
+			else if (tag == "QU") {
+				einheit = val;
+			}
+
+
+
+			pData->Full_Kurztext_data = Fulltext;
+			pData->Full_Langtext_data = Full_Langtext;
+			pData->Qty = menge;
+			pData->QU = einheit;
+			pData->UP = einheitpreis;
+			pData->IT = gesamtpreis;
+			pData->TimeQu = zeitansatz;
+
+
+			if (item_added != nullptr)
+				m_wndClassView.SetItemData(item_added, reinterpret_cast<DWORD_PTR>(pData));
 		}
 	}
 }
