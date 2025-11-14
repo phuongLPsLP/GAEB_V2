@@ -264,11 +264,8 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		Item_data* pInfo = (Item_data*)m_wndClassView.GetItemData(hSelectedItem);
 
 		CView* pNewView = GetActiveView();
-
-		//AfxMessageBox(pInfo->QU);
-		//AfxMessageBox(pInfo->UP);
-
 		CPositionView* plistView = DYNAMIC_DOWNCAST(CPositionView, pNewView);
+
 		if (plistView) {
 			plistView->SetTextOZ(itemText);
 			plistView->SetLangtext(pInfo->Full_Langtext_data);
@@ -473,8 +470,19 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())	//span
 									{
 										CString span_node_text = Utf8ToString(span_node->value());
-										if (!span_node_text.IsEmpty()) {
-											Full_Langtext += span_node_text;
+										CString nodeName(span_node->name());
+
+										//if (!span_node_text.IsEmpty()) {
+											//Full_Langtext += span_node_text;
+										//}
+
+										if (nodeName.CompareNoCase(_T("br")) == 0)
+										{
+											Full_Langtext += _T("\r\n");
+										}
+										else if (nodeName.CompareNoCase(_T("span")) == 0)
+										{
+											Full_Langtext += span_node_text + _T(" ");
 										}
 									}
 								}
@@ -498,9 +506,7 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 										if (!span_node_kurztext_text.IsEmpty()) {
 											Fulltext += span_node_kurztext_text;
 											Fulltext = formattedPath_item + Fulltext;			
-											int maxDepth_item = 0;		
-											//HTREEITEM item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
-											//m_wndClassView.SetItemData(item_added, (DWORD_PTR)pData);
+											int maxDepth_item = 0;													
 										}
 									}
 								}

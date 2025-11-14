@@ -34,6 +34,13 @@ public:
 	CString m_text_Gesamtpreis;
 	CString m_text_Nachlass;
 	CString m_text_Zeitansatz;
+	CString m_text_UP1;
+	CString m_text_UP2;
+	CString m_text_UP3;
+	CString m_text_UP4;
+	CString m_text_UP5;
+	CString m_text_UP6;
+
 protected:
 
 	CStatic m_staticText_Position;
@@ -50,6 +57,7 @@ protected:
 	CStatic m_staticText_Summe;
 	CStatic m_staticText_Zeitansatz;
 	CStatic m_staticText_Stunden;
+	CStatic m_staticText_Anteilpreis;
 	
 	CEdit m_edit_OZ;
 	CEdit m_edit_bez;
@@ -108,6 +116,12 @@ public:
 	void SetGesamtpreis(CString text);
 	void SetNachlass(CString text);
 	void SetZeit(CString text);
+	void SetUP1(CString text);
+	void SetUP2(CString text);
+	void SetUP3(CString text);
+	void SetUP4(CString text);
+	void SetUP5(CString text);
+	void SetUP6(CString text);
 };
 
 

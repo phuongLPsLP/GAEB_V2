@@ -120,7 +120,9 @@ void CPositionView::OnInitialUpdate()
 	m_edit_kurztext.SetFont(&m_font);
 
 
-	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 290), CSize(rect.Width(), 270)), this, 1005);
+	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT
+		| ES_AUTOVSCROLL | ES_AUTOHSCROLL |	WS_VSCROLL | WS_HSCROLL, 
+		CRect(CPoint(20, 290), CSize(rect.Width(), 270)), this, 1005);
 	m_edit_langtext.SetFont(&m_font);
 
 	m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 580), CSize(80, 20)), this, 1001);
@@ -343,13 +345,14 @@ void CPositionView::SetLangtext(CString text)
 
 void CPositionView::SetMenge(CString text)
 {
-	if (m_edit_Menge.GetSafeHwnd() != NULL && ::IsWindow(m_edit_Menge.m_hWnd)) 
+	if (m_edit_Menge.GetSafeHwnd() != NULL && ::IsWindow(m_edit_Menge.m_hWnd))
 	{
 		m_edit_Menge.SetWindowText(text);
 	}
 	else {
 		m_text_Menge = text;
 	}
+
 }
 
 void CPositionView::SetEinheitpreis(CString text)
@@ -361,6 +364,7 @@ void CPositionView::SetEinheitpreis(CString text)
 	else {
 		m_text_Einheitpreis = text;
 	}
+
 }
 
 void CPositionView::SetEinheit(CString text)
@@ -405,6 +409,13 @@ void CPositionView::SetGesamtpreis(CString text)
 
 void CPositionView::SetNachlass(CString text)
 {
+	if (m_edit_nachlass.GetSafeHwnd() != NULL && ::IsWindow(m_edit_nachlass.m_hWnd)) 
+	{
+		m_edit_nachlass.SetWindowText(text);
+	}
+	else {
+		m_text_Nachlass = text;
+	}
 }
 
 void CPositionView::SetZeit(CString text)
@@ -416,5 +427,30 @@ void CPositionView::SetZeit(CString text)
 	else {
 		m_text_Zeitansatz = text;
 	}
+}
+
+void CPositionView::SetUP1(CString text)
+{
+	
+}
+
+void CPositionView::SetUP2(CString text)
+{
+}
+
+void CPositionView::SetUP3(CString text)
+{
+}
+
+void CPositionView::SetUP4(CString text)
+{
+}
+
+void CPositionView::SetUP5(CString text)
+{
+}
+
+void CPositionView::SetUP6(CString text)
+{
 }
 
