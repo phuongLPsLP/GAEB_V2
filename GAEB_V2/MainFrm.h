@@ -274,13 +274,12 @@ public:
 	afx_msg void OnLangtext();
 	afx_msg void OnUpdateLangtext(CCmdUI* pCmdUI);
 
-	CView* m_LVInfosView = nullptr;
-	CView* m_PInfoView = nullptr;
-	CView* m_VergabeView = nullptr;
-	CScrollView* m_VertragView = nullptr;
-	CScrollView* m_MainView = nullptr;
-	CView* m_PosView = nullptr;
-
+	CView* m_LVInfosView ;
+	CView* m_PInfoView;
+	CView* m_VergabeView ;
+	CScrollView* m_VertragView ;
+	CScrollView* m_MainView ;
+	CView* m_PosView;
 
 };
 

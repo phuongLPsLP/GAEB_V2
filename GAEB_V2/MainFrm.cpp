@@ -95,7 +95,13 @@ END_MESSAGE_MAP()
 CMainFrame::CMainFrame() noexcept
 {
 	// TODO: add member initialization code here
-	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_OFF_2007_BLUE);
+	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_OFF_2007_BLUE);	
+	m_LVInfosView = nullptr;
+	m_PInfoView = nullptr;
+	m_VergabeView = nullptr;
+	m_PosView = nullptr;
+	m_VertragView = nullptr;
+	m_MainView = nullptr;
 }
 
 CMainFrame::~CMainFrame()
@@ -222,7 +228,7 @@ HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	if (!pNMTreeView) return;  // safety check
+	if (!pNMTreeView) return; 
 	HTREEITEM hItem = pNMTreeView->itemNew.hItem;
 	if (!hItem) return;
 
@@ -285,48 +291,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
-{
-	/*if (m_pCurrentView && m_pCurrentView->IsKindOf(pNewViewClass)) {
-		return;
-	}
-
-	CView* pnewView = nullptr;
-	CView* pOldView;
-	if (!m_viewCache.Lookup(pNewViewClass, (void*&)pnewView)) {
-		pOldView = GetActiveView();
-		CDocument* pDoc = pOldView ? pOldView->GetDocument() : nullptr;
-		CCreateContext context;
-		context.m_pCurrentDoc = pDoc;
-		context.m_pNewViewClass = pNewViewClass;
-
-		pnewView = (CView*)pNewViewClass->CreateObject();
-		ASSERT(pnewView->IsKindOf(RUNTIME_CLASS(CView)));
-
-		CRect rect;
-		if (pOldView) {
-			pOldView->GetWindowRect(&rect);
-			ScreenToClient(&rect);
-		}
-		else {
-			GetClientRect(&rect);
-		}
-		pnewView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, AFX_IDW_PANE_FIRST, &context);
-		pnewView->OnInitialUpdate();
-
-		m_viewCache.SetAt(pNewViewClass, pnewView);
-	}
-
-	if (m_pCurrentView) 
-	{
-		m_pCurrentView->ShowWindow(SW_HIDE);
-
-	}
-
-	pnewView->ShowWindow(SW_SHOW);
-	SetActiveView(pnewView);
-	m_pCurrentView = pnewView;*/
-
-	
+{	
 	CView* pOldView = GetActiveView();
 	if (pOldView == nullptr || pOldView->IsKindOf(pNewViewClass)) {
 		return; // Already the correct view or invalid
@@ -350,7 +315,35 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
-	//RecalcLayout();
+
+	/*if (!pNewViewClass || !m_pCurrentView)
+		return;
+
+	CView* pNewView = nullptr;
+
+	if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CLVInfosView)))
+		pNewView = m_LVInfosView;
+	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CProjektInfosView)))
+		pNewView = m_PInfoView;
+	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CVergabeinfosView)))
+		pNewView = m_VergabeView;
+	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CVertragView)))
+		pNewView = m_VertragView;
+	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CLV_MainView)))
+		pNewView = m_MainView;
+	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CPositionView)))
+		pNewView = m_PosView;
+
+	if (!pNewView || pNewView == m_pCurrentView)
+		return;
+
+	m_pCurrentView->ShowWindow(SW_HIDE);
+	m_pCurrentView = pNewView;
+	m_pCurrentView->ShowWindow(SW_SHOW);
+	SetActiveView(m_pCurrentView);
+	RecalcLayout();
+	m_pCurrentView->Invalidate();
+	m_pCurrentView->UpdateWindow();*/
 
 }
 
@@ -792,39 +785,44 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableAutoHidePanes(CBRS_ALIGN_RIGHT);
 	OnApplicationLook(theApp.m_nAppLook);
 
-
-	/*CRect rect;
+/*	CRect rect;
 	GetClientRect(&rect);
+
 	CCreateContext context;
 	context.m_pCurrentDoc = GetActiveDocument();
-	// Create views
-	m_LVInfosView = new CLVInfosView();
-	m_LVInfosView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, 2001, &context);
-	m_LVInfosView->ShowWindow(SW_HIDE);
 
-	m_PInfoView = new CProjektInfosView();
-	m_PInfoView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, 2002, &context);
-	m_PInfoView->ShowWindow(SW_HIDE);
+	auto CreateCachedView = [&](CRuntimeClass* pClass, CView*& pView) {
+		pView = (CView*)pClass->CreateObject();
+		if (pView) {
+			pView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this,
+				AFX_IDW_PANE_FIRST, &context);
+			pView->OnInitialUpdate();
+			pView->ShowWindow(SW_HIDE);
+		}
+		};
+	auto CreateCachedView_Scroll = [&](CRuntimeClass* pClass, CScrollView*& pView) {
+		pView = (CScrollView*)pClass->CreateObject();
+		if (pView) {
+			pView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this,
+				AFX_IDW_PANE_FIRST, &context);
+			pView->OnInitialUpdate();
+			pView->ShowWindow(SW_HIDE);
+		}
+		};
 
-	m_VergabeView = new CVergabeinfosView();
-	m_VergabeView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, 2003, &context);
-	m_VergabeView->ShowWindow(SW_HIDE);
+	CreateCachedView(RUNTIME_CLASS(CLVInfosView), m_LVInfosView);
+	CreateCachedView(RUNTIME_CLASS(CProjektInfosView), m_PInfoView);
+	CreateCachedView(RUNTIME_CLASS(CVergabeinfosView), m_VergabeView);
+	CreateCachedView_Scroll(RUNTIME_CLASS(CVertragView), m_VertragView);
+	CreateCachedView_Scroll(RUNTIME_CLASS(CLV_MainView), m_MainView);
+	CreateCachedView(RUNTIME_CLASS(CPositionView), m_PosView);
 
-	m_VertragView = new CVertragView();
-	m_VertragView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, 2004, &context);
-	m_VertragView->ShowWindow(SW_HIDE);
+	// Show initial view
+	m_pCurrentView = m_PInfoView;
+	if (m_pCurrentView)
+		m_pCurrentView->ShowWindow(SW_SHOW);*/
 
-	m_MainView = new CLV_MainView();
-	m_MainView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, 2005, &context);
-	m_MainView->ShowWindow(SW_HIDE);
 
-	m_PosView = new CPositionView();
-	m_PosView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this, 2006, &context);
-	m_PosView->ShowWindow(SW_HIDE);
-
-	// Initial view (optional)
-	SetActiveView(m_LVInfosView);
-	m_LVInfosView->ShowWindow(SW_SHOW);*/
 	return 0;
 }
 

@@ -12,7 +12,7 @@ class CLVInfosView : public CView
 {
 	DECLARE_DYNCREATE(CLVInfosView)
 
-protected:
+public:
 	CLVInfosView();           // protected constructor used by dynamic creation
 	virtual ~CLVInfosView();
 

@@ -13,7 +13,7 @@ class CLangtextView : public CScrollView
 {
 	DECLARE_DYNCREATE(CLangtextView)
 
-protected:
+public:
 	CLangtextView();           // protected constructor used by dynamic creation
 	virtual ~CLangtextView();
 
@@ -50,18 +50,9 @@ protected:
 	CBrush m_brush_edit_bg_color;
 	std::vector<CStatic*> m_vecStatics_GAEBInfo;
 
-
-	/*struct SStaticItem {
-		CStatic* pCtrl;
-		CString id;
-	};
-
-	std::vector<SStaticItem> m_staticItems;*/
-
-
 public:
-	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-	virtual void OnInitialUpdate();     // first time after construct
+	virtual void OnDraw(CDC* pDC);      
+	virtual void OnInitialUpdate();     
 protected:
 	DECLARE_MESSAGE_MAP()
 

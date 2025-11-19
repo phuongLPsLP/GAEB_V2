@@ -12,7 +12,7 @@ class CVergabeinfosView : public CView
 {
 	DECLARE_DYNCREATE(CVergabeinfosView)
 
-protected:
+public:
 	CVergabeinfosView();           // protected constructor used by dynamic creation
 	virtual ~CVergabeinfosView();
 

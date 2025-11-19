@@ -12,7 +12,7 @@ class CLV_MainView : public CScrollView
 {
 	DECLARE_DYNCREATE(CLV_MainView)
 
-protected:
+public:
 	CLV_MainView();           // protected constructor used by dynamic creation
 	virtual ~CLV_MainView();
 

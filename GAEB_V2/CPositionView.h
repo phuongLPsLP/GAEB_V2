@@ -9,7 +9,7 @@ class CPositionView : public CView
 {
 	DECLARE_DYNCREATE(CPositionView)
 
-protected:
+public:
 	CPositionView();           // protected constructor used by dynamic creation
 	virtual ~CPositionView();
 

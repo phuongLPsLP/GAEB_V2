@@ -13,7 +13,7 @@ class CVertragView : public CScrollView
 {
 	DECLARE_DYNCREATE(CVertragView)
 
-protected:
+public:
 	CVertragView();           // protected constructor used by dynamic creation
 	virtual ~CVertragView();
 
