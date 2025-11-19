@@ -186,14 +186,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\Downloads\MFC-GridCtrl-master\MFC-GridCtrl-master\CellRange.h" />
     <ClInclude Include="calendarbar.h" />
-    <ClInclude Include="CAuftraggeberView.h" />
-    <ClInclude Include="CAuftragnehmerView.h" />
     <ClInclude Include="CDocumentClass.h" />
-    <ClInclude Include="CHinweisText.h" />
     <ClInclude Include="CLangtextView.h" />
     <ClInclude Include="CLVInfosView.h" />
-    <ClInclude Include="CLVBereichView.h" />
-    <ClInclude Include="CLVView.h" />
     <ClInclude Include="CLV_MainView.h" />
     <ClInclude Include="CPositionView.h" />
     <ClInclude Include="CProgressDialog.h" />
@@ -215,14 +210,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="calendarbar.cpp" />
-    <ClCompile Include="CAuftraggeberView.cpp" />
-    <ClCompile Include="CAuftragnehmerView.cpp" />
     <ClCompile Include="CDocumentClass.cpp" />
-    <ClCompile Include="CHinweisText.cpp" />
     <ClCompile Include="CLangtextView.cpp" />
     <ClCompile Include="CLVInfosView.cpp" />
-    <ClCompile Include="CLVBereichView.cpp" />
-    <ClCompile Include="CLVView.cpp" />
     <ClCompile Include="CLV_MainView.cpp" />
     <ClCompile Include="CPositionView.cpp" />
     <ClCompile Include="CProgressDialog.cpp" />
@@ -274,9 +264,6 @@
     <None Include="res\image1.bin" />
     <None Include="res\ribbon.mfcribbon-ms" />
     <None Include="res\ribbon1.mfcribbon-ms" />
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="Test.xml" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />

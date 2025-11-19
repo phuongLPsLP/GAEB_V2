@@ -40,6 +40,7 @@ public:
 	CString m_text_UP4;
 	CString m_text_UP5;
 	CString m_text_UP6;
+	CString m_text_Summe;
 
 protected:
 
@@ -74,6 +75,13 @@ protected:
 	CEdit m_edit_summe;
 	CEdit m_edit_zeit;
 
+	CEdit m_edit_UP1;
+	CEdit m_edit_UP2;
+	CEdit m_edit_UP3;
+	CEdit m_edit_UP4;
+	CEdit m_edit_UP5;
+	CEdit m_edit_UP6;
+
 	CButton m_button_bold_KT;
 	CButton m_button_italic_KT;
 	CButton m_button_underline_KT;
@@ -107,6 +115,7 @@ protected:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
+	CString Utf8ToString(const char* utf8Str);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	void SetTextOZ(CString text);
 	void SetLangtext(CString text);
@@ -122,6 +131,11 @@ public:
 	void SetUP4(CString text);
 	void SetUP5(CString text);
 	void SetUP6(CString text);
+	void SetSumme(CString text);
+
+	CFont* GetFont() { return &m_font; }
+	CFont* GetFontBold() { return &m_font_bold; }
+	CFont* GetFontEdit() { return &m_font_edit; }
 };
 
 

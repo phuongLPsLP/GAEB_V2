@@ -30,17 +30,15 @@ static int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* l
 	CComboBox* pCombo = reinterpret_cast<CComboBox*>(lParam);
 	if (pCombo)
 	{
-		//pCombo->AddString(lpelfe->lfFaceName);  // Add font name
 		CString fontName = lpelfe->lfFaceName;
-
-		if (fontName.GetLength() > 0 && fontName[0] != '@')  // 🔹 Skip vertical fonts
+		if (fontName.GetLength() > 0 && fontName[0] != '@')  
 		{
 			// Avoid duplicates
 			if (pCombo->FindStringExact(-1, fontName) == CB_ERR)
 				pCombo->AddString(fontName);
 		}
 	}
-	return 1;  // Continue enumeration
+	return 1;  
 }
 
 // CPositionView drawing
@@ -48,15 +46,6 @@ static int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC* l
 void CPositionView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
-	// TODO: add draw code here
-
-	CPen pen(PS_SOLID, 1, RGB(0, 0, 0));
-	CPen* pOldPen = pDC->SelectObject(&pen);
-
-	pDC->MoveTo(20, 740);
-	pDC->LineTo(240, 740);
-
-	pDC->SelectObject(pOldPen);
 }
 
 void CPositionView::OnInitialUpdate()
@@ -102,19 +91,72 @@ void CPositionView::OnInitialUpdate()
 	m_font_edit.CreateFontIndirect(&lf_edit_small);
 
 
+
+	xml_node<>* boqNode = m_award->first_node("BoQ");
+	xml_node<>* boqInfoNode = boqNode->first_node("BoQInfo");
+
+	//Einheitpreis Anteile
+	for (xml_node<>* lblupcomp_node = boqInfoNode->first_node(); lblupcomp_node; lblupcomp_node = lblupcomp_node->next_sibling()) {
+		CString lblupcomp_node_name(lblupcomp_node->name());
+		if (lblupcomp_node_name == "LblUPComp1") {
+			CString value = Utf8ToString(lblupcomp_node->value());
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(860, 750), CSize(120, 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+		}
+		else if (lblupcomp_node_name == "LblUPComp2") {
+			CString value = Utf8ToString(lblupcomp_node->value());
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(860, 790), CSize(120, 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+		}
+		else if (lblupcomp_node_name == "LblUPComp3") {
+			CString value = Utf8ToString(lblupcomp_node->value());
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(860, 830), CSize(120, 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+		}
+		else if (lblupcomp_node_name == "LblUPComp4") {
+			CString value = Utf8ToString(lblupcomp_node->value());
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(860, 870), CSize(120, 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+		}
+		else if (lblupcomp_node_name == "LblUPComp5") {
+			CString value = Utf8ToString(lblupcomp_node->value());
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(860, 910), CSize(120, 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+		}
+		else if (lblupcomp_node_name == "LblUPComp6") {
+			CString value = Utf8ToString(lblupcomp_node->value());
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(860, 950), CSize(120, 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+		}
+
+
+	}
+
 	m_staticText_Position.Create(_T("Position"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(200, 30)), this, 1001);
 
 	m_staticText_Ordnungszahl.Create(_T("Ordnungszahl (OZ)"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 50), CSize(100, 50)), this, 1001);
-	m_staticText_Positionsart.Create(_T("Positionsart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 100), CSize(80, 20)), this, 1001);
+	//m_staticText_Positionsart.Create(_T("Positionsart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 100), CSize(80, 20)), this, 1001);
 	m_staticText_Kurztext.Create(_T("Kurztext"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 140), CSize(80, 20)), this, 1001);
 	m_staticText_Langtext.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 250), CSize(80, 20)), this, 1001);
 	
 	m_edit_OZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160,50), CSize(120,20)), this, 1002);
 	m_edit_OZ.SetWindowTextW(m_text_OZ);
 
-	m_combobox_PosArt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT |WS_VSCROLL, 
-		CRect(CPoint(160, 100), CSize(250, 20)), this, 1003);
-	m_combobox_PosArt.SetFont(&m_font);
+	//m_combobox_PosArt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT |WS_VSCROLL, 
+	//	CRect(CPoint(160, 100), CSize(250, 20)), this, 1003);
+	//m_combobox_PosArt.SetFont(&m_font);
 
 	m_edit_kurztext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 180), CSize(rect.Width(), 50)), this, 1005);
 	m_edit_kurztext.SetFont(&m_font);
@@ -122,33 +164,39 @@ void CPositionView::OnInitialUpdate()
 
 	m_edit_langtext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT
 		| ES_AUTOVSCROLL | ES_AUTOHSCROLL |	WS_VSCROLL | WS_HSCROLL, 
-		CRect(CPoint(20, 290), CSize(rect.Width(), 270)), this, 1005);
+		CRect(CPoint(20, 290), CSize(rect.Width(), 400)), this, 1005);
 	m_edit_langtext.SetFont(&m_font);
 
-	m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 580), CSize(80, 20)), this, 1001);
-	m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE, CRect(CPoint(360, 580), CSize(80, 20)), this, 1001);
-	m_staticText_Einheitpreis.Create(_T("Einheitpreis [Euro]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 620), CSize(120, 20)), this, 1001);
-	m_staticText_Nachlass.Create(_T("Nachlass [%]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 660), CSize(120, 20)), this, 1001);
-	m_staticText_Gesamtpreis.Create(_T("Gesamtbetrag [Euro]"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 700), CSize(150, 20)), this, 1001);
-	m_staticText_Summe.Create(_T("Summe Pos. [Euro]"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 760), CSize(150, 20)), this, 1001);
+	m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 710), CSize(80, 20)), this, 1001);
+	m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE, CRect(CPoint(360, 710), CSize(80, 20)), this, 1001);
+	m_staticText_Einheitpreis.Create(_T("Einheitpreis [Euro]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 750), CSize(120, 20)), this, 1001);
+	m_staticText_Nachlass.Create(_T("Nachlass [%]"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 790), CSize(120, 20)), this, 1001);
+	m_staticText_Gesamtpreis.Create(_T("Gesamtbetrag [Euro]"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 830), CSize(150, 20)), this, 1001);
+	m_staticText_Summe.Create(_T("Summe Pos. [Euro]"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 870), CSize(150, 20)), this, 1001);
+	m_staticText_Anteilpreis.Create(_T("Einheitpreis-Anteile"), WS_CHILD | WS_VISIBLE, CRect(CPoint(600,750), CSize(120, 20)), this, 1001);
 
-	m_staticText_Zeitansatz.Create(_T("Zeitansatz"), WS_CHILD | WS_VISIBLE, CRect(CPoint(600,580), CSize(80,20)), this, 1001);
-	m_staticText_Stunden.Create(_T("Stunden"), WS_CHILD | WS_VISIBLE, CRect(CPoint(860, 580), CSize(80, 20)), this, 1001);
+
+	m_staticText_Zeitansatz.Create(_T("Zeitansatz"), WS_CHILD | WS_VISIBLE, CRect(CPoint(600,710), CSize(80,20)), this, 1001);
+	m_staticText_Stunden.Create(_T("Stunden"), WS_CHILD | WS_VISIBLE, CRect(CPoint(860, 710), CSize(80, 20)), this, 1001);
 	m_edit_zeit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-		CRect(CPoint(760,580), CSize(80,20)), this, 1002);
-
-	m_staticText_Bezeichnung.Create(_T("Bezeichnung"), WS_CHILD | WS_VISIBLE, CRect(CPoint(600,50), CSize(120,50)), this, 1001);
-	m_edit_bez.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT,
-		CRect(CPoint(760,50), CSize(300,20)), this, 1002);
+		CRect(CPoint(740,710), CSize(80,20)), this, 1002);	
 
 
-	m_edit_Menge.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 580), CSize(80, 20)), this, 1002);
+	m_edit_Menge.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 710), CSize(80, 20)), this, 1002);
 	m_combobox_einheit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL,
-		CRect(CPoint(260, 580), CSize(80, 20)), this, 1003);
-	m_edit_einheitpreis.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 620), CSize(80, 20)), this, 1002);
-	m_edit_nachlass.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 660), CSize(80, 20)), this, 1002);
-	m_edit_gesamt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 700), CSize(80, 20)), this, 1002);
-	m_edit_summe.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 760), CSize(80, 20)), this, 1002);
+		CRect(CPoint(260, 710), CSize(80, 20)), this, 1003);
+	m_edit_einheitpreis.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 750), CSize(80, 20)), this, 1002);
+	m_edit_nachlass.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 790), CSize(80, 20)), this, 1002);
+	m_edit_gesamt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 830), CSize(80, 20)), this, 1002);
+	m_edit_summe.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160, 870), CSize(80, 20)), this, 1002);
+
+	m_edit_UP1.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(740, 750), CSize(80, 20)), this, 1002);
+	m_edit_UP2.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(740, 790), CSize(80, 20)), this, 1002);
+	m_edit_UP3.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(740, 830), CSize(80, 20)), this, 1002);
+	m_edit_UP4.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(740, 870), CSize(80, 20)), this, 1002);
+	m_edit_UP5.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(740, 910), CSize(80, 20)), this, 1002);
+	m_edit_UP6.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(740, 950), CSize(80, 20)), this, 1002);
+
 
 	if (pApp && pApp->m_einheitList.GetSize() > 0)
 	{
@@ -172,7 +220,7 @@ void CPositionView::OnInitialUpdate()
 	}
 	CStatic* staticControls_normal[] = {
 	&m_staticText_Ordnungszahl,
-	&m_staticText_Positionsart,
+	//&m_staticText_Positionsart,
 	&m_staticText_Menge,
 	&m_staticText_Einheit,
 	&m_staticText_Kurztext,
@@ -183,7 +231,7 @@ void CPositionView::OnInitialUpdate()
 	&m_staticText_Gesamtpreis,
 	&m_staticText_Zeitansatz,
 	&m_staticText_Stunden,
-	&m_staticText_Bezeichnung,
+	&m_staticText_Anteilpreis,
 	};
 
 	for (CStatic* pStatic : staticControls_normal)
@@ -203,7 +251,13 @@ void CPositionView::OnInitialUpdate()
 		&m_edit_zeit,
 		&m_edit_kurztext,
 		&m_edit_langtext,
-		&m_edit_bez,
+		&m_edit_UP1,
+		& m_edit_UP2,
+		& m_edit_UP3,
+		& m_edit_UP4,
+		& m_edit_UP5,
+		& m_edit_UP6,
+
 	};
 	for (CEdit* pEdit : editControls)
 	{
@@ -216,9 +270,6 @@ void CPositionView::OnInitialUpdate()
 		
 	}
 }
-
-
-// CPositionView diagnostics
 
 #ifdef _DEBUG
 void CPositionView::AssertValid() const
@@ -233,9 +284,6 @@ void CPositionView::Dump(CDumpContext& dc) const
 }
 #endif
 #endif //_DEBUG
-
-
-// CPositionView message handlers
 
 
 HBRUSH CPositionView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
@@ -431,26 +479,88 @@ void CPositionView::SetZeit(CString text)
 
 void CPositionView::SetUP1(CString text)
 {
+	if (m_edit_UP1.GetSafeHwnd() != NULL && ::IsWindow(m_edit_UP1.m_hWnd))
+	{
+		m_edit_UP1.SetWindowText(text);
+	}
+	else {
+		m_text_UP1 = text;
+	}
 	
 }
 
 void CPositionView::SetUP2(CString text)
 {
+	if (m_edit_UP2.GetSafeHwnd() != NULL && ::IsWindow(m_edit_UP2.m_hWnd))
+	{
+		m_edit_UP2.SetWindowText(text);
+	}
+	else {
+		m_text_UP2 = text;
+	}
 }
 
 void CPositionView::SetUP3(CString text)
 {
+	if (m_edit_UP3.GetSafeHwnd() != NULL && ::IsWindow(m_edit_UP3.m_hWnd))
+	{
+		m_edit_UP3.SetWindowText(text);
+	}
+	else {
+		m_text_UP3 = text;
+	}
 }
 
 void CPositionView::SetUP4(CString text)
 {
+	if (m_edit_UP4.GetSafeHwnd() != NULL && ::IsWindow(m_edit_UP4.m_hWnd))
+	{
+		m_edit_UP4.SetWindowText(text);
+	}
+	else {
+		m_text_UP4 = text;
+	}
 }
 
 void CPositionView::SetUP5(CString text)
 {
+	if (m_edit_UP5.GetSafeHwnd() != NULL && ::IsWindow(m_edit_UP5.m_hWnd))
+	{
+		m_edit_UP5.SetWindowText(text);
+	}
+	else {
+		m_text_UP5 = text;
+	}
 }
 
 void CPositionView::SetUP6(CString text)
 {
+	if (m_edit_UP6.GetSafeHwnd() != NULL && ::IsWindow(m_edit_UP6.m_hWnd))
+	{
+		m_edit_UP6.SetWindowText(text);
+	}
+	else {
+		m_text_UP6 = text;
+	}
 }
 
+void CPositionView::SetSumme(CString text)
+{
+	if (m_edit_summe.GetSafeHwnd() != NULL && ::IsWindow(m_edit_summe.m_hWnd))
+	{
+		m_edit_summe.SetWindowText(text);
+	}
+	else {
+		m_text_Summe = text;
+	}
+}
+
+CString CPositionView::Utf8ToString(const char* utf8Str)
+{
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;
+	//return CString();
+}

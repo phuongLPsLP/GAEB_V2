@@ -57,28 +57,13 @@
     <ClInclude Include="CProjektInfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CAuftraggeberView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CAuftragnehmerView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CVergabeinfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLVInfosView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CLVView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CVertragView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CLVBereichView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CHinweisText.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPositionView.h">
@@ -93,10 +78,10 @@
     <ClInclude Include="CDocumentClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CLangtextView.h">
+    <ClInclude Include="CProgressDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CProgressDialog.h">
+    <ClInclude Include="CLangtextView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -122,28 +107,13 @@
     <ClCompile Include="CProjektInfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CAuftraggeberView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CAuftragnehmerView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CVergabeinfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CLVInfosView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CLVView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CVertragView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CLVBereichView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CHinweisText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPositionView.cpp">
@@ -155,10 +125,10 @@
     <ClCompile Include="CDocumentClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CLangtextView.cpp">
+    <ClCompile Include="CProgressDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CProgressDialog.cpp">
+    <ClCompile Include="CLangtextView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -246,9 +216,6 @@
     <None Include="07_GAEB.X83" />
     <None Include="..\..\..\..\Downloads\Hagmans_01761.x86" />
     <None Include="..\..\..\..\Downloads\Hof Berufschule Dachdeckerarbeiten 05.X81" />
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="Test.xml" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />

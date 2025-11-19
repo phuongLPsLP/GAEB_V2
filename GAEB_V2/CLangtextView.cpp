@@ -22,7 +22,7 @@ CLangtextView::~CLangtextView()
 
 
 BEGIN_MESSAGE_MAP(CLangtextView, CScrollView)
-    ON_WM_CTLCOLOR()
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -39,8 +39,8 @@ void CLangtextView::OnInitialUpdate()
 	CClientDC dc(this);
 
 	CSize sizeTotal;
-	sizeTotal.cx = 2000;     
-	sizeTotal.cy = 50000;   
+	sizeTotal.cx = 2000;
+	sizeTotal.cy = 50000;
 	SetScrollSizes(MM_TEXT, sizeTotal);
 
 	int yPos_LV = 100;
@@ -110,27 +110,27 @@ void CLangtextView::OnInitialUpdate()
 					if (CString(bodyNode->name()) == "BoQBody")
 					{
 						xml_node<>* remark_node = bodyNode->first_node("Remark");
-						if (remark_node) 
+						if (remark_node)
 						{
 							for (xml_node<>* desc_node = remark_node->first_node("Description"); desc_node; desc_node = desc_node->next_sibling("Description"))
 							{
-								for(xml_node<>* compl_node= desc_node->first_node("CompleteText"); compl_node; compl_node= compl_node->next_sibling("CompleteText"))
-								{										
-									for(xml_node<>* detailtext_node = compl_node->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt"))
+								for (xml_node<>* compl_node = desc_node->first_node("CompleteText"); compl_node; compl_node = compl_node->next_sibling("CompleteText"))
+								{
+									for (xml_node<>* detailtext_node = compl_node->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt"))
 									{
 										for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text"))
 										{
-											
+
 										}
+									}
 								}
 							}
-						}
 
 						}
 						std::vector<int> rootPath;
 						for (xml_node<>* ctgyNode = bodyNode->first_node("BoQCtgy"); ctgyNode; ctgyNode = ctgyNode->next_sibling("BoQCtgy")) {
-							TraverseBoQCtgy_LT(ctgyNode, yPos_LV,rootPath);
-						}			
+							TraverseBoQCtgy_LT(ctgyNode, yPos_LV, rootPath);
+						}
 					}
 				}
 			}
@@ -146,29 +146,29 @@ void CLangtextView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
 	// TODO: add draw code here
-    CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-    if (!pFrame) return;
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	if (!pFrame) return;
 
-    // Use title font
-    CFont* pTitleFont = pFrame->GetFontTitle();
-    CFont* pOldFont = pDC->SelectObject(pTitleFont);
-    pDC->SelectObject(pOldFont);
+	// Use title font
+	CFont* pTitleFont = pFrame->GetFontTitle();
+	CFont* pOldFont = pDC->SelectObject(pTitleFont);
+	pDC->SelectObject(pOldFont);
 
-    CFont* pFont = pFrame->GetFont();
-    pOldFont = pDC->SelectObject(pFont);
-    pDC->SelectObject(pOldFont);
+	CFont* pFont = pFrame->GetFont();
+	pOldFont = pDC->SelectObject(pFont);
+	pDC->SelectObject(pOldFont);
 
-    CFont* pBold = pFrame->GetFontBold();
-    pOldFont = pDC->SelectObject(pBold);
-    pDC->SelectObject(pOldFont);
+	CFont* pBold = pFrame->GetFontBold();
+	pOldFont = pDC->SelectObject(pBold);
+	pDC->SelectObject(pOldFont);
 
-    CFont* pItalic = pFrame->GetFontItalic();
-    pOldFont = pDC->SelectObject(pItalic);
-    pDC->SelectObject(pOldFont);
+	CFont* pItalic = pFrame->GetFontItalic();
+	pOldFont = pDC->SelectObject(pItalic);
+	pDC->SelectObject(pOldFont);
 
-    CFont* pUnderline = pFrame->GetFontUnderline();
-    pOldFont = pDC->SelectObject(pUnderline);
-    pDC->SelectObject(pOldFont);
+	CFont* pUnderline = pFrame->GetFontUnderline();
+	pOldFont = pDC->SelectObject(pUnderline);
+	pDC->SelectObject(pOldFont);
 }
 
 
@@ -205,11 +205,11 @@ HBRUSH CLangtextView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor) {
 
 CString CLangtextView::Utf8ToCString(const char* utf8Str)
 {
-    int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
-    CString result;
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
-    result.ReleaseBuffer();
-    return result;
+	int len = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+	CString result;
+	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
+	result.ReleaseBuffer();
+	return result;
 }
 
 void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath)
@@ -330,7 +330,7 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 		{
 			TraverseItemlist_LT(itemList, index, currentPath);
 		}
-	
+
 		// Recurse into nested categories
 		for (xml_node<>* subCtgy = bodyNode->first_node("BoQCtgy"); subCtgy; subCtgy = subCtgy->next_sibling("BoQCtgy"))
 		{
@@ -471,9 +471,9 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 			}
 			index += 20;
 		}
-		else if (item_name == "Remark") 
+		else if (item_name == "Remark")
 		{
-			TraverseDescription_LT(item, index);			
+			TraverseDescription_LT(item, index);
 		}
 	}
 }
@@ -486,7 +486,7 @@ void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 
 	CStatic* cstatic_hinweis_LT = new CStatic();
 	cstatic_hinweis_LT->Create(_T("Hinweis"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(180, index), CSize(120,20)), this, 1001);
+		CRect(CPoint(180, index), CSize(120, 20)), this, 1001);
 	cstatic_hinweis_LT->SetFont(pMainFrame->GetFontItalic());
 	m_vecStatics_GAEBInfo.push_back(cstatic_hinweis_LT);
 
@@ -505,7 +505,7 @@ void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 							if (!span_text.IsEmpty())
 							{
 								remark_Fulltext_LT += span_text + _T(" ");
-								
+
 							}
 							remark_Fulltext_LT += _T("\r\n");
 						}

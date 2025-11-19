@@ -41,7 +41,7 @@ protected:
 	CStatic m_staticText_LeiBe_LT;
 	CStatic m_staticText_Einheitpreis_LT;
 	CStatic m_staticText_Gesamtpreis_LT;
-	
+
 	int index_item;
 	int x_pos_leitung;
 
