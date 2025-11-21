@@ -110,6 +110,7 @@ void CLangtextView::OnInitialUpdate()
 					if (CString(bodyNode->name()) == "BoQBody")
 					{
 						xml_node<>* remark_node = bodyNode->first_node("Remark");
+						CString Fulltext_remark;
 						if (remark_node)
 						{
 							for (xml_node<>* desc_node = remark_node->first_node("Description"); desc_node; desc_node = desc_node->next_sibling("Description"))
@@ -120,7 +121,23 @@ void CLangtextView::OnInitialUpdate()
 									{
 										for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text"))
 										{
+											for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling()) 
+											{
+												for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) 
+												{
+													CString nodeValue = Utf8ToCString(span_node->value());
+													CString nodeName(span_node->name());
+													if (nodeName.CompareNoCase(_T("br")) == 0) {
+														Fulltext_remark += _T("\r\n");
+													}
+													else if (nodeName.CompareNoCase(_T("span")) == 0) {
+														Fulltext_remark += nodeValue + _T(" ");
+													}
+													
+												}
+												Fulltext_remark += _T("\r\n");
 
+											}
 										}
 									}
 								}

@@ -242,25 +242,27 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	m_wndClassView.SetFocus();
 
 	if (itemText == _T("Informationen")) {
-		SwitchView(RUNTIME_CLASS(CLVInfosView));	
+		SwitchView(RUNTIME_CLASS(CLVInfosView), m_LVInfosView);
 	}
 	else if (itemText == _T("Projekt")) {
-		SwitchView(RUNTIME_CLASS(CProjektInfosView));
+		SwitchView(RUNTIME_CLASS(CProjektInfosView), m_PInfoView);
+
 	}
 	else if (itemText == _T("Vergabe")) {
-		SwitchView(RUNTIME_CLASS(CVergabeinfosView));
+		SwitchView(RUNTIME_CLASS(CVergabeinfosView), m_VergabeView);
 	}
 	else if (itemText == _T("Vertragliche Regelung")) {
-		SwitchView(RUNTIME_CLASS(CVertragView));
+		SwitchView(RUNTIME_CLASS(CVertragView), (CView*&)m_VertragView);
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
 		m_checkbox_KT = TRUE;
 		m_checkbox_LT = FALSE;
 
-		SwitchView(RUNTIME_CLASS(CLV_MainView));		
+		SwitchView(RUNTIME_CLASS(CLV_MainView), (CView*&)m_MainView);
+
 	}
 	else {
-		SwitchView(RUNTIME_CLASS(CPositionView));
+		SwitchView(RUNTIME_CLASS(CPositionView), m_PosView );
 		Item_data* pInfo = (Item_data*)m_wndClassView.GetItemData(hSelectedItem);
 
 		CView* pNewView = GetActiveView();
@@ -290,8 +292,8 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 
 }
 
-void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
-{	
+void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass, CView*& pViewPtr)
+{
 	CView* pOldView = GetActiveView();
 	if (pOldView == nullptr || pOldView->IsKindOf(pNewViewClass)) {
 		return; // Already the correct view or invalid
@@ -315,117 +317,8 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass)
 
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
-
-	/*if (!pNewViewClass || !m_pCurrentView)
-		return;
-
-	CView* pNewView = nullptr;
-
-	if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CLVInfosView)))
-		pNewView = m_LVInfosView;
-	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CProjektInfosView)))
-		pNewView = m_PInfoView;
-	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CVergabeinfosView)))
-		pNewView = m_VergabeView;
-	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CVertragView)))
-		pNewView = m_VertragView;
-	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CLV_MainView)))
-		pNewView = m_MainView;
-	else if (pNewViewClass->IsDerivedFrom(RUNTIME_CLASS(CPositionView)))
-		pNewView = m_PosView;
-
-	if (!pNewView || pNewView == m_pCurrentView)
-		return;
-
-	m_pCurrentView->ShowWindow(SW_HIDE);
-	m_pCurrentView = pNewView;
-	m_pCurrentView->ShowWindow(SW_SHOW);
-	SetActiveView(m_pCurrentView);
-	RecalcLayout();
-	m_pCurrentView->Invalidate();
-	m_pCurrentView->UpdateWindow();*/
-
 }
 
-void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTREEITEM parentItem)
-{
-	int ctgyCount = 0;
-	std::vector<int> currentPath = path;
-	if (auto* attr = ctgyNode->first_attribute("RNoPart"))
-		ctgyCount = atoi(attr->value());
-	currentPath.push_back(ctgyCount);
-
-	CString formattedPath;
-	for (size_t i = 0; i < currentPath.size(); ++i)
-	{
-		formattedPath.AppendFormat(_T("%d"), currentPath[i]);
-		//if (i < currentPath.size() - 1)
-		formattedPath.Append(_T(". "));
-	}
-	m_path = formattedPath;
-
-	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
-
-	if (bodyNode) 
-	{
-		xml_node<>* lblTx = ctgyNode->first_node("LblTx");
-		xml_node<>* itemList = bodyNode->first_node("Itemlist");
-		xml_node<>* totals = ctgyNode->first_node("Totals");
-		CString Full_lbltx;
-		CString Total_Preis = nullptr;
-
-
-		// LblTx 
-		if (lblTx) {
-			CString lblText;
-			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
-				CString node_name(span->name());
-				if (node_name == "p") {
-					for (xml_node<>* p_node = span->first_node(); p_node; p_node = p_node->next_sibling()){
-						CString span_text = Utf8ToString(p_node->value());
-						if (!span_text.IsEmpty()) {
-							lblText += span_text;
-						}
-					}
-				}
-				else if (node_name == "span") {
-					lblText += Utf8ToString(span->value());
-					//Kurz_text = lblText;
-					//m_path = formattedPath;
-				}
-			}
-			Full_lbltx = formattedPath + lblText;
-		}
-
-		if (totals) {
-			for (xml_node<>* total_node = totals->first_node("Total"); total_node; total_node = total_node->next_sibling()) {
-				CString total_value = Utf8ToString(total_node->value());
-				if (total_value.Find('.') != -1) 
-				{
-					total_value.Replace(_T("."), _T(","));
-				}
-				Total_Preis = total_value;
-			}
-		}
-
-		HTREEITEM thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
-		Item_data* pnewData = new Item_data;
-		pnewData->Total = Total_Preis;
-		m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
-
-
-		if (itemList) {
-			Recursive_Item(itemList, currentPath, thisItem); 
-		}
-
-		for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node;
-			ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
-			Recursive_Node(ctgy_child_node, currentPath, thisItem);
-		}
-	}
-
-
-}
 
 void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTREEITEM parentItem)
 {
@@ -641,7 +534,11 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 			{
 				CString desct_childNode_name(descr_childNode->name());
 				if (desct_childNode_name == "CompleteText") {
-					for (xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
+					xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
+					xml_node<>* outlinetext_node = descr_childNode->first_node("OutlineText");
+					//es gibt datei ohne OutlineText aber DetailTxt in remark -> muss if schleife benutzen 
+					
+					for (detailtext_node; detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
 						for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
 							for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling())
 							{
@@ -664,7 +561,7 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 							}
 						}
 					}
-					for (xml_node<>* outlinetext_node = descr_childNode->first_node("OutlineText"); outlinetext_node; outlinetext_node = outlinetext_node->next_sibling()) {
+					for (outlinetext_node; outlinetext_node; outlinetext_node = outlinetext_node->next_sibling()) {
 						for (xml_node<>* OutlTxt_node = outlinetext_node->first_node("OutlTxt"); OutlTxt_node; OutlTxt_node = OutlTxt_node->next_sibling()) {
 							for (xml_node<>* TextOutlTxt_node = OutlTxt_node->first_node("TextOutlTxt"); TextOutlTxt_node; TextOutlTxt_node = TextOutlTxt_node->next_sibling()) {
 								for (xml_node<>* p_node = TextOutlTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
@@ -689,6 +586,84 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 			}
 		}
 	}
+}
+void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTREEITEM parentItem)
+{
+	int ctgyCount = 0;
+	std::vector<int> currentPath = path;
+	if (auto* attr = ctgyNode->first_attribute("RNoPart"))
+		ctgyCount = atoi(attr->value());
+	currentPath.push_back(ctgyCount);
+
+	CString formattedPath;
+	for (size_t i = 0; i < currentPath.size(); ++i)
+	{
+		formattedPath.AppendFormat(_T("%d"), currentPath[i]);
+		//if (i < currentPath.size() - 1)
+		formattedPath.Append(_T(". "));
+	}
+	m_path = formattedPath;
+
+	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
+
+	if (bodyNode)
+	{
+		xml_node<>* lblTx = ctgyNode->first_node("LblTx");
+		xml_node<>* itemList = bodyNode->first_node("Itemlist");
+		xml_node<>* totals = ctgyNode->first_node("Totals");
+		CString Full_lbltx;
+		CString Total_Preis = nullptr;
+
+
+		// LblTx 
+		if (lblTx) {
+			CString lblText;
+			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
+				CString node_name(span->name());
+				if (node_name == "p") {
+					for (xml_node<>* p_node = span->first_node(); p_node; p_node = p_node->next_sibling()) {
+						CString span_text = Utf8ToString(p_node->value());
+						if (!span_text.IsEmpty()) {
+							lblText += span_text;
+						}
+					}
+				}
+				else if (node_name == "span") {
+					lblText += Utf8ToString(span->value());
+					//Kurz_text = lblText;
+					//m_path = formattedPath;
+				}
+			}
+			Full_lbltx = formattedPath + lblText;
+		}
+
+		if (totals) {
+			for (xml_node<>* total_node = totals->first_node("Total"); total_node; total_node = total_node->next_sibling()) {
+				CString total_value = Utf8ToString(total_node->value());
+				if (total_value.Find('.') != -1)
+				{
+					total_value.Replace(_T("."), _T(","));
+				}
+				Total_Preis = total_value;
+			}
+		}
+
+		HTREEITEM thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
+		Item_data* pnewData = new Item_data;
+		pnewData->Total = Total_Preis;
+		m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+
+
+		if (itemList) {
+			Recursive_Item(itemList, currentPath, thisItem);
+		}
+
+		for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node;
+			ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
+			Recursive_Node(ctgy_child_node, currentPath, thisItem);
+		}
+	}
+
 }
 
 
@@ -784,44 +759,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_LEFT);
 	EnableAutoHidePanes(CBRS_ALIGN_RIGHT);
 	OnApplicationLook(theApp.m_nAppLook);
-
-/*	CRect rect;
-	GetClientRect(&rect);
-
-	CCreateContext context;
-	context.m_pCurrentDoc = GetActiveDocument();
-
-	auto CreateCachedView = [&](CRuntimeClass* pClass, CView*& pView) {
-		pView = (CView*)pClass->CreateObject();
-		if (pView) {
-			pView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this,
-				AFX_IDW_PANE_FIRST, &context);
-			pView->OnInitialUpdate();
-			pView->ShowWindow(SW_HIDE);
-		}
-		};
-	auto CreateCachedView_Scroll = [&](CRuntimeClass* pClass, CScrollView*& pView) {
-		pView = (CScrollView*)pClass->CreateObject();
-		if (pView) {
-			pView->Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, rect, this,
-				AFX_IDW_PANE_FIRST, &context);
-			pView->OnInitialUpdate();
-			pView->ShowWindow(SW_HIDE);
-		}
-		};
-
-	CreateCachedView(RUNTIME_CLASS(CLVInfosView), m_LVInfosView);
-	CreateCachedView(RUNTIME_CLASS(CProjektInfosView), m_PInfoView);
-	CreateCachedView(RUNTIME_CLASS(CVergabeinfosView), m_VergabeView);
-	CreateCachedView_Scroll(RUNTIME_CLASS(CVertragView), m_VertragView);
-	CreateCachedView_Scroll(RUNTIME_CLASS(CLV_MainView), m_MainView);
-	CreateCachedView(RUNTIME_CLASS(CPositionView), m_PosView);
-
-	// Show initial view
-	m_pCurrentView = m_PInfoView;
-	if (m_pCurrentView)
-		m_pCurrentView->ShowWindow(SW_SHOW);*/
-
 
 	return 0;
 }
@@ -1626,7 +1563,7 @@ void CMainFrame::OnKurztext()
 	// TODO: Add your command handler code here
 	m_checkbox_KT = !m_checkbox_KT;
 	m_checkbox_LT = FALSE;
-	SwitchView(RUNTIME_CLASS(CLV_MainView));
+	SwitchView(RUNTIME_CLASS(CLV_MainView), (CView*&)m_MainView);
 }
 
 void CMainFrame::OnUpdateKurztext(CCmdUI* pCmdUI)
@@ -1641,7 +1578,7 @@ void CMainFrame::OnLangtext()
 	// TODO: Add your command handler code here
 	m_checkbox_LT = !m_checkbox_LT;
 	m_checkbox_KT = FALSE;
-	SwitchView(RUNTIME_CLASS(CLangtextView));
+	SwitchView(RUNTIME_CLASS(CLangtextView), (CView*&)m_LangtextView);
 }
 
 void CMainFrame::OnUpdateLangtext(CCmdUI* pCmdUI)
@@ -1650,3 +1587,5 @@ void CMainFrame::OnUpdateLangtext(CCmdUI* pCmdUI)
 	pCmdUI->SetCheck(m_checkbox_LT ? 1 : 0);
 	pCmdUI->Enable(TRUE);
 }
+
+

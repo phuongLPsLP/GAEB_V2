@@ -407,36 +407,6 @@ HBRUSH CVergabeinfosView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
 		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
 	}
-	//Combobox
-
-	/*if (ctrlID == 1003)
-	{
-		if (nCtlColor == CTLCOLOR_LISTBOX) // ListBox (Dropdown area)
-		{
-			pDC->SetBkColor(RGB(200, 220, 255)); // Light Blue Background
-			pDC->SetTextColor(RGB(255, 0, 0));     // Black Text
-			return m_brush_combobox;
-		}
-
-		else if (nCtlColor == CTLCOLOR_EDIT || nCtlColor == CTLCOLOR_STATIC) // ComboBox text area
-		{
-			pDC->SetBkColor(RGB(255, 255, 180)); // Light Yellow
-			pDC->SetTextColor(RGB(0, 0, 0));   // Black text
-			return m_brush_combobox;
-		}
-		return CView::OnCtlColor(pDC, pWnd, nCtlColor);
-	}
-	//Edit box
-	if (ctrlID == 1002)
-	{
-		m_textColor_editbox = RGB(0, 0, 0);
-		pDC->SetTextColor(m_textColor_editbox);       // Black text
-		pDC->SetBkColor(RGB(255, 255, 180));
-		// Return the brush for background color
-		return m_brush_editbox;
-
-	}*/
-
 	return hbr;
 }
 

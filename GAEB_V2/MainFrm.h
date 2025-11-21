@@ -182,7 +182,7 @@ protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnUpdateFilePrintPreview(CCmdUI* pCmdUI);
 	afx_msg void OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void SwitchView(CRuntimeClass* pNewViewClass);
+	afx_msg void SwitchView(CRuntimeClass* pNewViewClass, CView*& pViewPtr);
 	afx_msg void Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTREEITEM parentItem);
 	afx_msg void Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTREEITEM parentItem);
 	
@@ -280,6 +280,16 @@ public:
 	CScrollView* m_VertragView ;
 	CScrollView* m_MainView ;
 	CView* m_PosView;
+	CScrollView* m_LangtextView;
+
+
+	int m_count_infoView = 0;
+	int m_count_pView = 0;
+	int m_count_vergabeView = 0;
+	int m_count_vertragView = 0;
+	int m_count_mainView = 0;
+	int m_count_posView = 0;
+	int m_count_langView = 0;
 
 };
 
