@@ -136,6 +136,8 @@ protected:  // control bar embedded members
 		CString IT;
 		CString TimeQu;
 		CString Total;
+		CString DiscountAnteil;
+		CString DiscountPauschal;
 	};
 
 	HTREEITEM LV_Main;
@@ -151,6 +153,8 @@ protected:  // control bar embedded members
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
 	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 	rapidxml::xml_node<>* m_addtext = nullptr;
+
+	BOOL SetItemImage(HTREEITEM hItem, int nImage, int nSelectedImage);
 
 	void LoadXMLFile();
 

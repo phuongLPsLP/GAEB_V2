@@ -95,7 +95,6 @@ void CLangtextView::OnInitialUpdate()
 	for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
 	{
 		CString BoQ_node_text(BoQ_node->name());
-		//BoQ_node_text = DP / OWN / AddText / BoQ
 		if (BoQ_node_text == "BoQ")
 		{
 			for (xml_node<>* BoQChild_node = BoQ_node->first_node(); BoQChild_node; BoQChild_node = BoQChild_node->next_sibling())
@@ -106,7 +105,7 @@ void CLangtextView::OnInitialUpdate()
 					continue;
 				}
 				else {
-					xml_node<>* bodyNode = BoQChild_node; // should be BoQBody
+					xml_node<>* bodyNode = BoQChild_node; 
 					if (CString(bodyNode->name()) == "BoQBody")
 					{
 						xml_node<>* remark_node = bodyNode->first_node("Remark");

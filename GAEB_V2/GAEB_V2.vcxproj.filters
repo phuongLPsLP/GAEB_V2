@@ -195,6 +195,12 @@
     <Image Include="res\bitmap1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="..\..\..\..\Downloads\schließen – 13.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\schließen – 13.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\ribbon.mfcribbon-ms">
@@ -206,9 +212,6 @@
     <None Include="..\..\..\..\Downloads\rapidxml-1.13\rapidxml-1.13\manual.html">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\ribbon1.mfcribbon-ms">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="res\image1.bin">
       <Filter>Resource Files</Filter>
     </None>
@@ -216,6 +219,9 @@
     <None Include="07_GAEB.X83" />
     <None Include="..\..\..\..\Downloads\Hagmans_01761.x86" />
     <None Include="..\..\..\..\Downloads\Hof Berufschule Dachdeckerarbeiten 05.X81" />
+    <None Include="res\ribbon1.mfcribbon-ms">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="rapidxml-1.13\license.txt" />

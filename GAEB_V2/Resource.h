@@ -62,6 +62,8 @@
 #define IDD_DIALOG_INFO                 319
 #define IDB_BITMAP1                     321
 #define IDD_PROGRESS                    327
+#define IDB_PNGEXIT                     331
+#define IDB_BITMAP2                     334
 #define IDC_LIST1                       1000
 #define IDC_STATIC_INFO                 1009
 #define IDC_PROGRESS_BAR                1010
@@ -139,6 +141,7 @@
 #define ID_BUTTON51                     32844
 #define ID_BUTTON52                     32845
 #define ID_BUTTON2                      32846
+#define id_schl                         32846
 #define ID_BUTTON3                      32847
 #define ID_BUTTON4                      32848
 #define ID_CHECK_STRUKTUR               32849
@@ -160,14 +163,16 @@
 #define ID_BUTTON_Speichern             32866
 #define ID_BUTTON_SPEICHERN_UNTER       32867
 #define ID_INDEX                        32868
+#define ID_INFO                         32869
+#define ID_SCHLIESSEN                   32870
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        329
-#define _APS_NEXT_COMMAND_VALUE         32869
-#define _APS_NEXT_CONTROL_VALUE         1011
+#define _APS_NEXT_RESOURCE_VALUE        337
+#define _APS_NEXT_COMMAND_VALUE         32871
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

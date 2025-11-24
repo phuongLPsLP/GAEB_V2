@@ -132,6 +132,7 @@ public:
 	void SetUP5(CString text);
 	void SetUP6(CString text);
 	void SetSumme(CString text);
+	
 
 	CFont* GetFont() { return &m_font; }
 	CFont* GetFontBold() { return &m_font_bold; }

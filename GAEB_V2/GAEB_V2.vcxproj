@@ -234,6 +234,8 @@
     <ResourceCompile Include="GAEBV2.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\schließen – 13.bmp" />
+    <Image Include="..\..\..\..\Downloads\schließen – 13.png" />
     <Image Include="l:\icons\icons\20\planer\png2.png" />
     <Image Include="res\bitmap1.bmp" />
     <Image Include="res\buttons.bmp" />

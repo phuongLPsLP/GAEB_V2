@@ -53,18 +53,17 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CMainFrame::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnFilePrintPreview)
 	ON_UPDATE_COMMAND_UI(ID_FILE_PRINT_PREVIEW, &CMainFrame::OnUpdateFilePrintPreview)
-	ON_COMMAND(ID_BUTTON52, &CMainFrame::OnExit)
-	ON_COMMAND(ID_BUTTON52, &CMainFrame::OnExit)
+	ON_COMMAND(ID_SCHLIESSEN, &CMainFrame::OnExit)
 	ON_COMMAND(ID_BUTTON48, &CMainFrame::OnNew)
 	ON_COMMAND(ID_BUTTON47, &CMainFrame::OnOpenFile)
 	ON_COMMAND(ID_BUTTON5, &CMainFrame::OnExport)
 
-	ON_COMMAND(ID_BUTTON3, &CMainFrame::OnIndex)
-	ON_UPDATE_COMMAND_UI(ID_BUTTON3, &CMainFrame::OnUpdateIndex)
-	ON_COMMAND(ID_BUTTON3, &CMainFrame::OnIndex)
-	ON_UPDATE_COMMAND_UI(ID_BUTTON3, &CMainFrame::OnUpdateIndex)
-	ON_COMMAND(ID_BUTTON4, &CMainFrame::OnInfo)
-	ON_UPDATE_COMMAND_UI(ID_BUTTON4, &CMainFrame::OnUpdateInfo)
+	ON_COMMAND(ID_INDEX, &CMainFrame::OnIndex)
+	ON_UPDATE_COMMAND_UI(ID_INDEX, &CMainFrame::OnUpdateIndex)
+	ON_COMMAND(ID_INDEX, &CMainFrame::OnIndex)
+	ON_UPDATE_COMMAND_UI(ID_INDEX, &CMainFrame::OnUpdateIndex)
+	ON_COMMAND(ID_INFO, &CMainFrame::OnInfo)
+	ON_UPDATE_COMMAND_UI(ID_INFO, &CMainFrame::OnUpdateInfo)
 	ON_COMMAND(ID_CHECK_STRUKTUR, &CMainFrame::OnStrukturAnsicht)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_STRUKTUR, &CMainFrame::OnUpdateStrukturAnsicht)
 	ON_COMMAND(ID_CHECK_G2000, &CMainFrame::OnCheck_G2000)
@@ -183,6 +182,81 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 	std::vector<int> rootPath;
 
+	xml_node<>* remark_node = boQbodyNode->first_node("Remark");
+
+	if (remark_node) {
+		Item_data* pData = new Item_data;
+		HTREEITEM thisItem = nullptr;
+		CString remark_kurztext;
+		CString remark_fulltext;
+		CString OZ = nullptr;
+		for (xml_node<>* descr_Node = remark_node->first_node("Description"); descr_Node; descr_Node = descr_Node->next_sibling()) {
+			for (xml_node<>* compl_Node = descr_Node->first_node("CompleteText"); compl_Node; compl_Node = compl_Node->next_sibling()) {
+				xml_node<>* detailtext_node = compl_Node->first_node("DetailTxt");
+				xml_node<>* outlinetext_node = compl_Node->first_node("OutlineText");
+
+				//Check if Kurztext exists
+				if (outlinetext_node) {
+					for (xml_node<>* outl_Node = outlinetext_node->first_node("OutlTxt"); outl_Node; outl_Node = outl_Node->next_sibling()) {
+						for (xml_node<>* textoutl_Node = outl_Node->first_node("TextOutlTxt"); textoutl_Node; textoutl_Node = textoutl_Node->next_sibling()) {
+							for (xml_node<>* p_Node = textoutl_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
+								for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
+									CString span_value = Utf8ToString(span_Node->value());
+									CString span_name(span_Node->name());
+
+									if (span_name.CompareNoCase(_T("br")) == 0)
+									{
+										remark_kurztext += _T("\r\n");
+									}
+									else if (span_name.CompareNoCase(_T("span")) == 0)
+									{
+										remark_kurztext += span_value + _T(" ");
+									}
+								}
+								remark_kurztext += _T("\r\n");
+
+							}
+						}
+					}
+				
+				}
+				else 
+				{
+					remark_kurztext = _T("...");			
+				}
+				 thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
+
+				if (detailtext_node) {					 
+					for (xml_node<>* text_Node = detailtext_node->first_node("Text"); text_Node; text_Node = text_Node->next_sibling()) {
+						for (xml_node<>* p_Node = text_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
+							for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
+								CString span_value = Utf8ToString(span_Node->value());
+								CString span_name(span_Node->name());
+								if (span_name.CompareNoCase(_T("br")) == 0) {
+									remark_fulltext += _T("\r\n");
+								}
+								else if (span_name.CompareNoCase(_T("span")) == 0) {
+									remark_fulltext += span_value + _T(" ");
+								}
+							}
+							remark_fulltext += _T("\r\n");
+						}
+					}
+				}
+				else {
+					remark_fulltext = _T("");
+				}
+				
+			}
+		}
+
+		pData->Full_Kurztext_data = remark_kurztext;
+		pData->Full_Langtext_data = remark_fulltext;
+
+		if (pData != nullptr)
+			m_wndClassView.SetItemData(thisItem, reinterpret_cast<DWORD_PTR>(pData));
+	}
+
 	for (xml_node<>* child_node = boQbodyNode->first_node(); child_node; child_node = child_node->next_sibling()) {
 		Recursive_Node(child_node, rootPath, LV_Main);
 	}
@@ -233,8 +307,6 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	if (!hItem) return;
 
 	HTREEITEM hSelectedItem = m_wndClassView.GetSelectedItem();
- 	
-
 	HTREEITEM hroot = m_wndClassView.GetRootItem();
 	CString itemText = m_wndClassView.GetItemText(hSelectedItem);	
 	CView* pView = GetActiveView();
@@ -264,9 +336,11 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	else {
 		SwitchView(RUNTIME_CLASS(CPositionView), m_PosView );
 		Item_data* pInfo = (Item_data*)m_wndClassView.GetItemData(hSelectedItem);
-
 		CView* pNewView = GetActiveView();
 		CPositionView* plistView = DYNAMIC_DOWNCAST(CPositionView, pNewView);
+		if (itemText == "...") {
+			itemText = _T(" ");
+		}
 
 		if (plistView) {
 			plistView->SetTextOZ(itemText);
@@ -283,6 +357,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 			plistView->SetGesamtpreis(pInfo->IT);
 			plistView->SetZeit(pInfo->TimeQu);
 			plistView->SetSumme(pInfo->Total);
+			plistView->SetNachlass(pInfo->DiscountAnteil);
 		}
 
 	}
@@ -328,7 +403,7 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 		CString item_name(item->name());
 		Item_data* pData = new Item_data;
 		HTREEITEM item_added = nullptr;
-		//for (xml_node<>* item = itemNode->first_node("Item"); item; item = item->next_sibling("Item"))
+
 		if (item_name == "Item")
 		{
 			itemCount++;
@@ -344,7 +419,8 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 				formattedPath_item.Append(_T(". "));
 			}
 
-			CString Fulltext, Full_Langtext, menge, einheit, einheitpreis, gesamtpreis, nachlass, zeitansatz, comp1, comp2, comp3, comp4, comp5, comp6;
+			CString Fulltext, Full_Langtext, menge, einheit, einheitpreis, gesamtpreis, 
+				zeitansatz, comp1, comp2, comp3, comp4, comp5, comp6, nachlass_anteil, nachlass_pauschal;
 
 
 			for (xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
@@ -504,6 +580,12 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 					}
 					comp6 = val;
 				}
+				else if (tag == "DiscountPcnt") {
+					if (val.Find('.') != -1) {
+						val.Replace(_T("."), _T(","));
+					}
+					nachlass_anteil = val;
+				}
 
 				pData->Full_Kurztext_data = Fulltext;
 				pData->Full_Langtext_data = Full_Langtext;
@@ -518,6 +600,7 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 				pData->UP4 = comp4;
 				pData->UP5 = comp5;
 				pData->UP6 = comp6;
+				pData->DiscountAnteil = nachlass_anteil;
 
 
 				if (item_added != nullptr)
@@ -536,7 +619,6 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 				if (desct_childNode_name == "CompleteText") {
 					xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
 					xml_node<>* outlinetext_node = descr_childNode->first_node("OutlineText");
-					//es gibt datei ohne OutlineText aber DetailTxt in remark -> muss if schleife benutzen 
 					
 					for (detailtext_node; detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
 						for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
@@ -604,6 +686,7 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 	}
 	m_path = formattedPath;
 
+
 	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
 
 	if (bodyNode)
@@ -630,8 +713,6 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 				}
 				else if (node_name == "span") {
 					lblText += Utf8ToString(span->value());
-					//Kurz_text = lblText;
-					//m_path = formattedPath;
 				}
 			}
 			Full_lbltx = formattedPath + lblText;
@@ -663,7 +744,6 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 			Recursive_Node(ctgy_child_node, currentPath, thisItem);
 		}
 	}
-
 }
 
 
@@ -1129,10 +1209,7 @@ void CMainFrame::OnUpdateTabelleAnsicht(CCmdUI* pCmdUI)
 
 void CMainFrame::OnIndex()
 {
-	// TODO: Add your command handler code here
 	CDialog dlg(IDD_DIALOG_INDEX, this);
-
-	// Display the dialog modally
 	dlg.DoModal();
 }
 
