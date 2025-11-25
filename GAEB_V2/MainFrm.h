@@ -83,6 +83,9 @@ protected:  // control bar embedded members
 	COutlookBar       m_wndNavigationBar;
 
 	CTreeCtrl m_wndClassView;
+	CImageList m_TreeIcons;
+	CImage m_image;
+	
 
 	BOOL m_checkbox_Struktur = FALSE;
 	BOOL m_checkbox_Tabelle = FALSE;

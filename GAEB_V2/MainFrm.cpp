@@ -190,66 +190,72 @@ void CMainFrame::FillClassView(const CString& filePath)
 		CString remark_kurztext;
 		CString remark_fulltext;
 		CString OZ = nullptr;
-		for (xml_node<>* descr_Node = remark_node->first_node("Description"); descr_Node; descr_Node = descr_Node->next_sibling()) {
-			for (xml_node<>* compl_Node = descr_Node->first_node("CompleteText"); compl_Node; compl_Node = compl_Node->next_sibling()) {
-				xml_node<>* detailtext_node = compl_Node->first_node("DetailTxt");
-				xml_node<>* outlinetext_node = compl_Node->first_node("OutlineText");
 
-				//Check if Kurztext exists
-				if (outlinetext_node) {
-					for (xml_node<>* outl_Node = outlinetext_node->first_node("OutlTxt"); outl_Node; outl_Node = outl_Node->next_sibling()) {
-						for (xml_node<>* textoutl_Node = outl_Node->first_node("TextOutlTxt"); textoutl_Node; textoutl_Node = textoutl_Node->next_sibling()) {
-							for (xml_node<>* p_Node = textoutl_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
+
+		if (remark_node->first_node()) 
+		{
+			for (xml_node<>* descr_Node = remark_node->first_node("Description"); descr_Node; descr_Node = descr_Node->next_sibling()) {
+				for (xml_node<>* compl_Node = descr_Node->first_node("CompleteText"); compl_Node; compl_Node = compl_Node->next_sibling()) {
+					xml_node<>* detailtext_node = compl_Node->first_node("DetailTxt");
+					xml_node<>* outlinetext_node = compl_Node->first_node("OutlineText");
+
+					//Check if Kurztext exists
+					if (outlinetext_node) {
+						for (xml_node<>* outl_Node = outlinetext_node->first_node("OutlTxt"); outl_Node; outl_Node = outl_Node->next_sibling()) {
+							for (xml_node<>* textoutl_Node = outl_Node->first_node("TextOutlTxt"); textoutl_Node; textoutl_Node = textoutl_Node->next_sibling()) {
+								for (xml_node<>* p_Node = textoutl_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
+									for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
+										CString span_value = Utf8ToString(span_Node->value());
+										CString span_name(span_Node->name());
+
+										if (span_name.CompareNoCase(_T("br")) == 0)
+										{
+											remark_kurztext += _T("\r\n");
+										}
+										else if (span_name.CompareNoCase(_T("span")) == 0)
+										{
+											remark_kurztext += span_value + _T(" ");
+										}
+									}
+									remark_kurztext += _T("\r\n");
+								}
+							}
+						}
+
+					}
+					else
+					{
+						remark_kurztext = _T("...");
+					}
+					thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
+
+					if (detailtext_node) {
+						for (xml_node<>* text_Node = detailtext_node->first_node("Text"); text_Node; text_Node = text_Node->next_sibling()) {
+							for (xml_node<>* p_Node = text_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
 								for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
 									CString span_value = Utf8ToString(span_Node->value());
 									CString span_name(span_Node->name());
-
-									if (span_name.CompareNoCase(_T("br")) == 0)
-									{
-										remark_kurztext += _T("\r\n");
+									if (span_name.CompareNoCase(_T("br")) == 0) {
+										remark_fulltext += _T("\r\n");
 									}
-									else if (span_name.CompareNoCase(_T("span")) == 0)
-									{
-										remark_kurztext += span_value + _T(" ");
+									else if (span_name.CompareNoCase(_T("span")) == 0) {
+										remark_fulltext += span_value + _T(" ");
 									}
 								}
-								remark_kurztext += _T("\r\n");
-
+								remark_fulltext += _T("\r\n");
 							}
 						}
 					}
-				
-				}
-				else 
-				{
-					remark_kurztext = _T("...");			
-				}
-				 thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
-
-				if (detailtext_node) {					 
-					for (xml_node<>* text_Node = detailtext_node->first_node("Text"); text_Node; text_Node = text_Node->next_sibling()) {
-						for (xml_node<>* p_Node = text_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
-							for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
-								CString span_value = Utf8ToString(span_Node->value());
-								CString span_name(span_Node->name());
-								if (span_name.CompareNoCase(_T("br")) == 0) {
-									remark_fulltext += _T("\r\n");
-								}
-								else if (span_name.CompareNoCase(_T("span")) == 0) {
-									remark_fulltext += span_value + _T(" ");
-								}
-							}
-							remark_fulltext += _T("\r\n");
-						}
+					else {
+						remark_fulltext = _T("");
 					}
+
 				}
-				else {
-					remark_fulltext = _T("");
-				}
-				
 			}
 		}
-
+		else {
+			thisItem = m_wndClassView.InsertItem(_T("..."), LV_Main);
+		}
 		pData->Full_Kurztext_data = remark_kurztext;
 		pData->Full_Langtext_data = remark_fulltext;
 
@@ -401,12 +407,14 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 
 	for (xml_node<>* item = itemNode->first_node(); item; item = item->next_sibling()) {
 		CString item_name(item->name());
+
 		Item_data* pData = new Item_data;
 		HTREEITEM item_added = nullptr;
 
 		if (item_name == "Item")
 		{
-			itemCount++;
+
+ 			itemCount++;
 			std::vector<int> currentPath_item = path;
 			currentPath_item.push_back(itemCount);
 
@@ -610,61 +618,67 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 
 		else if (item_name == "Remark") {
 			xml_node<>* descr_node = item->first_node();
-
 			CString Remark_Kurztext, Remark_Langtext;
+			
+			if (!descr_node) 
+			{  
+				item_added = m_wndClassView.InsertItem(_T("..."), parentItem);
+			}
+			else if (descr_node) {
+				for (xml_node<>* descr_childNode = descr_node->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling())
+				{
+					CString desct_childNode_name(descr_childNode->name());
+					if (desct_childNode_name == "CompleteText") {
+						xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
+						xml_node<>* outlinetext_node = descr_childNode->first_node("OutlineText");
 
-			for (xml_node<>* descr_childNode = descr_node->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling())
-			{
-				CString desct_childNode_name(descr_childNode->name());
-				if (desct_childNode_name == "CompleteText") {
-					xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
-					xml_node<>* outlinetext_node = descr_childNode->first_node("OutlineText");
-					
-					for (detailtext_node; detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
-						for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
-							for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling())
-							{
-								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+						for (detailtext_node; detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
+							for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
+								for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling())
 								{
-									CString span_node_text = Utf8ToString(span_node->value());
-									CString nodeName(span_node->name());
-									if (nodeName.CompareNoCase(_T("br")) == 0)
-									{
-										Remark_Langtext += _T("\r\n");
-									}
-									else if (nodeName.CompareNoCase(_T("span")) == 0)
-									{
-										CString spanText = Utf8ToString(span_node->value());
-										Remark_Langtext += spanText + _T(" ");
-									}
-
-									Remark_Langtext += _T("\r\n");
-								}
-							}
-						}
-					}
-					for (outlinetext_node; outlinetext_node; outlinetext_node = outlinetext_node->next_sibling()) {
-						for (xml_node<>* OutlTxt_node = outlinetext_node->first_node("OutlTxt"); OutlTxt_node; OutlTxt_node = OutlTxt_node->next_sibling()) {
-							for (xml_node<>* TextOutlTxt_node = OutlTxt_node->first_node("TextOutlTxt"); TextOutlTxt_node; TextOutlTxt_node = TextOutlTxt_node->next_sibling()) {
-								for (xml_node<>* p_node = TextOutlTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
 									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
 									{
-										CString span_node_kurztext = Utf8ToString(span_node->value());
-										if (!span_node_kurztext.IsEmpty()) {
-											Remark_Kurztext += span_node_kurztext;
+										CString span_node_text = Utf8ToString(span_node->value());
+										CString nodeName(span_node->name());
+										if (nodeName.CompareNoCase(_T("br")) == 0)
+										{
+											Remark_Langtext += _T("\r\n");
 										}
-									}
-									item_added = m_wndClassView.InsertItem(Remark_Kurztext, parentItem);
+										else if (nodeName.CompareNoCase(_T("span")) == 0)
+										{
+											CString spanText = Utf8ToString(span_node->value());
+											Remark_Langtext += spanText + _T(" ");
+										}
 
+										Remark_Langtext += _T("\r\n");
+									}
+								}
+							}
+						}
+						for (outlinetext_node; outlinetext_node; outlinetext_node = outlinetext_node->next_sibling()) {
+							for (xml_node<>* OutlTxt_node = outlinetext_node->first_node("OutlTxt"); OutlTxt_node; OutlTxt_node = OutlTxt_node->next_sibling()) {
+								for (xml_node<>* TextOutlTxt_node = OutlTxt_node->first_node("TextOutlTxt"); TextOutlTxt_node; TextOutlTxt_node = TextOutlTxt_node->next_sibling()) {
+									for (xml_node<>* p_node = TextOutlTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+										for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+										{
+											CString span_node_kurztext = Utf8ToString(span_node->value());
+											if (!span_node_kurztext.IsEmpty()) {
+												Remark_Kurztext += span_node_kurztext;
+											}
+										}
+										item_added = m_wndClassView.InsertItem(Remark_Kurztext, parentItem);
+										//item_added.
+
+									}
 								}
 							}
 						}
 					}
+					pData->Full_Kurztext_data = Remark_Kurztext;
+					pData->Full_Langtext_data = Remark_Langtext;
+					if (item_added != nullptr)
+						m_wndClassView.SetItemData(item_added, reinterpret_cast<DWORD_PTR>(pData));
 				}
-				pData->Full_Kurztext_data = Remark_Kurztext;
-				pData->Full_Langtext_data = Remark_Langtext;
-				if (item_added != nullptr)
-					m_wndClassView.SetItemData(item_added, reinterpret_cast<DWORD_PTR>(pData));
 			}
 		}
 	}
@@ -696,7 +710,7 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 		xml_node<>* totals = ctgyNode->first_node("Totals");
 		CString Full_lbltx;
 		CString Total_Preis = nullptr;
-
+		HTREEITEM thisItem;
 
 		// LblTx 
 		if (lblTx) {
@@ -729,10 +743,20 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 			}
 		}
 
-		HTREEITEM thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
-		Item_data* pnewData = new Item_data;
-		pnewData->Total = Total_Preis;
-		m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+		if (Full_lbltx.IsEmpty()) {
+			thisItem = m_wndClassView.InsertItem(_T("..."), parentItem);
+			Item_data* pnewData = new Item_data;
+			pnewData->Total = Total_Preis;
+			m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+		}
+		else 
+		{
+			thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
+			Item_data* pnewData = new Item_data;
+			pnewData->Total = Total_Preis;
+			m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+		}
+
 
 
 		if (itemList) {
@@ -839,6 +863,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_LEFT);
 	EnableAutoHidePanes(CBRS_ALIGN_RIGHT);
 	OnApplicationLook(theApp.m_nAppLook);
+
+	m_TreeIcons.Create(16,16,ILC_COLOR32 | ILC_MASK, 0,1);
+	m_image.LoadFromResource(IDB_PNGEXIT);
+	m_TreeIcons.Add(&m_image, RGB(255, 0, 255));
+
+	m_wndClassView.SetImageList(&m_TreeIcons, TVSIL_NORMAL);
+	m_wndClassView.InsertItem("RootItem", 0, 0, TVI_ROOT);
 
 	return 0;
 }
