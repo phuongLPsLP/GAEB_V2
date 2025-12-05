@@ -238,11 +238,13 @@
     <Image Include="..\..\..\..\Downloads\schließen – 13.png" />
     <Image Include="l:\icons\icons\20\planer\png2.png" />
     <Image Include="res\bitmap1.bmp" />
+    <Image Include="res\bitmap3.bmp" />
     <Image Include="res\buttons.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
     <Image Include="res\GAEB_V2.ico" />
     <Image Include="res\GAEB_V2Doc.ico" />
+    <Image Include="res\icon1.ico" />
     <Image Include="res\info.bmp" />
     <Image Include="res\main.bmp" />
     <Image Include="res\nav_large.bmp" />

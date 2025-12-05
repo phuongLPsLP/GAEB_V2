@@ -162,7 +162,10 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 	m_wndClassView.DeleteAllItems();
 
-	HTREEITEM info = m_wndClassView.InsertItem(_T("Informationen"), TVI_ROOT, TVI_LAST);
+	HTREEITEM info = m_wndClassView.InsertItem(TVIF_TEXT | TVIF_IMAGE |TVIF_SELECTEDIMAGE,
+		_T("Informationen"),
+		0,1,0,0,0,
+		TVI_ROOT, TVI_LAST);
 	HTREEITEM project_info = m_wndClassView.InsertItem(_T("Projekt"), info, TVI_LAST);
 	HTREEITEM vergabe_info = m_wndClassView.InsertItem(_T("Vergabe"), info, TVI_LAST);
 	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
@@ -272,10 +275,12 @@ void CMainFrame::FillClassView(const CString& filePath)
 	if (!hDefault) {
 		hDefault = info;
 	}
+
 	m_wndClassView.SelectItem(hDefault);
 	m_wndClassView.EnsureVisible(hDefault);
 	OnTreeSelectedItem(nullptr, nullptr);
 }
+
 
 HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
 //int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
@@ -429,191 +434,298 @@ void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTR
 
 			CString Fulltext, Full_Langtext, menge, einheit, einheitpreis, gesamtpreis, 
 				zeitansatz, comp1, comp2, comp3, comp4, comp5, comp6, nachlass_anteil, nachlass_pauschal;
-
-
-			for (xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
-			{
-				CString tag(item_child->name());
-				CString val(Utf8ToString(item_child->value()));
-				if (tag == "Description")
+			xml_node<>* descr_node = item->first_node("Description");
+			if (descr_node) {
+				for (xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
 				{
-					xml_node<>* complete_txt_node = item_child->first_node("CompleteText");
+					CString tag(item_child->name());
+					CString val(Utf8ToString(item_child->value()));
 
-					for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
+					if (//descr_node)
+						tag == "Description")
 					{
-						CString compl_text_name(compl_text->name());
+						xml_node<>* complete_txt_node = item_child->first_node("CompleteText");
+
+						for (xml_node<>* compl_text = complete_txt_node->first_node(); compl_text; compl_text = compl_text->next_sibling())
+						{
+							CString compl_text_name(compl_text->name());
 
 
-						//Langtext
-						if (compl_text_name == "DetailTxt") {
-							for (xml_node<>* detail_text = compl_text->first_node(); detail_text; detail_text = detail_text->next_sibling()) {
-								CString detail_text_name(detail_text->name());
-								if (detail_text_name == "Text") {
-									for (xml_node<>* p_node = detail_text->first_node(); p_node; p_node = p_node->next_sibling())
-									{
-										for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())	//span
+							//Langtext
+							if (compl_text_name == "DetailTxt") {
+								for (xml_node<>* detail_text = compl_text->first_node(); detail_text; detail_text = detail_text->next_sibling()) {
+									CString detail_text_name(detail_text->name());
+									if (detail_text_name == "Text") {
+										for (xml_node<>* p_node = detail_text->first_node(); p_node; p_node = p_node->next_sibling())
 										{
-											CString span_node_text = Utf8ToString(span_node->value());
-											CString nodeName(span_node->name());
-
-											//if (!span_node_text.IsEmpty()) {
-												//Full_Langtext += span_node_text;
-											//}
-
-											if (nodeName.CompareNoCase(_T("br")) == 0)
+											for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())	//span
 											{
-												Full_Langtext += _T("\r\n");
+												CString span_node_text = Utf8ToString(span_node->value());
+												CString nodeName(span_node->name());
+
+												//if (!span_node_text.IsEmpty()) {
+													//Full_Langtext += span_node_text;
+												//}
+
+												if (nodeName.CompareNoCase(_T("br")) == 0)
+												{
+													Full_Langtext += _T("\r\n");
+												}
+												else if (nodeName.CompareNoCase(_T("span")) == 0)
+												{
+													CString spanText = Utf8ToString(span_node->value());
+													Full_Langtext += spanText + _T(" ");
+												}
 											}
-											else if (nodeName.CompareNoCase(_T("span")) == 0)
-											{
-												CString spanText = Utf8ToString(span_node->value());
-												Full_Langtext += spanText + _T(" ");
-											}
+											Full_Langtext += _T("\r\n");
 										}
-										Full_Langtext += _T("\r\n");
+
 									}
-
 								}
-							}
-						}
-						//pData->Full_Langtext_data = Full_Langtext;
+							}							
 
-						//Kurztext
-						if (compl_text_name == "OutlineText") {
-							for (xml_node<>* OutlTxt = compl_text->first_node(); OutlTxt; OutlTxt = OutlTxt->next_sibling()) //Text
-							{
-								for (xml_node<>* TextOutlTxt = OutlTxt->first_node(); TextOutlTxt; TextOutlTxt = TextOutlTxt->next_sibling()) //p
+							//Kurztext
+							if (compl_text_name == "OutlineText") {
+								for (xml_node<>* OutlTxt = compl_text->first_node(); OutlTxt; OutlTxt = OutlTxt->next_sibling()) //Text
 								{
-									for (xml_node<>* p_node_kurztext = TextOutlTxt->first_node(); p_node_kurztext; p_node_kurztext = p_node_kurztext->next_sibling())	//span
+									for (xml_node<>* TextOutlTxt = OutlTxt->first_node(); TextOutlTxt; TextOutlTxt = TextOutlTxt->next_sibling()) //p
 									{
-										for (xml_node<>* span_node_kurztext = p_node_kurztext->first_node(); span_node_kurztext; span_node_kurztext = span_node_kurztext->next_sibling())	//span
+										for (xml_node<>* p_node_kurztext = TextOutlTxt->first_node(); p_node_kurztext; p_node_kurztext = p_node_kurztext->next_sibling())	//span
 										{
-											CString span_node_kurztext_text = Utf8ToString(span_node_kurztext->value());
-											if (!span_node_kurztext_text.IsEmpty()) {
-												Fulltext += span_node_kurztext_text;
-												Fulltext = formattedPath_item + Fulltext;
-												int maxDepth_item = 0;
+											for (xml_node<>* span_node_kurztext = p_node_kurztext->first_node(); span_node_kurztext; span_node_kurztext = span_node_kurztext->next_sibling())	//span
+											{
+												CString span_node_kurztext_text = Utf8ToString(span_node_kurztext->value());
+												if (!span_node_kurztext_text.IsEmpty()) {
+													Fulltext += span_node_kurztext_text;
+													Fulltext = formattedPath_item + Fulltext;
+													int maxDepth_item = 0;
+												}
 											}
 										}
 									}
 								}
+								item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
 							}
-							item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
 						}
 					}
-				}
-				else if (tag == "Qty") {
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					menge = val;
 
-				}
-				else if (tag == "UP")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					einheitpreis = val;
-				}
-				else if (tag == "IT")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					gesamtpreis = val;
-				}
-				else if (tag == "TimeQu") {
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					zeitansatz = val;
-				}
-				else if (tag == "QU") {
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					einheit = val;
-				}
-				else if(tag == "UPComp1")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					comp1 = val;
-				}
-				else if (tag == "UPComp2")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					comp2 = val;
-				}
-				else if (tag == "UPComp3")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					comp3 = val;
-				}
-				else if (tag == "UPComp4")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					comp4 = val;
-				}
-				else if (tag == "UPComp5")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					comp5 = val;
-				}
-				else if (tag == "UPComp6")
-				{
-					if (val.Find('.') != -1)
-					{
-						val.Replace(_T("."), _T(","));
-					}
-					comp6 = val;
-				}
-				else if (tag == "DiscountPcnt") {
-					if (val.Find('.') != -1) {
-						val.Replace(_T("."), _T(","));
-					}
-					nachlass_anteil = val;
-				}
+					else if (tag == "Qty") {
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						menge = val;
 
-				pData->Full_Kurztext_data = Fulltext;
-				pData->Full_Langtext_data = Full_Langtext;
-				pData->Qty = menge;
-				pData->QU = einheit;
-				pData->UP = einheitpreis;
-				pData->IT = gesamtpreis;
-				pData->TimeQu = zeitansatz;
-				pData->UP1 = comp1;
-				pData->UP2 = comp2;
-				pData->UP3 = comp3;
-				pData->UP4 = comp4;
-				pData->UP5 = comp5;
-				pData->UP6 = comp6;
-				pData->DiscountAnteil = nachlass_anteil;
-
-
-				if (item_added != nullptr)
-					m_wndClassView.SetItemData(item_added, reinterpret_cast<DWORD_PTR>(pData));
+					}
+					else if (tag == "UP")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						einheitpreis = val;
+					}
+					else if (tag == "IT")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						gesamtpreis = val;
+					}
+					else if (tag == "TimeQu") {
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						zeitansatz = val;
+					}
+					else if (tag == "QU") {
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						einheit = val;
+					}
+					else if (tag == "UPComp1")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp1 = val;
+					}
+					else if (tag == "UPComp2")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp2 = val;
+					}
+					else if (tag == "UPComp3")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp3 = val;
+					}
+					else if (tag == "UPComp4")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp4 = val;
+					}
+					else if (tag == "UPComp5")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp5 = val;
+					}
+					else if (tag == "UPComp6")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp6 = val;
+					}
+					else if (tag == "DiscountPcnt") {
+						if (val.Find('.') != -1) {
+							val.Replace(_T("."), _T(","));
+						}
+						nachlass_anteil = val;
+					}
+				}
 			}
+			else {
+				for (xml_node<>* item_child = item->first_node(); item_child; item_child = item_child->next_sibling())
+				{
+					Fulltext = formattedPath_item;
+					Full_Langtext = _T("");
+					CString tag(item_child->name());
+					CString val(Utf8ToString(item_child->value()));
+					if (tag == "Qty") {
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						menge = val;
+
+					}
+					else if (tag == "UP")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						einheitpreis = val;
+					}
+					else if (tag == "IT")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						gesamtpreis = val;
+					}
+					else if (tag == "TimeQu") {
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						zeitansatz = val;
+					}
+					else if (tag == "QU") {
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						einheit = val;
+					}
+					else if (tag == "UPComp1")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp1 = val;
+					}
+					else if (tag == "UPComp2")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp2 = val;
+					}
+					else if (tag == "UPComp3")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp3 = val;
+					}
+					else if (tag == "UPComp4")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp4 = val;
+					}
+					else if (tag == "UPComp5")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp5 = val;
+					}
+					else if (tag == "UPComp6")
+					{
+						if (val.Find('.') != -1)
+						{
+							val.Replace(_T("."), _T(","));
+						}
+						comp6 = val;
+					}
+					else if (tag == "DiscountPcnt") {
+						if (val.Find('.') != -1) {
+							val.Replace(_T("."), _T(","));
+						}
+						nachlass_anteil = val;
+					}
+
+				}
+				item_added = m_wndClassView.InsertItem(Fulltext, parentItem);
+
+			}
+
+			pData->Full_Kurztext_data = Fulltext;
+			pData->Full_Langtext_data = Full_Langtext;
+			pData->Qty = menge;
+			pData->QU = einheit;
+			pData->UP = einheitpreis;
+			pData->IT = gesamtpreis;
+			pData->TimeQu = zeitansatz;
+			pData->UP1 = comp1;
+			pData->UP2 = comp2;
+			pData->UP3 = comp3;
+			pData->UP4 = comp4;
+			pData->UP5 = comp5;
+			pData->UP6 = comp6;
+			pData->DiscountAnteil = nachlass_anteil;
+
+
+			if (item_added != nullptr)
+				m_wndClassView.SetItemData(item_added, reinterpret_cast<DWORD_PTR>(pData));
 		}
 
 		else if (item_name == "Remark") {
@@ -701,71 +813,79 @@ void CMainFrame::Recursive_Node(xml_node<>* ctgyNode, std::vector<int> path, HTR
 	m_path = formattedPath;
 
 
-	xml_node<>* bodyNode = ctgyNode->first_node("BoQBody");
-
-	if (bodyNode)
+	for (xml_node<>* ctgy_childNode = ctgyNode->first_node(); ctgy_childNode; ctgy_childNode = ctgy_childNode->next_sibling())
 	{
-		xml_node<>* lblTx = ctgyNode->first_node("LblTx");
-		xml_node<>* itemList = bodyNode->first_node("Itemlist");
-		xml_node<>* totals = ctgyNode->first_node("Totals");
-		CString Full_lbltx;
-		CString Total_Preis = nullptr;
-		HTREEITEM thisItem;
+		CString ctgy_child_name(ctgy_childNode->name());
 
-		// LblTx 
-		if (lblTx) {
-			CString lblText;
-			for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
-				CString node_name(span->name());
-				if (node_name == "p") {
-					for (xml_node<>* p_node = span->first_node(); p_node; p_node = p_node->next_sibling()) {
-						CString span_text = Utf8ToString(p_node->value());
-						if (!span_text.IsEmpty()) {
-							lblText += span_text;
+
+		if (ctgy_child_name == "BoQBody")
+		{
+			xml_node<>* lblTx = ctgyNode->first_node("LblTx");
+			xml_node<>* itemList = ctgy_childNode->first_node("Itemlist");
+			xml_node<>* totals = ctgyNode->first_node("Totals");
+			CString Full_lbltx;
+			CString Total_Preis = nullptr;
+			HTREEITEM thisItem;
+
+			// LblTx 
+			if (lblTx) {
+				CString lblText;
+				for (xml_node<>* span = lblTx->first_node(); span; span = span->next_sibling()) {
+					CString node_name(span->name());
+					if (node_name == "p") {
+						for (xml_node<>* p_node = span->first_node(); p_node; p_node = p_node->next_sibling()) {
+							CString span_text = Utf8ToString(p_node->value());
+							if (!span_text.IsEmpty()) {
+								lblText += span_text;
+							}
 						}
 					}
+					else if (node_name == "span") {
+						lblText += Utf8ToString(span->value());
+					}
 				}
-				else if (node_name == "span") {
-					lblText += Utf8ToString(span->value());
+				Full_lbltx = formattedPath + lblText;
+			}
+
+			if (totals) {
+				for (xml_node<>* total_node = totals->first_node("Total"); total_node; total_node = total_node->next_sibling()) {
+					CString total_value = Utf8ToString(total_node->value());
+					if (total_value.Find('.') != -1)
+					{
+						total_value.Replace(_T("."), _T(","));
+					}
+					Total_Preis = total_value;
 				}
 			}
-			Full_lbltx = formattedPath + lblText;
-		}
 
-		if (totals) {
-			for (xml_node<>* total_node = totals->first_node("Total"); total_node; total_node = total_node->next_sibling()) {
-				CString total_value = Utf8ToString(total_node->value());
-				if (total_value.Find('.') != -1)
-				{
-					total_value.Replace(_T("."), _T(","));
-				}
-				Total_Preis = total_value;
+			if (Full_lbltx.IsEmpty()) {
+				thisItem = m_wndClassView.InsertItem(m_path, parentItem);
+				Item_data* pnewData = new Item_data;
+				pnewData->Total = Total_Preis;
+				m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+			}
+			else
+			{
+				thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
+				Item_data* pnewData = new Item_data;
+				pnewData->Total = Total_Preis;
+				m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
+			}
+
+
+
+			if (itemList) {
+				Recursive_Item(itemList, currentPath, thisItem);
+			}
+
+			for (xml_node<>* ctgy_child_node = ctgy_childNode->first_node("BoQCtgy"); ctgy_child_node;
+				ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
+				Recursive_Node(ctgy_child_node, currentPath, thisItem);
 			}
 		}
+		else if (ctgy_child_name == "Totals") {
+			continue;
 
-		if (Full_lbltx.IsEmpty()) {
-			thisItem = m_wndClassView.InsertItem(_T("..."), parentItem);
-			Item_data* pnewData = new Item_data;
-			pnewData->Total = Total_Preis;
-			m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
-		}
-		else 
-		{
-			thisItem = m_wndClassView.InsertItem(Full_lbltx, parentItem);
-			Item_data* pnewData = new Item_data;
-			pnewData->Total = Total_Preis;
-			m_wndClassView.SetItemData(thisItem, (DWORD_PTR)pnewData);
-		}
-
-
-
-		if (itemList) {
-			Recursive_Item(itemList, currentPath, thisItem);
-		}
-
-		for (xml_node<>* ctgy_child_node = bodyNode->first_node("BoQCtgy"); ctgy_child_node;
-			ctgy_child_node = ctgy_child_node->next_sibling("BoQCtgy")) {
-			Recursive_Node(ctgy_child_node, currentPath, thisItem);
 		}
 	}
 }
@@ -852,24 +972,25 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("Failed to create navigation pane\n");
 		return -1;      // fail to create
 	}
-	
-	// Create a caption bar:
-	/*if (!CreateCaptionBar())
-	{
-		TRACE0("Failed to create caption bar\n");
-		return -1;      // fail to create
-	}*/
 
 	EnableDocking(CBRS_ALIGN_LEFT);
 	EnableAutoHidePanes(CBRS_ALIGN_RIGHT);
 	OnApplicationLook(theApp.m_nAppLook);
 
-	m_TreeIcons.Create(16,16,ILC_COLOR32 | ILC_MASK, 0,1);
-	m_image.LoadFromResource(IDB_PNGEXIT);
-	m_TreeIcons.Add(&m_image, RGB(255, 0, 255));
+	m_ImageList.Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 1);
 
-	m_wndClassView.SetImageList(&m_TreeIcons, TVSIL_NORMAL);
-	m_wndClassView.InsertItem("RootItem", 0, 0, TVI_ROOT);
+	CImage img;
+	img.Load(C:\Users\marku\Downloads\schließen – 13.png);
+	HBITMAP hBmp = img.Detach();
+
+	HICON hicon1 = AfxGetApp()->LoadIcon(IDB_PNGEXIT);
+	HICON hicon2 = AfxGetApp()->LoadIcon(IDB_PNGEXIT);
+
+	m_ImageList.Add(hicon1);
+	m_ImageList.Add(hicon2);
+
+	m_wndClassView.SetImageList(&m_ImageList, TVSIL_NORMAL);
+
 
 	return 0;
 }
@@ -1101,90 +1222,92 @@ void CMainFrame::OnOpenFile()
 		CString fileName = fileDlg.GetFileName();
 
 		CString ext = PathFindExtension(filePath);
-		if (ext.CompareNoCase(_T(".X80")) == 0) {
+		if (ext.CompareNoCase(_T(".X80")) == 0 || ext.CompareNoCase(_T(".x80")) == 0) {
 			m_string_phase = _T("X80 Universelle LV-Daten");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X81")) == 0) {
+		else if (ext.CompareNoCase(_T(".X81")) == 0 || ext.CompareNoCase(_T(".x81")) == 0) {
 			m_string_phase = _T("X81 Leistungsbeschreibung");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X82")) == 0) {
+		else if (ext.CompareNoCase(_T(".X82")) == 0 || ext.CompareNoCase(_T(".x82")) == 0) {
 			m_string_phase = _T("X82 Kostenanschlag");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X83")) == 0) {
+		else if (ext.CompareNoCase(_T(".X83")) == 0 || ext.CompareNoCase(_T(".x83")) == 0) {
 			m_string_phase = _T("X83 Angebotsaufforderung");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X84")) == 0) {
+		else if (ext.CompareNoCase(_T(".X84")) == 0 || ext.CompareNoCase(_T(".x84")) == 0) {
+			AfxMessageBox(_T("Hinweis beim Laden von .X84 Datei: \r\n Sie laden eine Angebotsabgabedatei(D84) ohne vorher ein LV geladen zu haben(D81, D82, D83, D86)! \r\n Eine reine Angebotsabgabe enthält nur die Ordnungsnummern und die Preise. \r\n Durch die fehlenden Mengenangaben wird die Darstellung der Daten nicht korrekt sein."));
+
 			m_string_phase = _T("X84 Angebotsabgabe");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X85")) == 0) {
+		else if (ext.CompareNoCase(_T(".X85")) == 0 || ext.CompareNoCase(_T(".x85")) == 0) {
 			m_string_phase = _T("X85 Nebenangebot");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X86")) == 0) {
+		else if (ext.CompareNoCase(_T(".X86")) == 0 || ext.CompareNoCase(_T(".x86")) == 0) {
 			m_string_phase = _T("X86 Auftragserteilung");
 			m_checkbox_GXML = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".X94")) == 0) {
+		else if (ext.CompareNoCase(_T(".X94")) == 0 || ext.CompareNoCase(_T(".x94")) == 0) {
 			m_string_phase = _T("X94 Handel - Preisangebot");
 			m_checkbox_GXML = TRUE;
 		}
 
 //GAEB 2000
-		else if (ext.CompareNoCase(_T(".P81")) == 0) {
+		else if (ext.CompareNoCase(_T(".P81")) == 0 || ext.CompareNoCase(_T(".p81")) == 0) {
 			m_string_phase = _T("P81 Leistungsbeschreibung");
 			m_checkbox_G2000 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".P82")) == 0) {
+		else if (ext.CompareNoCase(_T(".P82")) == 0 || ext.CompareNoCase(_T(".p82")) == 0) {
 			m_string_phase = _T("P82 Kostenanschlag");
 			m_checkbox_G2000 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".P83")) == 0) {
+		else if (ext.CompareNoCase(_T(".P83")) == 0 || ext.CompareNoCase(_T(".p83")) == 0) {
 			m_string_phase = _T("P83 Angebotsaufforderung");
 			m_checkbox_G2000 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".P84")) == 0) {
+		else if (ext.CompareNoCase(_T(".P84")) == 0 || ext.CompareNoCase(_T(".p84")) == 0) {
 			m_string_phase = _T("P84 Angebotsabgabe");
 			m_checkbox_G2000 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".P85")) == 0) {
+		else if (ext.CompareNoCase(_T(".P85")) == 0 || ext.CompareNoCase(_T(".p85")) == 0) {
 			m_string_phase = _T("P85 Nebenangebot");
 			m_checkbox_G2000 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".P86")) == 0) {
+		else if (ext.CompareNoCase(_T(".P86")) == 0 || ext.CompareNoCase(_T(".p86")) == 0) {
 			m_string_phase = _T("P86 Auftragserteilung");
 			m_checkbox_G2000 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".P94")) == 0) {
+		else if (ext.CompareNoCase(_T(".P94")) == 0 || ext.CompareNoCase(_T(".p94")) == 0) {
 			m_string_phase = _T("P94 Handel - Preisangebot");
 			m_checkbox_G2000 = TRUE;
 		}
 //GAEB 90
-		else if (ext.CompareNoCase(_T(".D81")) == 0) {
+		else if (ext.CompareNoCase(_T(".D81")) == 0 || ext.CompareNoCase(_T(".d81")) == 0) {
 			m_string_phase = _T("D81 Leistungsbeschreibung");
 			m_checkbox_G90 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".D82")) == 0) {
+		else if (ext.CompareNoCase(_T(".D82")) == 0 || ext.CompareNoCase(_T(".d82")) == 0) {
 			m_string_phase = _T("D82 Kostenanschlag");
 			m_checkbox_G90 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".D83")) == 0) {
+		else if (ext.CompareNoCase(_T(".D83")) == 0 || ext.CompareNoCase(_T(".d83")) == 0) {
 			m_string_phase = _T("D83 Angebotsaufforderung");
 			m_checkbox_G90 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".D84")) == 0) {
+		else if (ext.CompareNoCase(_T(".D84")) == 0 || ext.CompareNoCase(_T(".d84")) == 0) {
 			m_string_phase = _T("D84 Angebotsabgabe");
 			m_checkbox_G90 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".D85")) == 0) {
+		else if (ext.CompareNoCase(_T(".D85")) == 0 || ext.CompareNoCase(_T(".d85")) == 0) {
 			m_string_phase = _T("D85 Nebenangebot");
 			m_checkbox_G90 = TRUE;
 		}
-		else if (ext.CompareNoCase(_T(".D86")) == 0) {
+		else if (ext.CompareNoCase(_T(".D86")) == 0 || ext.CompareNoCase(_T(".d86")) == 0) {
 			m_string_phase = _T("D86 Auftragserteilung");
 			m_checkbox_G90 = TRUE;
 		}

@@ -54,6 +54,7 @@ protected:
 
 	CBrush m_brush_edit_bg_color;
 	CSize m_wndSize;
+	CString m_path;
 
 
 protected:

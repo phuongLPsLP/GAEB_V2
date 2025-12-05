@@ -83,9 +83,7 @@ protected:  // control bar embedded members
 	COutlookBar       m_wndNavigationBar;
 
 	CTreeCtrl m_wndClassView;
-	CImageList m_TreeIcons;
-	CImage m_image;
-	
+	CImageList m_ImageList;
 
 	BOOL m_checkbox_Struktur = FALSE;
 	BOOL m_checkbox_Tabelle = FALSE;
@@ -119,6 +117,9 @@ protected:  // control bar embedded members
 
 	BOOL m_checkbox_LT = FALSE;
 	BOOL m_checkbox_KT = FALSE;
+
+	BOOL SetItemImage(HTREEITEM hItem, int nImage, int nSelectedImage);
+
 
 	CString m_path;
 	CString Kurz_text;	 
@@ -156,8 +157,6 @@ protected:  // control bar embedded members
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr; //nextsibling = PrjInfo
 	rapidxml::xml_node<>* m_award = nullptr; //nextsibling = Award
 	rapidxml::xml_node<>* m_addtext = nullptr;
-
-	BOOL SetItemImage(HTREEITEM hItem, int nImage, int nSelectedImage);
 
 	void LoadXMLFile();
 
