@@ -234,11 +234,9 @@
     <ResourceCompile Include="GAEBV2.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\schließen – 13.bmp" />
-    <Image Include="..\..\..\..\Downloads\schließen – 13.png" />
+    <Image Include="..\..\..\..\Downloads\bitmap1.bmp" />
     <Image Include="l:\icons\icons\20\planer\png2.png" />
     <Image Include="res\bitmap1.bmp" />
-    <Image Include="res\bitmap3.bmp" />
     <Image Include="res\buttons.bmp" />
     <Image Include="res\filelarge.bmp" />
     <Image Include="res\filesmall.bmp" />
@@ -257,6 +255,7 @@
     <Image Include="res\Toolbar256.bmp" />
     <Image Include="res\writelarge.bmp" />
     <Image Include="res\writesmall.bmp" />
+    <Image Include="schliessen.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\Downloads\Hagmans_01761.x86" />

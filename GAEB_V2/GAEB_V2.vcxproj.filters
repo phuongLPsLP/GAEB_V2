@@ -192,19 +192,16 @@
     <Image Include="l:\icons\icons\20\planer\png2.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\bitmap1.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\..\..\..\Downloads\schließen – 13.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\..\..\..\Downloads\schließen – 13.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="res\icon1.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="res\bitmap3.bmp">
+    <Image Include="schliessen.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\bitmap1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

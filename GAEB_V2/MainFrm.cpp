@@ -977,21 +977,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableAutoHidePanes(CBRS_ALIGN_RIGHT);
 	OnApplicationLook(theApp.m_nAppLook);
 
-	m_ImageList.Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 1);
-
-	CImage img;
-	img.Load(C:\Users\marku\Downloads\schließen – 13.png);
-	HBITMAP hBmp = img.Detach();
-
-	HICON hicon1 = AfxGetApp()->LoadIcon(IDB_PNGEXIT);
-	HICON hicon2 = AfxGetApp()->LoadIcon(IDB_PNGEXIT);
-
-	m_ImageList.Add(hicon1);
-	m_ImageList.Add(hicon2);
-
-	m_wndClassView.SetImageList(&m_ImageList, TVSIL_NORMAL);
-
-
 	return 0;
 }
 

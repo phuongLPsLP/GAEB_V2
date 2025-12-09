@@ -60,11 +60,8 @@
 #define IDD_DIALOG_INDEX                317
 #define IDD_DIALOG2                     319
 #define IDD_DIALOG_INFO                 319
-#define IDB_BITMAP1                     321
 #define IDD_PROGRESS                    327
-#define IDB_PNGEXIT                     331
-#define IDB_BITMAP2                     334
-#define IDB_BITMAP3                     340
+#define IDB_BITMAP_CUSTOM               353
 #define IDC_LIST1                       1000
 #define IDC_STATIC_INFO                 1009
 #define IDC_PROGRESS_BAR                1010
@@ -171,7 +168,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        344
+#define _APS_NEXT_RESOURCE_VALUE        358
 #define _APS_NEXT_COMMAND_VALUE         32871
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           310
