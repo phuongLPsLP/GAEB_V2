@@ -218,8 +218,7 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 		CString ctgy_child_name(ctgy_childNode->name());
 		if (ctgy_child_name == "BoQBody")
 		{
-
-			// LblTx (optional)
+			//LblTx
 			xml_node<>* lblTx = ctgyNode->first_node("LblTx");
 			if (lblTx) {
 				CString lblText;
@@ -244,6 +243,12 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 				index += 20;
 			}
 
+			//Remark
+			xml_node<>* remark = ctgy_childNode->first_node("Remark");
+			if (remark) {
+				TraverseRemark(remark, index);
+			}
+
 			// Traverse items if any
 			xml_node<>* itemList = ctgy_childNode->first_node("Itemlist");
 			if (itemList) {
@@ -259,10 +264,28 @@ void CLV_MainView::TraverseBoQCtgy(xml_node<>* ctgyNode, int& index, std::vector
 
 		}
 		else if (ctgy_child_name == "Totals") {
-			for(xml_node<>* totals_node = ctgy_childNode->first_node(); totals_node; totals_node = totals_node->next_sibling())
+			if (ctgy_childNode->first_node() != nullptr) 
 			{
-				continue;
+				for (xml_node<>* totals_node = ctgy_childNode->first_node(); totals_node; totals_node = totals_node->next_sibling())
+				{
+					CString totals_name(totals_node->name());
+					if(totals_name == "Total")
+					{
+						CString val_total = Utf8ToCString(totals_node->value());
+					}
+					else if (totals_name == "DiscountPcnt")
+					{
+						CString val_discnt = Utf8ToCString(totals_node->value());
+
+					}
+					else if (totals_name == "TotAfterDisc")
+					{
+						CString val_total_aft_discnt = Utf8ToCString(totals_node->value());
+					}
+
+				}
 			}
+		
 		}
 	}
 
@@ -435,7 +458,7 @@ void CLV_MainView::TraverseRemark(xml_node<>* remark, int& index)
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	CString remark_Fulltext;
-	xml_node<>* descr_node = remark->first_node();
+	xml_node<>* descr_node = remark->first_node("Description");
 
 
 	CStatic* cstatic_hinweis = new CStatic();
@@ -452,6 +475,7 @@ void CLV_MainView::TraverseRemark(xml_node<>* remark, int& index)
 
 		for (xml_node<>* descr_childNode = descr_node->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling()) {
 			CString descr_childNode_name(descr_childNode->name());
+
 			if (descr_childNode_name == "OutlineText") {
 				for (xml_node<>* outltext_node = descr_childNode->first_node(); outltext_node; outltext_node = outltext_node->next_sibling()) {
 					for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
@@ -473,26 +497,42 @@ void CLV_MainView::TraverseRemark(xml_node<>* remark, int& index)
 				index += 20;
 			}
 			else if (descr_childNode_name == "CompleteText") {
-				for (xml_node<>* outltext_node = descr_childNode->first_node("OutlineText"); outltext_node; outltext_node = outltext_node->next_sibling("OutlineText")) {
-					for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
-						for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
-							for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
-								CString spantext = Utf8ToCString(span_node->value());
-								if (!spantext.IsEmpty()) {
-									remark_Fulltext += spantext + _T(" ");
+				xml_node<>* outltext_node = descr_childNode->first_node("OutlineText");
+				if (outltext_node) {
+					for (outltext_node; outltext_node; outltext_node = outltext_node->next_sibling("OutlineText")) {
+						for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
+							for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
+									CString spantext = Utf8ToCString(span_node->value());
+									if (!spantext.IsEmpty()) {
+										remark_Fulltext += spantext + _T(" ");
+									}
 								}
 							}
 						}
 					}
+
+					CStatic* static_remark = new CStatic();
+					static_remark->Create(remark_Fulltext, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+						CRect(CPoint(420, index), CSize(1000, 20)), this, 1001);
+					static_remark->SetFont(pMainFrame->GetFontItalic());
+					m_vecStatics_GAEBInfo.push_back(static_remark);
+					index += 20;
 				}
-				CStatic* static_remark = new CStatic();
-				static_remark->Create(remark_Fulltext, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
-					CRect(CPoint(420, index), CSize(1000, 20)), this, 1001);
-				static_remark->SetFont(pMainFrame->GetFontItalic());
-				m_vecStatics_GAEBInfo.push_back(static_remark);
-				index += 20;
+
+				else {
+					CStatic* static_remark = new CStatic();
+					static_remark->Create(_T("Hinweistext"), WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+						CRect(CPoint(420, index), CSize(1000, 20)), this, 1001);
+					static_remark->SetFont(pMainFrame->GetFontItalic());
+					m_vecStatics_GAEBInfo.push_back(static_remark);
+					index += 20;
+				}
+
+
 			}
-			else { continue; };
+
+			
 		}
 	}
 }

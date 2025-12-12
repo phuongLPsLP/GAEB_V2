@@ -259,7 +259,7 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 		if (ctgy_child_name == "BoQBody")
 		{
 
-			// LblTx (optional)
+			//LblTx
 			xml_node<>* lblTx = ctgyNode->first_node("LblTx");
 			if (lblTx) {
 				CString lblText;
@@ -289,57 +289,11 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 				m_vecStatics_GAEBInfo.push_back(static_lbl);
 				index += 20;
 			}
+
+			//Remark
 			xml_node<>* remark = ctgy_childNode->first_node("Remark");
 			if (remark) {
-				CString remark_boqbody;
-
-				xml_attribute<>* remark_attr = remark->first_attribute();
-				CString attr(remark_attr->name());
-				CString attr_value(remark_attr->value());
-
-				for (xml_node<>* desc_node = remark->first_node("Description"); desc_node; desc_node = desc_node->next_sibling("Description")) {
-					for (xml_node<>* compltext_node = desc_node->first_node("CompleteText"); compltext_node; compltext_node = compltext_node->next_sibling("CompleteText")) {
-						for (xml_node<>* detailtext_node = compltext_node->first_node("DetailTxt"); detailtext_node; detailtext_node = detailtext_node->next_sibling("DetailTxt")) {
-							for (xml_node<>* text_node = detailtext_node->first_node("Text"); text_node; text_node = text_node->next_sibling("Text")) {
-								for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling()) {
-									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
-										CString spantext = Utf8ToCString(span_node->value());
-										CString spanname(span_node->name());
-
-										if (spanname.CompareNoCase(_T("br")) == 0) {
-											remark_boqbody += _T("\r\n");
-										}
-										else if (spanname.CompareNoCase(_T("span")) == 0)
-										{
-											remark_boqbody += spantext + _T(" ");
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-
-				CRect remark_clienrect;
-				GetClientRect(&remark_clienrect);
-				const int leftmargin = 420;
-				const int rightmargin = remark_clienrect.Width() * 0.3;
-				const int topposition = index;
-				const int maxWidth = remark_clienrect.Width() - leftmargin - rightmargin;
-
-				CRect remark_textrect(leftmargin, topposition, leftmargin + maxWidth, topposition);
-				//CRect remark_textrect(420, index - 20, remark_clienrect.Width() - 500, index);
-
-				CClientDC dc_remark(this);
-				dc_remark.DrawText(remark_boqbody, &remark_textrect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
-
-				CStatic* remark_value = new CStatic();
-				remark_value->Create(remark_boqbody, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX | SS_EDITCONTROL,
-					remark_textrect, this, 1001);
-				remark_value->SetFont(pMainFrame->GetFont());
-				m_vecStatics_GAEBInfo.push_back(remark_value);
-				//index += 20;
-				index = remark_textrect.bottom + 20;
+				TraverseRemark_LT(remark, index);
 			}
 
 
@@ -358,11 +312,22 @@ void CLangtextView::TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::ve
 				TraverseBoQCtgy_LT(subCtgy, index, currentPath);
 			}
 		}
-		else if(ctgy_child_name == "Totals")
+		else if (ctgy_child_name == "Totals")
 		{
-			for (xml_node<>* totals_node = ctgy_childNode->first_node(); totals_node; totals_node = totals_node->next_sibling())
-			{
-				continue;
+			if (ctgy_childNode->first_node() != nullptr) {
+				for (xml_node<>* totals_node = ctgy_childNode->first_node(); totals_node; totals_node = totals_node->next_sibling())
+				{
+					CString totals_name(totals_node->name());
+					if (totals_name == "Total") {
+						CString val_total = Utf8ToCString(totals_node->value());
+					}
+					else if (totals_name == "DiscountPcnt") {
+						CString val_discont = Utf8ToCString(totals_node->value());
+					}
+					else if(totals_name == "TotAfterDisc") {
+						CString val_total_aft_discnt = Utf8ToCString(totals_node->value());
+					}
+				}
 			}
 		}
 	}
@@ -551,12 +516,12 @@ void CLangtextView::TraverseItemlist_LT(xml_node<>* itemList, int& index, std::v
 		}
 		else if (item_name == "Remark")
 		{
-			TraverseDescription_LT(item, index);
+			TraverseRemark_LT(item, index);
 		}
 	}
 }
 
-void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
+void CLangtextView::TraverseRemark_LT(xml_node<>* remarknode, int& index)
 {
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 	CString remark_Fulltext_LT;
@@ -600,7 +565,29 @@ void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 			}
 		}
 	}
-	CRect remark_itemlist_clienrect;
+
+	CRect client_Rect;
+	GetClientRect(&client_Rect);
+	CRect textRect(420, index, client_Rect.Width() - 500, index);
+
+	CClientDC dc(this);
+	CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
+	dc.DrawText(remark_Fulltext_LT, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+
+	CStatic* pstaticValue = new CStatic();
+	pstaticValue->Create(remark_Fulltext_LT, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX | SS_EDITCONTROL,
+		textRect, this, 1001);
+
+	TRACE(_T("Description-Block: index=%d -> id=%s  height=%d \n"),
+		index, remark_Fulltext_LT, textRect.Height());
+
+	pstaticValue->SetFont(pMainFrame->GetFont());
+	m_vecStatics_GAEBInfo.push_back(pstaticValue);
+	//index = static_cast<int>(textRect.bottom) + 10;
+	index = index + textRect.Height() + 10;
+	dc.SelectObject(pOldFont);
+
+	/*CRect remark_itemlist_clienrect;
 	GetClientRect(&remark_itemlist_clienrect);
 	const int leftmargin_itemlist = 420;
 	const int rightmargin_itemlist = remark_itemlist_clienrect.Width() * 0.3;
@@ -616,7 +603,7 @@ void CLangtextView::TraverseDescription_LT(xml_node<>* remarknode, int& index)
 		remark_itemlist_textrect, this, 1001);
 	remark_itemlist_value->SetFont(pMainFrame->GetFont());
 	m_vecStatics_GAEBInfo.push_back(remark_itemlist_value);
-	index = remark_itemlist_textrect.bottom + 20;
+	index = remark_itemlist_textrect.bottom + 20;*/
 }
 
 

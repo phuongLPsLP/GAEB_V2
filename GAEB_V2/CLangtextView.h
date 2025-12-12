@@ -61,7 +61,7 @@ public:
 	CString Utf8ToCString(const char* utf8Str);
 	void TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
 	void TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath);
-	void TraverseDescription_LT(xml_node<>* descNode, int& index);
+	void TraverseRemark_LT(xml_node<>* descNode, int& index);
 
 };
 

@@ -194,50 +194,42 @@ void CMainFrame::FillClassView(const CString& filePath)
 		CString remark_fulltext;
 		CString OZ = nullptr;
 
+		xml_node<>* descr_node = remark_node->first_node("Description");
 
-		if (remark_node->first_node()) 
+		if (descr_node)
 		{
-			for (xml_node<>* descr_Node = remark_node->first_node("Description"); descr_Node; descr_Node = descr_Node->next_sibling()) {
-				for (xml_node<>* compl_Node = descr_Node->first_node("CompleteText"); compl_Node; compl_Node = compl_Node->next_sibling()) {
-					xml_node<>* detailtext_node = compl_Node->first_node("DetailTxt");
-					xml_node<>* outlinetext_node = compl_Node->first_node("OutlineText");
+			for (xml_node<>* descr_childNode = descr_node->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling()) {
+				CString descr_child_name(descr_childNode->name());
 
-					//Check if Kurztext exists
-					if (outlinetext_node) {
-						for (xml_node<>* outl_Node = outlinetext_node->first_node("OutlTxt"); outl_Node; outl_Node = outl_Node->next_sibling()) {
-							for (xml_node<>* textoutl_Node = outl_Node->first_node("TextOutlTxt"); textoutl_Node; textoutl_Node = textoutl_Node->next_sibling()) {
-								for (xml_node<>* p_Node = textoutl_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
-									for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
-										CString span_value = Utf8ToString(span_Node->value());
-										CString span_name(span_Node->name());
-
-										if (span_name.CompareNoCase(_T("br")) == 0)
-										{
-											remark_kurztext += _T("\r\n");
-										}
-										else if (span_name.CompareNoCase(_T("span")) == 0)
-										{
-											remark_kurztext += span_value + _T(" ");
+				if (descr_child_name == "CompleteText") {
+					xml_node<>* outltext_node = descr_childNode->first_node("OutlineText");
+					xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
+					if (outltext_node) {
+						for (outltext_node; outltext_node; outltext_node = outltext_node->next_sibling("OutlineText")) {
+							for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
+								for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
+										CString spantext = Utf8ToString(span_node->value());
+										if (!spantext.IsEmpty()) {
+											remark_kurztext += spantext + _T(" ");
 										}
 									}
-									remark_kurztext += _T("\r\n");
 								}
 							}
 						}
+						thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
 
 					}
-					else
-					{
-						remark_kurztext = _T("...");
+					else {
+						thisItem = m_wndClassView.InsertItem(_T("Hinweis"), LV_Main);
 					}
-					thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
 
 					if (detailtext_node) {
-						for (xml_node<>* text_Node = detailtext_node->first_node("Text"); text_Node; text_Node = text_Node->next_sibling()) {
-							for (xml_node<>* p_Node = text_Node->first_node(); p_Node; p_Node = p_Node->next_sibling()) {
-								for (xml_node<>* span_Node = p_Node->first_node(); span_Node; span_Node = span_Node->next_sibling()) {
-									CString span_value = Utf8ToString(span_Node->value());
-									CString span_name(span_Node->name());
+						for (xml_node<>* text_node = detailtext_node->first_node(); text_node; text_node = text_node->next_sibling()) {
+							for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
+									CString span_name(span_node->name());
+									CString span_value = Utf8ToString(span_node->value());
 									if (span_name.CompareNoCase(_T("br")) == 0) {
 										remark_fulltext += _T("\r\n");
 									}
@@ -251,14 +243,36 @@ void CMainFrame::FillClassView(const CString& filePath)
 					}
 					else {
 						remark_fulltext = _T("");
+					}					
+				}
+				else if (descr_child_name == "OutlineText") {
+					for (xml_node<>* outltext_node = descr_childNode->first_node(); outltext_node; outltext_node = outltext_node->next_sibling()) {
+						for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
+							for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
+									CString spantext = Utf8ToString(span_node->value());
+									if (!spantext.IsEmpty()) {
+										remark_kurztext += spantext + _T(" ");
+									}
+								}
+							}
+						}
 					}
-
+					thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
 				}
 			}
+
 		}
 		else {
-			thisItem = m_wndClassView.InsertItem(_T("..."), LV_Main);
+			for (remark_node; remark_node; remark_node = remark_node->next_sibling())
+			{
+				remark_fulltext = _T(" ");
+				remark_kurztext = _T("Hinweis");
+				thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
+			}
 		}
+
+
 		pData->Full_Kurztext_data = remark_kurztext;
 		pData->Full_Langtext_data = remark_fulltext;
 
