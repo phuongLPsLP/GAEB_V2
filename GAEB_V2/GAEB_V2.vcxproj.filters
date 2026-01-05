@@ -201,7 +201,10 @@
     <Image Include="res\bitmap1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\..\..\Downloads\bitmap1.bmp">
+    <Image Include="res\bmp00001.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\OneDrive\Desktop\filelarge2.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

@@ -56,6 +56,7 @@ CGAEBV2App::CGAEBV2App() noexcept
 	System::Windows::Forms::Application::SetUnhandledExceptionMode(System::Windows::Forms::UnhandledExceptionMode::ThrowException);
 #endif
 
+
 	// TODO: replace application ID string below with unique ID string; recommended
 	// format for string is CompanyName.ProductName.SubProduct.VersionInformation
 	SetAppID(_T("GAEBV2.AppID.NoVersion"));
@@ -112,6 +113,9 @@ BOOL CGAEBV2App::InitInstance()
 	LoadStdProfileSettings(4);  // Load standard INI file options (including MRU)
 
 
+	SetThreadUILanguage(MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN));
+	SetThreadLocale(MAKELCID(MAKELANGID(LANG_GERMAN, SUBLANG_GERMAN), SORT_DEFAULT));
+
 	InitContextMenuManager();
 	InitShellManager();
 
@@ -122,6 +126,8 @@ BOOL CGAEBV2App::InitInstance()
 	ttParams.m_bVislManagerTheme = TRUE;
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+
+	theApp.CleanState();
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views
