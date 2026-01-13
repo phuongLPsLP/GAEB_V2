@@ -74,71 +74,129 @@ void CLVInfosView::OnInitialUpdate()
 	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
 	m_award = pMainFrame->GetAwardNode();
 
+	m_format = pMainFrame->GetFormat();
+
+	
 
 	m_staticText_Title.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
 	m_staticText_Title.SetFont(pMainFrame->GetFontBold());
 
-
-	CString year;
-	CString month;
-	CString day;
-	int yPos_GaebInfo = 70;  
-
-	for (xml_node<>* gaebinfo_node = m_pGAEBInfo->first_node(); gaebinfo_node; gaebinfo_node = gaebinfo_node->next_sibling())
+	//GAEB 2000
+	if(*m_format == "2000")
 	{
-		CString subChild_name(gaebinfo_node->name());
-		CString name = Utf8ToCString(gaebinfo_node->name());
-		CString value = Utf8ToCString(gaebinfo_node->value());
-	
-		if (name == "Version") { name = _T("Version:"); }
-		else if (name == "VersDate")
-		{
-			name = _T("Ausgabejahr der Regelung::"); 
-			CString rawAusgabe(value);
-			year = rawAusgabe.Mid(0, 4);
-			month = rawAusgabe.Mid(5, 2);
-			day = rawAusgabe.Mid(8, 2);
-			if (rawAusgabe.GetLength() >= 10) {
-				value.Format(_T("%s.%s.%s"), day, month, year);
-			}
-			else if (rawAusgabe.GetLength() <= 7) {
-				value.Format(_T("%s.%s"), month, year);
-			}
-		}
-		else if (name == "Date")
-		{
-			name = _T("Erstellungsdatum der Datei:"); 
-			CString rawErstellung(value);
-			year = rawErstellung.Mid(0, 4);
-			month = rawErstellung.Mid(5, 2);
-			day = rawErstellung.Mid(8, 2);
-			if (rawErstellung.GetLength() >= 10) {
-				value.Format(_T("%s.%s.%s"), day, month, year);
-			}
-			else if(rawErstellung.GetLength() <= 7){
-				value.Format(_T("%s.%s"), month, year);
-			}
-		}
-		else if (name == "Time"){ name = _T("Erstellungszeit der Datei:"); }
-		else if (name == "ProgSystem"){ name = _T("Programmsystem:"); }
-		else if (name == "ProgName"){ name = _T("Umsetzprogramm:"); }
-		else if (name == "Certific")
-		{
-			name = _T("Prüfzertifikat:"); 
-			if (value == "Available") value = _T("Ja");
-			else value = _T("Nein");
-		}
+		std::vector<CString> lines;
 
-		CStatic* pstaticValue_name = new CStatic();
-		CStatic* pstaticValue_value = new CStatic();
-		pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
-			CRect(CPoint(20, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
-		pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-			CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
-		pstaticValue_value->SetFont(pMainFrame->GetFont());
-		pstaticValue_name->SetFont(pMainFrame->GetFont());
-		yPos_GaebInfo += 20;
+		CString version, versMon, versJahr, progName, datum, zeichensatz;
+
+		bool inGaebInfo = false;
+		for (const auto& raw : lines)
+		{
+			CString line = raw;
+			line.Trim();
+			if (line.IsEmpty())
+				continue;
+			if (line.CompareNoCase(_T("#begin[GAEBInfo]")) == 0) {
+				inGaebInfo = true;
+				continue;
+			}
+			if (line.CompareNoCase(_T("#end[GAEBInfo]")) == 0) {
+				inGaebInfo = false;
+				continue;
+			}
+			if (!inGaebInfo)
+				continue;
+			CString key, value;
+			if (!TryParseGaebKeyValueLine(line, key, value))
+				continue;
+
+			if (key.CompareNoCase(_T("Version")) == 0) version = value;
+			else if (key.CompareNoCase(_T("VersMon")) == 0) versMon = value;
+			else if (key.CompareNoCase(_T("VersJahr")) == 0) versJahr = value;
+			else if (key.CompareNoCase(_T("ProgName")) == 0) progName = value;
+			else if (key.CompareNoCase(_T("Datum")) == 0) datum = value;
+			else if (key.CompareNoCase(_T("Zeichensatz")) == 0) zeichensatz = value;
+
+		}
+		CString msg;
+		msg.Format(_T("GAEBInfo aus Datei:\r\n")
+			_T("Version: %s\r\n")
+			_T("VersMon: %s\r\n")
+			_T("VersJahr: %s\r\n")
+			_T("ProgName: %s\r\n")
+			_T("Datum: %s\r\n")
+			_T("Zeichensatz: %s"),
+			version.GetString(),
+			versMon.GetString(),
+			versJahr.GetString(),
+			progName.GetString(),
+			datum.GetString(),
+			zeichensatz.GetString());
+		AfxMessageBox(msg);
+	}
+	//GAEB XML
+	else
+	{
+		CString year;
+		CString month;
+		CString day;
+		int yPos_GaebInfo = 70;
+
+		for (xml_node<>* gaebinfo_node = m_pGAEBInfo->first_node(); gaebinfo_node; gaebinfo_node = gaebinfo_node->next_sibling())
+		{
+			CString subChild_name(gaebinfo_node->name());
+			CString name = Utf8ToCString(gaebinfo_node->name());
+			CString value = Utf8ToCString(gaebinfo_node->value());
+
+			if (name == "Version") { name = _T("Version:"); }
+			else if (name == "VersDate")
+			{
+				name = _T("Ausgabejahr der Regelung::");
+				CString rawAusgabe(value);
+				year = rawAusgabe.Mid(0, 4);
+				month = rawAusgabe.Mid(5, 2);
+				day = rawAusgabe.Mid(8, 2);
+				if (rawAusgabe.GetLength() >= 10) {
+					value.Format(_T("%s.%s.%s"), day, month, year);
+				}
+				else if (rawAusgabe.GetLength() <= 7) {
+					value.Format(_T("%s.%s"), month, year);
+				}
+			}
+			else if (name == "Date")
+			{
+				name = _T("Erstellungsdatum der Datei:");
+				CString rawErstellung(value);
+				year = rawErstellung.Mid(0, 4);
+				month = rawErstellung.Mid(5, 2);
+				day = rawErstellung.Mid(8, 2);
+				if (rawErstellung.GetLength() >= 10) {
+					value.Format(_T("%s.%s.%s"), day, month, year);
+				}
+				else if (rawErstellung.GetLength() <= 7) {
+					value.Format(_T("%s.%s"), month, year);
+				}
+			}
+			else if (name == "Time") { name = _T("Erstellungszeit der Datei:"); }
+			else if (name == "ProgSystem") { name = _T("Programmsystem:"); }
+			else if (name == "ProgName") { name = _T("Umsetzprogramm:"); }
+			else if (name == "Certific")
+			{
+				name = _T("Prüfzertifikat:");
+				if (value == "Available") value = _T("Ja");
+				else value = _T("Nein");
+			}
+
+			CStatic* pstaticValue_name = new CStatic();
+			CStatic* pstaticValue_value = new CStatic();
+			pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+				CRect(CPoint(20, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
+			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+				CRect(CPoint(270, yPos_GaebInfo), CSize(clientRect.Width(), 20)), this, 1001);
+			pstaticValue_value->SetFont(pMainFrame->GetFont());
+			pstaticValue_name->SetFont(pMainFrame->GetFont());
+			yPos_GaebInfo += 20;
+		}
 	}
 }
 

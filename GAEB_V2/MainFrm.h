@@ -93,28 +93,6 @@ protected:  // control bar embedded members
 	BOOL m_checkbox_G2000 = FALSE;
 	BOOL m_checkbox_GXML = FALSE;
 
-	BOOL m_checkbox_G81 = FALSE;
-	BOOL m_checkbox_G82 = FALSE;
-	BOOL m_checkbox_G83 = FALSE;
-	BOOL m_checkbox_G84 = FALSE;
-	BOOL m_checkbox_G85 = FALSE;
-	BOOL m_checkbox_G86 = FALSE;
-	BOOL m_checkbox_G89 = FALSE;
-	BOOL m_checkbox_G93 = FALSE;
-	BOOL m_checkbox_G94 = FALSE;
-
-	BOOL m_checkbox_LVMenge = FALSE;
-	BOOL m_checkbox_VAMenge = FALSE;
-	BOOL m_checkbox_REMenge = FALSE;
-
-	BOOL m_checkbox_G200_Aufmaﬂ = FALSE;
-	BOOL m_checkbox_GXML_Aufmaﬂ = FALSE;
-	BOOL m_checkbox_GVB_Aufmaﬂ = FALSE;
-
-	BOOL m_checkbox_LV_M_Aufmaﬂ = FALSE;
-	BOOL m_checkbox_VA_M_Aufmaﬂ = FALSE;
-	BOOL m_checkbox_RE_M_Aufmaﬂ = FALSE;
-
 	BOOL m_checkbox_LT = FALSE;
 	BOOL m_checkbox_KT = FALSE;
 
@@ -123,6 +101,7 @@ protected:  // control bar embedded members
 
 	CString m_path;
 	CString Kurz_text;	 
+	CString m_format;
 
 	struct Item_data
 	{
@@ -173,6 +152,8 @@ public:
 	rapidxml::xml_node<>* GetProjektInfoNode();
 	rapidxml::xml_node<>* GetAwardNode();
 
+
+
 	CView* m_pCurrentView = nullptr;
 	CMapPtrToPtr m_viewCache;
 	std::map<CRuntimeClass*, CView*> m_viewMap;
@@ -210,6 +191,7 @@ public:
 	afx_msg void OnNew();
 	afx_msg void OnOpenFile();
 	afx_msg void OnExport();
+	afx_msg void OnUpdateExport(CCmdUI* pCmdUI);
 	afx_msg void OnDetailsAnsicht();
 	afx_msg void OnUpdateDetailsAnsicht(CCmdUI* pCmdUI);
 	afx_msg void OnTabelleAnsicht();
@@ -225,46 +207,14 @@ public:
 	afx_msg void OnCheck_GXML();
 	afx_msg void OnUpdateCheck_GXML(CCmdUI* pCmdUI);
 	afx_msg void OnCheck_G90();
-	afx_msg void OnUpdateCheck_G90(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase81();
-	afx_msg void OnUpdateCheck_Phase81(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase82();
-	afx_msg void OnUpdateCheck_Phase82(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase83();
-	afx_msg void OnUpdateCheck_Phase83(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase84();
-	afx_msg void OnUpdateCheck_Phase84(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase85();
-	afx_msg void OnUpdateCheck_Phase85(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase86();
-	afx_msg void OnUpdateCheck_Phase86(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase89();
-	afx_msg void OnUpdateCheck_Phase89(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase93();
-	afx_msg void OnUpdateCheck_Phase93(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_Phase94();
-	afx_msg void OnUpdateCheck_Phase94(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_LVMenge();
-	afx_msg void OnUpdateCheck_LVMenge(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_VAMenge();
-	afx_msg void OnUpdateCheck_VAMenge(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_REMenge();
-	afx_msg void OnUpdateCheck_REMenge(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_GAEB_2000();
-	afx_msg void OnUpdateCheck_GAEB_2000(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_GAEB_XML_REB();
-	afx_msg void OnUpdateCheck_GAEB_XML_REB(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_GAEB_VB();
-	afx_msg void OnUpdateCheck_GAEB_VB(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_LV_M_Aufmaﬂ();
-	afx_msg void OnUpdateCheck_LV_M_Aufmaﬂ(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_VA_M_Aufmaﬂ();
-	afx_msg void OnUpdateCheck_VA_M_Aufmaﬂ(CCmdUI* pCmdUI);
-	afx_msg void OnCheck_RE_M_Aufmaﬂ();
-	afx_msg void OnUpdateCheck_RE_M_Aufmaﬂ(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateCheck_G90(CCmdUI* pCmdUI);	
 	afx_msg void OnButton_Speichern();
 	afx_msg void OnButton_SpeichernUnter();
 
+	afx_msg void Load_GAEB_2000(const CString& filePath);
+
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 
 
 	CFont* GetFont() { return &m_font; }
@@ -272,6 +222,8 @@ public:
 	CFont* GetFontItalic() { return &m_font_italic; }
 	CFont* GetFontUnderline() { return &m_font_underline; }
 	CFont* GetFontTitle() { return &m_font_title; }
+
+	CString* GetFormat() { return &m_format; }
 
 	CString Utf8ToString(const char* utf8Str);
 

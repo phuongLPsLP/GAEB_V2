@@ -38,6 +38,8 @@ protected:
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
 	rapidxml::xml_node<>* m_award = nullptr;
 
+	CString* m_format;
+
 	CBrush m_brush_edit_bg_color;
 
 	int y_pos_gaebinfo;

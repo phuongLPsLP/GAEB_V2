@@ -63,9 +63,20 @@
 #define IDD_PROGRESS                    327
 #define IDB_BITMAP_CUSTOM               353
 #define IDB_BITMAP2                     362
+#define IDD_DIALOG3                     363
+#define IDD_DIALOG_EXPORT               363
 #define IDC_LIST1                       1000
 #define IDC_STATIC_INFO                 1009
 #define IDC_PROGRESS_BAR                1010
+#define IDC_RADIO1                      1012
+#define IDC_RADIO2                      1013
+#define IDC_RADIO3                      1014
+#define IDC_RADIO4                      1016
+#define IDC_RADIO5                      1017
+#define IDC_RADIO6                      1018
+#define IDC_RADIO7                      1019
+#define IDC_RADIO8                      1020
+#define IDC_RADIO9                      1021
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_RADIO_OPTION1                32771
 #define ID_RADIO_OPTION2                32772
@@ -87,6 +98,7 @@
 #define ID_CHECK13                      32786
 #define ID_CHECK14                      32787
 #define ID_BUTTON5                      32788
+#define ID_EXPORT                       32788
 #define ID_BUTTON6                      32789
 #define ID_BUTTON7                      32790
 #define ID_BUTTON8                      32791
@@ -169,9 +181,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        363
+#define _APS_NEXT_RESOURCE_VALUE        365
 #define _APS_NEXT_COMMAND_VALUE         32871
-#define _APS_NEXT_CONTROL_VALUE         1012
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

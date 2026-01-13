@@ -71,13 +71,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_CHECK_GXML, &CMainFrame::OnCheck_GXML)
 	ON_UPDATE_COMMAND_UI(ID_CHECK_GXML, &CMainFrame::OnUpdateCheck_GXML)
 	ON_COMMAND(ID_CHECK_G90, &CMainFrame::OnCheck_G90)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_G90, &CMainFrame::OnUpdateCheck_G90)	
-	ON_COMMAND(ID_CHECK_LV_MENGE, &CMainFrame::OnCheck_LVMenge)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_LV_MENGE, &CMainFrame::OnUpdateCheck_LVMenge)
-	ON_COMMAND(ID_CHECK_VA_MENGE, &CMainFrame::OnCheck_VAMenge)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_VA_MENGE, &CMainFrame::OnUpdateCheck_VAMenge)
-	ON_COMMAND(ID_CHECK_RE_MENGE, &CMainFrame::OnCheck_REMenge)
-	ON_UPDATE_COMMAND_UI(ID_CHECK_RE_MENGE, &CMainFrame::OnUpdateCheck_REMenge)
+	ON_UPDATE_COMMAND_UI(ID_CHECK_G90, &CMainFrame::OnUpdateCheck_G90)		
 	ON_COMMAND(ID_BUTTON_Speichern, &CMainFrame::OnButton_Speichern)
 	ON_COMMAND(ID_BUTTON_SPEICHERN_UNTER, &CMainFrame::OnButton_SpeichernUnter)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &CMainFrame::OnTreeSelectedItem)
@@ -86,6 +80,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_KURZTEXT, &CMainFrame::OnUpdateKurztext)
 	ON_COMMAND(ID_LANGTEXT, &CMainFrame::OnLangtext)
 	ON_UPDATE_COMMAND_UI(ID_LANGTEXT, &CMainFrame::OnUpdateLangtext)
+	ON_UPDATE_COMMAND_UI(ID_EXPORT, &CMainFrame::OnUpdateExport)
 END_MESSAGE_MAP()
 
 
@@ -147,19 +142,6 @@ void CMainFrame::LoadXMLFile()
 void CMainFrame::FillClassView(const CString& filePath)
 {
 	CT2A asciiPath(filePath);
-	m_xmlFile = std::make_unique<rapidxml::file<>>(asciiPath);
-	//m_xmlFile = std::make_unique<rapidxml::file<>>("07_GAEB.X83");
-
-	m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
-	m_xmlDoc->parse<0>(m_xmlFile->data());
-	m_root = m_xmlDoc->first_node();
-	m_root->name("Leistungsverzeichnis");
-
-	m_pGAEBInfo = m_root->first_node("GAEBInfo");
-	m_pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling("PrjInfo") : nullptr;
-	m_award = m_pProjektInfo ? m_pProjektInfo->next_sibling("Award") : nullptr;
-	m_addtext = m_award ? m_award->next_sibling("AddText") : nullptr;
-
 	m_wndClassView.DeleteAllItems();
 
 	HTREEITEM info = m_wndClassView.InsertItem(TVIF_TEXT | TVIF_IMAGE |TVIF_SELECTEDIMAGE,
@@ -171,41 +153,95 @@ void CMainFrame::FillClassView(const CString& filePath)
 	HTREEITEM vertrag_info = m_wndClassView.InsertItem(_T("Vertragliche Regelung"), info, TVI_LAST);
 	LV_Main = m_wndClassView.InsertItem(_T("Leistungsverzeichnis"), TVI_ROOT, TVI_LAST);
 
-	m_wndClassView.Expand(info, TVE_EXPAND);
+	if (m_format == "XML") {
+		//Parse XML File
+		m_xmlFile = std::make_unique<rapidxml::file<>>(asciiPath);
+		m_xmlDoc = std::make_unique<rapidxml::xml_document<>>();
+		m_xmlDoc->parse<0>(m_xmlFile->data());
+		m_root = m_xmlDoc->first_node();
+		m_root->name("Leistungsverzeichnis");
 
-	if (!m_root) return;
 
-	if (!m_award) return;
+		m_pGAEBInfo = m_root->first_node("GAEBInfo");
+		m_pProjektInfo = m_pGAEBInfo ? m_pGAEBInfo->next_sibling("PrjInfo") : nullptr;
+		m_award = m_pProjektInfo ? m_pProjektInfo->next_sibling("Award") : nullptr;
+		m_addtext = m_award ? m_award->next_sibling("AddText") : nullptr;
 
-	xml_node<>* boqNode = m_award->first_node("BoQ");
-	if (!boqNode) return;
 
-	xml_node<>* boQbodyNode = boqNode->first_node("BoQBody");
-	if (!boQbodyNode) return;
+		if (!m_root) return;
 
-	std::vector<int> rootPath;
+		if (!m_award) return;
 
-	xml_node<>* remark_node = boQbodyNode->first_node("Remark");
+		xml_node<>* boqNode = m_award->first_node("BoQ");
+		if (!boqNode) return;
 
-	if (remark_node) {
-		Item_data* pData = new Item_data;
-		HTREEITEM thisItem = nullptr;
-		CString remark_kurztext;
-		CString remark_fulltext;
-		CString OZ = nullptr;
+		xml_node<>* boQbodyNode = boqNode->first_node("BoQBody");
+		if (!boQbodyNode) return;
 
-		xml_node<>* descr_node = remark_node->first_node("Description");
+		std::vector<int> rootPath;
 
-		if (descr_node)
-		{
-			for (xml_node<>* descr_childNode = descr_node->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling()) {
-				CString descr_child_name(descr_childNode->name());
+		xml_node<>* remark_node = boQbodyNode->first_node("Remark");
 
-				if (descr_child_name == "CompleteText") {
-					xml_node<>* outltext_node = descr_childNode->first_node("OutlineText");
-					xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
-					if (outltext_node) {
-						for (outltext_node; outltext_node; outltext_node = outltext_node->next_sibling("OutlineText")) {
+		if (remark_node) {
+			Item_data* pData = new Item_data;
+			HTREEITEM thisItem = nullptr;
+			CString remark_kurztext;
+			CString remark_fulltext;
+			CString OZ = nullptr;
+
+			xml_node<>* descr_node = remark_node->first_node("Description");
+
+			if (descr_node)
+			{
+				for (xml_node<>* descr_childNode = descr_node->first_node(); descr_childNode; descr_childNode = descr_childNode->next_sibling()) {
+					CString descr_child_name(descr_childNode->name());
+
+					if (descr_child_name == "CompleteText") {
+						xml_node<>* outltext_node = descr_childNode->first_node("OutlineText");
+						xml_node<>* detailtext_node = descr_childNode->first_node("DetailTxt");
+						if (outltext_node) {
+							for (outltext_node; outltext_node; outltext_node = outltext_node->next_sibling("OutlineText")) {
+								for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
+									for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+										for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
+											CString spantext = Utf8ToString(span_node->value());
+											if (!spantext.IsEmpty()) {
+												remark_kurztext += spantext + _T(" ");
+											}
+										}
+									}
+								}
+							}
+							thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
+
+						}
+						else {
+							thisItem = m_wndClassView.InsertItem(_T("Hinweis"), LV_Main);
+						}
+
+						if (detailtext_node) {
+							for (xml_node<>* text_node = detailtext_node->first_node(); text_node; text_node = text_node->next_sibling()) {
+								for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling()) {
+									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
+										CString span_name(span_node->name());
+										CString span_value = Utf8ToString(span_node->value());
+										if (span_name.CompareNoCase(_T("br")) == 0) {
+											remark_fulltext += _T("\r\n");
+										}
+										else if (span_name.CompareNoCase(_T("span")) == 0) {
+											remark_fulltext += span_value + _T(" ");
+										}
+									}
+									remark_fulltext += _T("\r\n");
+								}
+							}
+						}
+						else {
+							remark_fulltext = _T("");
+						}
+					}
+					else if (descr_child_name == "OutlineText") {
+						for (xml_node<>* outltext_node = descr_childNode->first_node(); outltext_node; outltext_node = outltext_node->next_sibling()) {
 							for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
 								for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
 									for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
@@ -218,81 +254,54 @@ void CMainFrame::FillClassView(const CString& filePath)
 							}
 						}
 						thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
-
 					}
-					else {
-						thisItem = m_wndClassView.InsertItem(_T("Hinweis"), LV_Main);
-					}
-
-					if (detailtext_node) {
-						for (xml_node<>* text_node = detailtext_node->first_node(); text_node; text_node = text_node->next_sibling()) {
-							for (xml_node<>* p_node = text_node->first_node(); p_node; p_node = p_node->next_sibling()) {
-								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
-									CString span_name(span_node->name());
-									CString span_value = Utf8ToString(span_node->value());
-									if (span_name.CompareNoCase(_T("br")) == 0) {
-										remark_fulltext += _T("\r\n");
-									}
-									else if (span_name.CompareNoCase(_T("span")) == 0) {
-										remark_fulltext += span_value + _T(" ");
-									}
-								}
-								remark_fulltext += _T("\r\n");
-							}
-						}
-					}
-					else {
-						remark_fulltext = _T("");
-					}					
 				}
-				else if (descr_child_name == "OutlineText") {
-					for (xml_node<>* outltext_node = descr_childNode->first_node(); outltext_node; outltext_node = outltext_node->next_sibling()) {
-						for (xml_node<>* textoutTxt_node = outltext_node->first_node(); textoutTxt_node; textoutTxt_node = textoutTxt_node->next_sibling()) {
-							for (xml_node<>* p_node = textoutTxt_node->first_node(); p_node; p_node = p_node->next_sibling()) {
-								for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling()) {
-									CString spantext = Utf8ToString(span_node->value());
-									if (!spantext.IsEmpty()) {
-										remark_kurztext += spantext + _T(" ");
-									}
-								}
-							}
-						}
-					}
+
+			}
+			else {
+				for (remark_node; remark_node; remark_node = remark_node->next_sibling())
+				{
+					remark_fulltext = _T(" ");
+					remark_kurztext = _T("Hinweis");
 					thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
 				}
 			}
 
-		}
-		else {
-			for (remark_node; remark_node; remark_node = remark_node->next_sibling())
-			{
-				remark_fulltext = _T(" ");
-				remark_kurztext = _T("Hinweis");
-				thisItem = m_wndClassView.InsertItem(remark_kurztext, LV_Main);
-			}
+
+			pData->Full_Kurztext_data = remark_kurztext;
+			pData->Full_Langtext_data = remark_fulltext;
+
+			if (pData != nullptr)
+				m_wndClassView.SetItemData(thisItem, reinterpret_cast<DWORD_PTR>(pData));
 		}
 
-
-		pData->Full_Kurztext_data = remark_kurztext;
-		pData->Full_Langtext_data = remark_fulltext;
-
-		if (pData != nullptr)
-			m_wndClassView.SetItemData(thisItem, reinterpret_cast<DWORD_PTR>(pData));
+		for (xml_node<>* child_node = boQbodyNode->first_node(); child_node; child_node = child_node->next_sibling()) {
+			Recursive_Node(child_node, rootPath, LV_Main);
+		}
 	}
 
-	for (xml_node<>* child_node = boQbodyNode->first_node(); child_node; child_node = child_node->next_sibling()) {
-		Recursive_Node(child_node, rootPath, LV_Main);
+	else if (m_format == "2000") {
+		Load_GAEB_2000(filePath);
+	}
+	else if (m_format == "90") {
+		AfxMessageBox(m_format);
+
 	}
 
+	m_wndClassView.Expand(info, TVE_EXPAND);
 	m_wndClassView.Expand(LV_Main, TVE_EXPAND);	
+
 	HTREEITEM hDefault = m_wndClassView.GetChildItem(info);
 	if (!hDefault) {
 		hDefault = info;
 	}
 
-	m_wndClassView.SelectItem(hDefault);
-	m_wndClassView.EnsureVisible(hDefault);
-	OnTreeSelectedItem(nullptr, nullptr);
+
+	//Check later
+
+	//m_wndClassView.SelectItem(hDefault);
+	//m_wndClassView.EnsureVisible(hDefault);
+	//OnTreeSelectedItem(nullptr, nullptr);
 }
 
 
@@ -1311,6 +1320,16 @@ void CMainFrame::OnOpenFile()
 			m_checkbox_G90 = TRUE;
 		}
 
+		if (m_checkbox_G90 == TRUE) {
+			m_format = _T("90");
+		}
+		else if (m_checkbox_G2000 == TRUE) {
+			m_format = _T("2000");
+		}
+		else {
+			m_format = _T("XML");
+		}
+
 		FillClassView(filePath);
 
 		CDocument* pDoc = GetActiveDocument();
@@ -1324,8 +1343,17 @@ void CMainFrame::OnOpenFile()
 void CMainFrame::OnExport()
 {
 	// TODO: Add your command handler code here
+
+	CDialog dlg(IDD_DIALOG_EXPORT, this);
+	dlg.DoModal();
 }
 
+
+
+void CMainFrame::OnUpdateExport(CCmdUI* pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+}
 
 void CMainFrame::OnDetailsAnsicht()
 {
@@ -1441,330 +1469,6 @@ void CMainFrame::OnUpdateCheck_G90(CCmdUI* pCmdUI)
 	pCmdUI->Enable(TRUE);
 }
 
-void CMainFrame::OnCheck_Phase81()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G81 = !m_checkbox_G81;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase81(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G81 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase82()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G82 = !m_checkbox_G82;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase82(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G82 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase83()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G83 = !m_checkbox_G83;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-
-}
-
-void CMainFrame::OnUpdateCheck_Phase83(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G83 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase84()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G84 = !m_checkbox_G84;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase84(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G84 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase85()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G85 = !m_checkbox_G85;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase85(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G85 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase86()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G86 = !m_checkbox_G86;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase86(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G86 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase89()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G89 = !m_checkbox_G89;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase89(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G89 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase93()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G93 = !m_checkbox_G93;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G82 = FALSE;
-	m_checkbox_G94 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase93(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G93 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_Phase94()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G94 = !m_checkbox_G94;
-	m_checkbox_G81 = FALSE;
-	m_checkbox_G83 = FALSE;
-	m_checkbox_G84 = FALSE;
-	m_checkbox_G85 = FALSE;
-	m_checkbox_G86 = FALSE;
-	m_checkbox_G89 = FALSE;
-	m_checkbox_G93 = FALSE;
-	m_checkbox_G82 = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_Phase94(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G94 ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_LVMenge()
-{
-	// TODO: Add your command handler code here
-	 m_checkbox_LVMenge = !m_checkbox_LVMenge;
-	 m_checkbox_VAMenge = FALSE;
-	 m_checkbox_REMenge = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_LVMenge(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_LVMenge ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_VAMenge()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_VAMenge = !m_checkbox_VAMenge;
-	m_checkbox_LVMenge = FALSE;
-	m_checkbox_REMenge = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_VAMenge(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_VAMenge ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_REMenge()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_REMenge = !m_checkbox_REMenge;
-	m_checkbox_VAMenge = FALSE;
-	m_checkbox_LVMenge = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_REMenge(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_REMenge ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_GAEB_2000()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_G200_Aufmaß = !m_checkbox_G200_Aufmaß;
-	m_checkbox_GVB_Aufmaß = FALSE;
-	m_checkbox_GXML_Aufmaß = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_GAEB_2000(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_G200_Aufmaß ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_GAEB_XML_REB()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_GXML_Aufmaß = !m_checkbox_GXML_Aufmaß;
-	m_checkbox_G200_Aufmaß = FALSE;
-	m_checkbox_GVB_Aufmaß = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_GAEB_XML_REB(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_GXML_Aufmaß ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_GAEB_VB()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_GVB_Aufmaß = !m_checkbox_GVB_Aufmaß;
-	m_checkbox_G200_Aufmaß = FALSE;
-	m_checkbox_GXML_Aufmaß = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_GAEB_VB(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_GVB_Aufmaß ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_LV_M_Aufmaß()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_LV_M_Aufmaß = !m_checkbox_LV_M_Aufmaß;
-	m_checkbox_RE_M_Aufmaß = FALSE;
-	m_checkbox_VA_M_Aufmaß = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_LV_M_Aufmaß(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_LV_M_Aufmaß ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_VA_M_Aufmaß()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_VA_M_Aufmaß = !m_checkbox_VA_M_Aufmaß;
-	m_checkbox_LV_M_Aufmaß = FALSE;
-	m_checkbox_RE_M_Aufmaß = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_VA_M_Aufmaß(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_VA_M_Aufmaß ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
-
-void CMainFrame::OnCheck_RE_M_Aufmaß()
-{
-	// TODO: Add your command handler code here
-	m_checkbox_RE_M_Aufmaß = !m_checkbox_RE_M_Aufmaß;
-	m_checkbox_VA_M_Aufmaß = FALSE;
-	m_checkbox_LV_M_Aufmaß = FALSE;
-}
-
-void CMainFrame::OnUpdateCheck_RE_M_Aufmaß(CCmdUI* pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_checkbox_RE_M_Aufmaß ? 1 : 0);
-	pCmdUI->Enable(TRUE);
-}
 
 void CMainFrame::OnButton_Speichern()
 {
@@ -1775,6 +1479,165 @@ void CMainFrame::OnButton_SpeichernUnter()
 {
 	// TODO: Add your command handler code here
 }
+
+void CMainFrame::Load_GAEB_2000(const CString& filePath)
+{
+	std::vector<CString> lines;
+	if (!ReadFileLinesAnsiToCStringW(filePath, lines))
+	{
+		AfxMessageBox(_T("Konnte Datei nicht lesen."));
+		return;
+	}
+
+	CString version, versMon, versJahr, progName, datum, zeichensatz;
+
+	bool inGaebInfo = false;
+	for (const auto& raw : lines)
+	{
+		CString line = raw;
+		line.Trim();
+		if (line.IsEmpty())
+			continue;
+		if (line.CompareNoCase(_T("#begin[GAEBInfo]")) == 0) {
+			inGaebInfo = true;
+			continue;
+		}
+		if (line.CompareNoCase(_T("#end[GAEBInfo]")) == 0) {
+			inGaebInfo = false;
+			continue;
+		}
+		if (!inGaebInfo)
+			continue;
+		CString key, value;
+		if (!TryParseGaebKeyValueLine(line, key, value))
+			continue;
+
+		if (key.CompareNoCase(_T("Version")) == 0) version = value;
+		else if (key.CompareNoCase(_T("VersMon")) == 0) versMon = value;
+		else if (key.CompareNoCase(_T("VersJahr")) == 0) versJahr = value;
+		else if (key.CompareNoCase(_T("ProgName")) == 0) progName = value;
+		else if (key.CompareNoCase(_T("Datum")) == 0) datum = value;
+		else if (key.CompareNoCase(_T("Zeichensatz")) == 0) zeichensatz = value;
+
+	}
+	CString msg;
+	msg.Format(_T("GAEBInfo aus Datei:\r\n")
+		_T("Version: %s\r\n")
+		_T("VersMon: %s\r\n")
+		_T("VersJahr: %s\r\n")
+		_T("ProgName: %s\r\n")
+		_T("Datum: %s\r\n")
+		_T("Zeichensatz: %s"), 
+		version.GetString(),
+		versMon.GetString(),
+		versJahr.GetString(),
+		progName.GetString(),
+		datum.GetString(),
+		zeichensatz.GetString());
+	AfxMessageBox(msg);	
+}
+
+bool CMainFrame::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
+{
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL) // simple safety limit 200MB
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// ANSI -> UTF-16
+	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+
+	// Lines splitten (\r\n oder \n)
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		// CRLF oder einzelnes CR / LF überspringen
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+}
+
+bool CMainFrame::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
+{
+	//#begin[GAEBInfo]
+	//#end[GAEBInfo]
+	int k1 = line.Find(_T('['));
+	if(k1 != 0)
+		return false;
+	int k2 = line.Find(_T(']'), k1 +1);
+	if (k2 <= 1)
+		return false;
+	CString s = line;
+	s.Trim();
+
+	int endTag = s.ReverseFind(_T('['));
+	if (endTag <0)
+		return false;
+	CString tail = s.Mid(endTag);
+	if (tail.CompareNoCase(_T("[end]")) != 0) return false;
+
+	outKey = s.Mid(1, k2 - 1);
+	outKey.Trim();
+
+	outValue = s.Mid(k2 + 1, endTag - (k2 + 1));
+	outValue.Trim();
+	return !outKey.IsEmpty();
+}
+
 
 CString CMainFrame::Utf8ToString(const char* utf8Str)
 {
