@@ -64,153 +64,210 @@ void CVergabeinfosView::OnInitialUpdate()
 	GetClientRect(&clientRect_Vergabe);
 	CClientDC dc(this);
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-
-	m_Doc = pMainFrame->GetXmlDoc();
-	m_Root = pMainFrame->GetRootNode();
-	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
-	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
-	m_award = pMainFrame->GetAwardNode();
-	
+	m_format = pMainFrame->GetFormat();
+	y_pos_vergabeinfo = 70;
 
 	m_staticText_Vergabeinfos.Create(_T("Informationen zur Vergabe"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 	m_staticText_Vergabeinfos.SetFont(pMainFrame->GetFontBold());
 
-	y_pos_vergabeinfo = 70;
-
-	CString year;
-	CString month;
-	CString day;
-	CSize size = CSize(clientRect_Vergabe.Width(), 20);
-	for (award_node = m_award->first_node(); award_node; award_node = award_node->next_sibling())
+	if(*m_format == "2000")
 	{
-		CString award_node_text(award_node->name());
-		
-		//Vergabeinfo
-		if (award_node_text == "AwardInfo") {
-			for (xml_node<>* awardinfo_node = award_node->first_node(); awardinfo_node; awardinfo_node = awardinfo_node->next_sibling()) {
-				CString value = Utf8ToCString(awardinfo_node->value());
-				CString name = Utf8ToCString(awardinfo_node->name());
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		CString phase, auftragsgeber, auftragsnehmer, adresse, name1, name2, name3, name4, tel, fon, fax, mail, str, plz, ort;
+		bool inGaebInfo = false;
+		for (const auto& raw : lines)
+		{
+			CString line = raw;
+			line.Trim();
+			if (line.IsEmpty())
+				continue;
+			if (line.CompareNoCase(_T("#begin[VergabeInfo]")) == 0) {
+				inGaebInfo = true;
+				continue;
+			}
+			if (line.CompareNoCase(_T("#end[VergabeInfo]")) == 0) {
+				inGaebInfo = false;
+				continue;
+			}
+			if (!inGaebInfo)
+				continue;
+			CString key, value;
+			if (!TryParseGaebKeyValueLine(line, key, value))
+				continue;
+
+			if (key.CompareNoCase(_T("DP")) == 0) version = value;
+			else if (key.CompareNoCase(_T("AG")) == 0) versMon = value;
+			else if (key.CompareNoCase(_T("AN")) == 0) versJahr = value;
+			else if (key.CompareNoCase(_T("Adresse")) == 0) progName = value;
+			else if (key.CompareNoCase(_T("Strasse")) == 0) progsystem = value;
+			else if (key.CompareNoCase(_T("PLZ")) == 0) zeit = value;
+			else if (key.CompareNoCase(_T("Ort")) == 0) datum = value;
+			else if (key.CompareNoCase(_T("Telefon")) == 0) zeichensatz = value;
+			else if (key.CompareNoCase(_T("Fax")) == 0) zeichensatz = value;
+			else if (key.CompareNoCase(_T("Email")) == 0) zeichensatz = value;
+		}
+
+		CFont* pFont = pMainFrame->GetFont();
+
+		CreateStaticText(this, _T("Version:"), version, yPos_GaebInfo, pFont, 2000);
+		CreateStaticText(this, _T("Ausgabejahr der Regelung:"), date, yPos_GaebInfo, pFont, 2020);
+		CreateStaticText(this, _T("Erstellungsdatum der Datei:"), datum, yPos_GaebInfo, pFont, 2030);
+		CreateStaticText(this, _T("Erstellungsszeit der Datei:"), zeit, yPos_GaebInfo, pFont, 2040);
+		CreateStaticText(this, _T("Programmsystem:"), progName, yPos_GaebInfo, pFont, 2050);
+		CreateStaticText(this, _T("Umsetzprogramm:"), progsystem, yPos_GaebInfo, pFont, 2060);
+		CreateStaticText(this, _T("Zeichensatz:"), zeichensatz, yPos_GaebInfo, pFont, 2070);
+	}
+
+	else {
+		m_Doc = pMainFrame->GetXmlDoc();
+		m_Root = pMainFrame->GetRootNode();
+		m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
+		m_pProjektInfo = pMainFrame->GetProjektInfoNode();
+		m_award = pMainFrame->GetAwardNode();
 
 
-				if (name == "Cat") {
-					name = "Vergabeart:";
-					if (value == "OpenProc") {
-						value = _T("Offenes Verfahren");
+		CString year;
+		CString month;
+		CString day;
+		CSize size = CSize(clientRect_Vergabe.Width(), 20);
+		for (award_node = m_award->first_node(); award_node; award_node = award_node->next_sibling())
+		{
+			CString award_node_text(award_node->name());
+
+			//Vergabeinfo
+			if (award_node_text == "AwardInfo") {
+				for (xml_node<>* awardinfo_node = award_node->first_node(); awardinfo_node; awardinfo_node = awardinfo_node->next_sibling()) {
+					CString value = Utf8ToCString(awardinfo_node->value());
+					CString name = Utf8ToCString(awardinfo_node->name());
+
+
+					if (name == "Cat") {
+						name = "Vergabeart:";
+						if (value == "OpenProc") {
+							value = _T("Offenes Verfahren");
+						}
+						else if (value == "ClosedProc") {
+							value = _T("Nichtoffenes Verfahren");
+						}
+						else if (value == "NegProc" || value == "NegProcOpen") {
+							value = _T("Verhandlungsverfahren");
+						}
+						else if (value == "OpenCall") {
+							value = _T("Öffentliche Ausschreibung");
+						}
+						else if (value == "SelectCall") {
+							value = _T("Beschränkte Ausschreibung ohne öffentlichem Teilnahmewettbewerb");
+						}
+						else if (value == "SelectCallPostOpen") {
+							value = _T("Beschränkte Ausschreibung nach öffentlichem Teilnahmewettbewerb");
+						}
+						else if (value == "NegCont") {
+							value = _T("Freihändige Vergabe");
+						}
+						else if (value == "IntNATO") {
+							value = _T("Internationale NATO-Ausschreibung");
+						}
+						else if (value == "CompetDialog") {
+							value = _T("Wettbewerblicher Dialog");
+						}
+						else if (value == "InnovationPartnership") {
+							value = _T("Innovationspartnerschaft");
+						}
+
 					}
-					else if (value == "ClosedProc") {
-						value = _T("Nichtoffenes Verfahren");
+					else if (name == "Cur") { name = _T("Währung:"); }
+					else if (name == "CurLbl") { name = _T("Bezeichnung der Währung:"); }
+					else if (name == "OpenDate")
+					{
+						name = _T("Datum des Eröffnungstermins:");
+						CString rawOpenDate(value);
+						year = rawOpenDate.Mid(0, 4);
+						month = rawOpenDate.Mid(5, 2);
+						day = rawOpenDate.Mid(8, 2);
+						if (rawOpenDate.GetLength() >= 10) {
+							value.Format(_T("%s.%s.%s"), day, month, year);
+						}
+						else if (rawOpenDate.GetLength() <= 7) {
+							value.Format(_T("%s.%s"), month, year);
+						}
 					}
-					else if (value == "NegProc" || value == "NegProcOpen") {
-						value = _T("Verhandlungsverfahren");
+					else if (name == "OpenTime") { name = _T("Uhrzeit des Eröffnungstermins:"); }
+					else if (name == "EvalEnd")
+					{
+						name = _T("Ende der Zuschlagsfrist:");
+						CString rawEvalDate(value);
+						year = rawEvalDate.Mid(0, 4);
+						month = rawEvalDate.Mid(5, 2);
+						day = rawEvalDate.Mid(8, 2);
+						if (rawEvalDate.GetLength() >= 10) {
+							value.Format(_T("%s.%s.%s"), day, month, year);
+						}
+						else if (rawEvalDate.GetLength() <= 7) {
+							value.Format(_T("%s.%s"), month, year);
+						}
 					}
-					else if (value == "OpenCall") {
-						value = _T("Öffentliche Ausschreibung");
+					else if (name == "SubmLoc") { name = _T("Abgabeort:"); }
+					else if (name == "CnstStart")
+					{
+						name = _T("Voraussichtlicher Beginn \nder Ausführungszeit:");
+						CString rawBeginnDate(value);
+						year = rawBeginnDate.Mid(0, 4);
+						month = rawBeginnDate.Mid(5, 2);
+						day = rawBeginnDate.Mid(8, 2);
+						if (rawBeginnDate.GetLength() >= 10) {
+							value.Format(_T("%s.%s.%s"), day, month, year);
+						}
+						else if (rawBeginnDate.GetLength() <= 7) {
+							value.Format(_T("%s.%s"), month, year);
+						}
+						size = CSize(clientRect_Vergabe.Width(), 50);
 					}
-					else if (value == "SelectCall") {
-						value = _T("Beschränkte Ausschreibung ohne öffentlichem Teilnahmewettbewerb");
-					}
-					else if (value == "SelectCallPostOpen") {
-						value = _T("Beschränkte Ausschreibung nach öffentlichem Teilnahmewettbewerb");
-					}
-					else if (value == "NegCont") {
-						value = _T("Freihändige Vergabe");
-					}
-					else if (value == "IntNATO") {
-						value = _T("Internationale NATO-Ausschreibung");
-					}
-					else if (value == "CompetDialog") {
-						value = _T("Wettbewerblicher Dialog");
-					}
-					else if (value == "InnovationPartnership") {
-						value = _T("Innovationspartnerschaft");
+					else if (name == "CnstEnd")
+					{
+						name = _T("Voraussichtlicher Ende \nder Ausführungszeit:");
+						CString rawEndDate(value);
+						year = rawEndDate.Mid(0, 4);
+						month = rawEndDate.Mid(5, 2);
+						day = rawEndDate.Mid(8, 2);
+						if (rawEndDate.GetLength() >= 10) {
+							value.Format(_T("%s.%s.%s"), day, month, year);
+						}
+						else if (rawEndDate.GetLength() <= 7) {
+							value.Format(_T("%s.%s"), month, year);
+						}
+						size = CSize(clientRect_Vergabe.Width(), 50);
+						y_pos_vergabeinfo += 20;
 					}
 
-				}
-				else if (name == "Cur") { name = _T("Währung:"); }
-				else if (name == "CurLbl"){ name = _T("Bezeichnung der Währung:"); }
-				else if (name == "OpenDate")
-				{
-					name = _T("Datum des Eröffnungstermins:"); 
-					CString rawOpenDate(value);
-					year = rawOpenDate.Mid(0, 4);
-					month = rawOpenDate.Mid(5, 2);
-					day = rawOpenDate.Mid(8, 2);
-					if (rawOpenDate.GetLength() >= 10) {
-						value.Format(_T("%s.%s.%s"), day, month, year);
-					}
-					else if (rawOpenDate.GetLength() <= 7) {
-						value.Format(_T("%s.%s"), month, year);
-					}
-				}
-				else if (name == "OpenTime"){ name = _T("Uhrzeit des Eröffnungstermins:"); }
-				else if (name == "EvalEnd")
-				{
-					name = _T("Ende der Zuschlagsfrist:"); 
-					CString rawEvalDate(value);
-					year = rawEvalDate.Mid(0, 4);
-					month = rawEvalDate.Mid(5, 2);
-					day = rawEvalDate.Mid(8, 2);
-					if (rawEvalDate.GetLength() >= 10) {
-						value.Format(_T("%s.%s.%s"), day, month, year);
-					}
-					else if (rawEvalDate.GetLength() <= 7) {
-						value.Format(_T("%s.%s"), month, year);
-					}
-				}
-				else if (name == "SubmLoc"){ name = _T("Abgabeort:"); }
-				else if (name == "CnstStart")
-				{
-					name = _T("Voraussichtlicher Beginn \nder Ausführungszeit:");
-					CString rawBeginnDate(value);
-					year = rawBeginnDate.Mid(0, 4);
-					month = rawBeginnDate.Mid(5, 2);
-					day = rawBeginnDate.Mid(8, 2);
-					if (rawBeginnDate.GetLength() >= 10) {
-						value.Format(_T("%s.%s.%s"), day, month, year);
-					}
-					else if (rawBeginnDate.GetLength() <= 7) {
-						value.Format(_T("%s.%s"), month, year);
-					}
-					size = CSize(clientRect_Vergabe.Width(), 50);
-				}
-				else if (name == "CnstEnd")
-				{
-					name = _T("Voraussichtlicher Ende \nder Ausführungszeit:"); 
-					CString rawEndDate(value);
-					year = rawEndDate.Mid(0, 4);
-					month = rawEndDate.Mid(5, 2);
-					day = rawEndDate.Mid(8, 2);
-					if (rawEndDate.GetLength() >= 10) {
-						value.Format(_T("%s.%s.%s"), day, month, year);
-					}
-					else if (rawEndDate.GetLength() <= 7) {
-						value.Format(_T("%s.%s"), month, year);
-					}
-					size = CSize(clientRect_Vergabe.Width(), 50);
+					CStatic* pstaticValue_name = new CStatic();
+					CStatic* pstaticValue_value = new CStatic();
+					pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+						CRect(CPoint(20, y_pos_vergabeinfo), size), this, 1001);
+					pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+						CRect(CPoint(270, y_pos_vergabeinfo), size), this, 1001);
+					pstaticValue_value->SetFont(pMainFrame->GetFont());
+					pstaticValue_name->SetFont(pMainFrame->GetFont());
 					y_pos_vergabeinfo += 20;
 				}
-
-				CStatic* pstaticValue_name = new CStatic();
-				CStatic* pstaticValue_value = new CStatic();
-				pstaticValue_name->Create(name, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
-					CRect(CPoint(20, y_pos_vergabeinfo), size), this, 1001);
-				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-					CRect(CPoint(270, y_pos_vergabeinfo), size), this, 1001);
-				pstaticValue_value->SetFont(pMainFrame->GetFont());
-				pstaticValue_name->SetFont(pMainFrame->GetFont());
-				y_pos_vergabeinfo += 20;
 			}
-		}
 
-		//Auftraggerber
-		else if (award_node_text == "OWN") {	
-			Auftraggeber();
-		}
+			//Auftraggerber
+			else if (award_node_text == "OWN") {
+				Auftraggeber();
+			}
 
-		//Auftragnehmer
-		else if (award_node_text == "CTR") {	
-			Auftragnehmer();
+			//Auftragnehmer
+			else if (award_node_text == "CTR") {
+				Auftragnehmer();
+			}
 		}
 	}
 }
@@ -378,6 +435,136 @@ void CVergabeinfosView::Auftragnehmer() {
 
 }
 
+bool CVergabeinfosView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
+{
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL) // simple safety limit 200MB
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// ANSI -> UTF-16
+	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+
+	// Lines splitten (\r\n oder \n)
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		// CRLF oder einzelnes CR / LF überspringen
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+}
+
+bool CVergabeinfosView::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
+{
+	int k1 = line.Find(_T('['));
+	if (k1 != 0)
+		return false;
+	int k2 = line.Find(_T(']'), k1 + 1);
+	if (k2 <= 1)
+		return false;
+	CString s = line;
+	s.Trim();
+
+	int endTag = s.ReverseFind(_T('['));
+	if (endTag < 0)
+		return false;
+	CString tail = s.Mid(endTag);
+	if (tail.CompareNoCase(_T("[end]")) != 0) return false;
+
+	outKey = s.Mid(1, k2 - 1);
+	outKey.Trim();
+
+	outValue = s.Mid(k2 + 1, endTag - (k2 + 1));
+	outValue.Trim();
+	return !outKey.IsEmpty();
+}
+
+void CVergabeinfosView::CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase)
+{
+
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	const int labelX = 20;
+	const int valueX = 270;
+	const int height = 20;
+	const int labelWidth = 240;
+	const int valueWidth = 400;
+
+	CStatic* pLabel = new CStatic();
+
+	pLabel->Create(label,
+		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+		CRect(labelX, yPos, labelX + labelWidth, yPos + height),
+		this, idBase);
+
+	CStatic* pValue = new CStatic();
+	pValue->Create(value,
+		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+		CRect(valueX, yPos, valueX + valueWidth, yPos + height),
+		this, idBase);
+	pLabel->SetFont(pMainFrame->GetFont());
+	pValue->SetFont(pMainFrame->GetFont());
+
+	m_dynamicStatics.push_back(pLabel);
+	m_dynamicStatics.push_back(pValue);
+
+	yPos += height;
+}
 
 // CVergabeinfosView diagnostics
 
@@ -402,7 +589,7 @@ HBRUSH CVergabeinfosView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CView::OnCtlColor(pDC, pWnd, nCtlColor);
 	int ctrlID = pWnd->GetDlgCtrlID();
-	if (ctrlID == 1001)
+	if (nCtlColor == CTLCOLOR_STATIC)
 	{
 		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
 		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill

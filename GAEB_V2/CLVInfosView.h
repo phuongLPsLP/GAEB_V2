@@ -38,9 +38,13 @@ protected:
 	rapidxml::xml_node<>* m_pProjektInfo = nullptr;
 	rapidxml::xml_node<>* m_award = nullptr;
 
+	std::vector<CStatic*> m_dynamicStatics;
+
 	CString* m_format;
+	CString m_path;
 
 	CBrush m_brush_edit_bg_color;
+
 
 	int y_pos_gaebinfo;
 
@@ -49,6 +53,12 @@ protected:
 public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	CString Utf8ToCString(const char* utf8Str);
+
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
+	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
+
+	void ClearAllStatics();
 
 };
 

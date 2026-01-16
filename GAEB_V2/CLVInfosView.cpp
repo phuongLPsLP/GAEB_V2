@@ -61,33 +61,31 @@ void CLVInfosView::OnInitialUpdate()
 	CView::OnInitialUpdate();
 	Invalidate();
 	UpdateWindow();
+	ClearAllStatics();
 	m_brush_edit_bg_color.CreateSolidBrush(RGB(255, 255, 200));
 
 	GetClientRect(&clientRect);
 	CClientDC dc(this);
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-
-
-	m_Doc = pMainFrame->GetXmlDoc();
-	m_Root = pMainFrame->GetRootNode();
-	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
-	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
-	m_award = pMainFrame->GetAwardNode();
-
-	m_format = pMainFrame->GetFormat();
-
-	
+	m_format = pMainFrame->GetFormat();	
 
 	m_staticText_Title.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
 	m_staticText_Title.SetFont(pMainFrame->GetFontBold());
 
+	int yPos_GaebInfo = 70;
+
 	//GAEB 2000
 	if(*m_format == "2000")
 	{
 		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
 
-		CString version, versMon, versJahr, progName, datum, zeichensatz;
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+		CString version, versMon, versJahr, progName, datum, zeichensatz, zeit, progsystem;
 
 		bool inGaebInfo = false;
 		for (const auto& raw : lines)
@@ -114,33 +112,38 @@ void CLVInfosView::OnInitialUpdate()
 			else if (key.CompareNoCase(_T("VersMon")) == 0) versMon = value;
 			else if (key.CompareNoCase(_T("VersJahr")) == 0) versJahr = value;
 			else if (key.CompareNoCase(_T("ProgName")) == 0) progName = value;
+			else if (key.CompareNoCase(_T("ProgSystem")) == 0) progsystem = value;
+			else if (key.CompareNoCase(_T("Uhrzeit")) == 0) zeit = value;
 			else if (key.CompareNoCase(_T("Datum")) == 0) datum = value;
 			else if (key.CompareNoCase(_T("Zeichensatz")) == 0) zeichensatz = value;
 
 		}
-		CString msg;
-		msg.Format(_T("GAEBInfo aus Datei:\r\n")
-			_T("Version: %s\r\n")
-			_T("VersMon: %s\r\n")
-			_T("VersJahr: %s\r\n")
-			_T("ProgName: %s\r\n")
-			_T("Datum: %s\r\n")
-			_T("Zeichensatz: %s"),
-			version.GetString(),
-			versMon.GetString(),
-			versJahr.GetString(),
-			progName.GetString(),
-			datum.GetString(),
-			zeichensatz.GetString());
-		AfxMessageBox(msg);
+
+		CFont* pFont = pMainFrame->GetFont();
+		CString date = versMon + _T(".") + versJahr;
+
+		CreateStaticText(this, _T("Version:"), version, yPos_GaebInfo, pFont, 2000);
+		CreateStaticText(this, _T("Ausgabejahr der Regelung:"), date, yPos_GaebInfo, pFont, 2020);
+		CreateStaticText(this, _T("Erstellungsdatum der Datei:"), datum, yPos_GaebInfo, pFont, 2030);
+		CreateStaticText(this, _T("Erstellungsszeit der Datei:"), zeit, yPos_GaebInfo, pFont, 2040);
+		CreateStaticText(this, _T("Programmsystem:"), progName, yPos_GaebInfo, pFont, 2050);
+		CreateStaticText(this, _T("Umsetzprogramm:"), progsystem, yPos_GaebInfo, pFont, 2060);
+		CreateStaticText(this, _T("Zeichensatz:"), zeichensatz, yPos_GaebInfo, pFont, 2070);
+
 	}
 	//GAEB XML
 	else
 	{
+		
+		m_Doc = pMainFrame->GetXmlDoc();
+		m_Root = pMainFrame->GetRootNode();
+		m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
+		m_pProjektInfo = pMainFrame->GetProjektInfoNode();
+		m_award = pMainFrame->GetAwardNode();
+
 		CString year;
 		CString month;
 		CString day;
-		int yPos_GaebInfo = 70;
 
 		for (xml_node<>* gaebinfo_node = m_pGAEBInfo->first_node(); gaebinfo_node; gaebinfo_node = gaebinfo_node->next_sibling())
 		{
@@ -151,7 +154,7 @@ void CLVInfosView::OnInitialUpdate()
 			if (name == "Version") { name = _T("Version:"); }
 			else if (name == "VersDate")
 			{
-				name = _T("Ausgabejahr der Regelung::");
+				name = _T("Ausgabejahr der Regelung:");
 				CString rawAusgabe(value);
 				year = rawAusgabe.Mid(0, 4);
 				month = rawAusgabe.Mid(5, 2);
@@ -201,6 +204,151 @@ void CLVInfosView::OnInitialUpdate()
 }
 
 
+bool CLVInfosView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
+{
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL) // simple safety limit 200MB
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// ANSI -> UTF-16
+	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+
+	// Lines splitten (\r\n oder \n)
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		// CRLF oder einzelnes CR / LF überspringen
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+}
+
+bool CLVInfosView::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
+{
+	//#begin[GAEBInfo]
+	//#end[GAEBInfo]
+	int k1 = line.Find(_T('['));
+	if (k1 != 0)
+		return false;
+	int k2 = line.Find(_T(']'), k1 + 1);
+	if (k2 <= 1)
+		return false;
+	CString s = line;
+	s.Trim();
+
+	int endTag = s.ReverseFind(_T('['));
+	if (endTag < 0)
+		return false;
+	CString tail = s.Mid(endTag);
+	if (tail.CompareNoCase(_T("[end]")) != 0) return false;
+
+	outKey = s.Mid(1, k2 - 1);
+	outKey.Trim();
+
+	outValue = s.Mid(k2 + 1, endTag - (k2 + 1));
+	outValue.Trim();
+	return !outKey.IsEmpty();
+}
+
+void CLVInfosView::CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase)
+{
+
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	const int labelX = 20;
+	const int valueX = 270;
+	const int height = 20;
+	const int labelWidth = 240;
+	const int valueWidth = 400;
+
+	CStatic* pLabel = new CStatic();
+
+	pLabel->Create(label,
+		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+		CRect(labelX, yPos, labelX + labelWidth, yPos + height),
+		this, idBase);
+
+	CStatic* pValue = new CStatic();
+	pValue->Create(value,
+		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+		CRect(valueX, yPos, valueX + valueWidth, yPos + height),
+		this, idBase);
+	pLabel->SetFont(pMainFrame->GetFont());
+	pValue->SetFont(pMainFrame->GetFont());
+
+	m_dynamicStatics.push_back(pLabel);
+	m_dynamicStatics.push_back(pValue);
+
+	yPos += height;
+}
+
+void CLVInfosView::ClearAllStatics()
+{
+	for (CStatic* p : m_dynamicStatics)
+	{
+		if (p && ::IsWindow(p->GetSafeHwnd()))
+			p->DestroyWindow();
+		delete p;
+	}
+	m_dynamicStatics.clear();
+}
+
+
 // CKalkulationsInfosView diagnostics
 
 #ifdef _DEBUG
@@ -224,8 +372,7 @@ HBRUSH CLVInfosView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CView::OnCtlColor(pDC, pWnd, nCtlColor);
 	int ctrlID = pWnd->GetDlgCtrlID();
-	if (ctrlID == 1001)
-	{
+	if (nCtlColor == CTLCOLOR_STATIC) {
 		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
 		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
 	}

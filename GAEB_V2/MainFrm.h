@@ -211,11 +211,6 @@ public:
 	afx_msg void OnButton_Speichern();
 	afx_msg void OnButton_SpeichernUnter();
 
-	afx_msg void Load_GAEB_2000(const CString& filePath);
-
-	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
-	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
-
 
 	CFont* GetFont() { return &m_font; }
 	CFont* GetFontBold() { return &m_font_bold; }
@@ -224,6 +219,7 @@ public:
 	CFont* GetFontTitle() { return &m_font_title; }
 
 	CString* GetFormat() { return &m_format; }
+	CString& GetPath() { return filePath; }
 
 	CString Utf8ToString(const char* utf8Str);
 
@@ -248,6 +244,9 @@ public:
 	int m_count_mainView = 0;
 	int m_count_posView = 0;
 	int m_count_langView = 0;
+
+	CString fileName;
+	CString filePath;
 
 };
 

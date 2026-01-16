@@ -43,6 +43,10 @@ protected:
 
 	int y_pos_projectinfo;
 
+	CString* m_format;
+	CString m_path;
+	std::vector<CStatic*> m_dynamicStatics;
+
 	CRect clientRect;
 public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
@@ -60,6 +64,9 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	CString Utf8ToCString(const char* utf8Str);
 
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
+	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
 };
 
 

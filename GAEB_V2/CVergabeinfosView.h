@@ -49,6 +49,12 @@ protected:
 	int y_pos_auftragnehmer;
 	int y_pos_vergabeinfo;
 
+	std::vector<CStatic*> m_dynamicStatics;
+
+	CString* m_format;
+	CString m_path;
+
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
@@ -57,7 +63,11 @@ public:
 	void CVergabeinfosView::Auftragnehmer();	
 	CString Utf8ToCString(const char* utf8Str);
 
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
+	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
 
+	void ClearAllStatics();
 };
 
 

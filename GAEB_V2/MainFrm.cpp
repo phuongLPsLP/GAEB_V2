@@ -281,11 +281,17 @@ void CMainFrame::FillClassView(const CString& filePath)
 	}
 
 	else if (m_format == "2000") {
-		Load_GAEB_2000(filePath);
+		CStdioFile file;
+		if (file.Open(fileName, CFile::modeRead | CFile::typeText)) {
+			CString line;
+			while (file.ReadString(line)) {
+
+			}
+			file.Close();
+		}
 	}
 	else if (m_format == "90") {
 		AfxMessageBox(m_format);
-
 	}
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
@@ -301,7 +307,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 	//m_wndClassView.SelectItem(hDefault);
 	//m_wndClassView.EnsureVisible(hDefault);
-	//OnTreeSelectedItem(nullptr, nullptr);
+	OnTreeSelectedItem(nullptr, nullptr);
 }
 
 
@@ -1226,8 +1232,8 @@ void CMainFrame::OnOpenFile()
 {
 	CFileDialog fileDlg(TRUE, _T("txt"), nullptr, OFN_FILEMUSTEXIST | OFN_HIDEREADONLY, _T("alle Formate (*.*) | *.*||"), this);
 	if (fileDlg.DoModal() == IDOK) {
-		CString filePath = fileDlg.GetPathName();
-		CString fileName = fileDlg.GetFileName();
+		filePath = fileDlg.GetPathName();
+		fileName = fileDlg.GetFileName();
 
 		CString ext = PathFindExtension(filePath);
 		if (ext.CompareNoCase(_T(".X80")) == 0 || ext.CompareNoCase(_T(".x80")) == 0) {
@@ -1480,7 +1486,7 @@ void CMainFrame::OnButton_SpeichernUnter()
 	// TODO: Add your command handler code here
 }
 
-void CMainFrame::Load_GAEB_2000(const CString& filePath)
+/*void CMainFrame::Load_GAEB_2000(const CString& filePath)
 {
 	std::vector<CString> lines;
 	if (!ReadFileLinesAnsiToCStringW(filePath, lines))
@@ -1489,155 +1495,7 @@ void CMainFrame::Load_GAEB_2000(const CString& filePath)
 		return;
 	}
 
-	CString version, versMon, versJahr, progName, datum, zeichensatz;
-
-	bool inGaebInfo = false;
-	for (const auto& raw : lines)
-	{
-		CString line = raw;
-		line.Trim();
-		if (line.IsEmpty())
-			continue;
-		if (line.CompareNoCase(_T("#begin[GAEBInfo]")) == 0) {
-			inGaebInfo = true;
-			continue;
-		}
-		if (line.CompareNoCase(_T("#end[GAEBInfo]")) == 0) {
-			inGaebInfo = false;
-			continue;
-		}
-		if (!inGaebInfo)
-			continue;
-		CString key, value;
-		if (!TryParseGaebKeyValueLine(line, key, value))
-			continue;
-
-		if (key.CompareNoCase(_T("Version")) == 0) version = value;
-		else if (key.CompareNoCase(_T("VersMon")) == 0) versMon = value;
-		else if (key.CompareNoCase(_T("VersJahr")) == 0) versJahr = value;
-		else if (key.CompareNoCase(_T("ProgName")) == 0) progName = value;
-		else if (key.CompareNoCase(_T("Datum")) == 0) datum = value;
-		else if (key.CompareNoCase(_T("Zeichensatz")) == 0) zeichensatz = value;
-
-	}
-	CString msg;
-	msg.Format(_T("GAEBInfo aus Datei:\r\n")
-		_T("Version: %s\r\n")
-		_T("VersMon: %s\r\n")
-		_T("VersJahr: %s\r\n")
-		_T("ProgName: %s\r\n")
-		_T("Datum: %s\r\n")
-		_T("Zeichensatz: %s"), 
-		version.GetString(),
-		versMon.GetString(),
-		versJahr.GetString(),
-		progName.GetString(),
-		datum.GetString(),
-		zeichensatz.GetString());
-	AfxMessageBox(msg);	
-}
-
-bool CMainFrame::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
-{
-	outLines.clear();
-	CFile file;
-
-	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
-		return false;
-
-	ULONGLONG len64 = file.GetLength();
-	if (len64 == 0)
-	{
-		file.Close();
-		return true;
-	}
-	if (len64 > 200ULL * 1024ULL * 1024ULL) // simple safety limit 200MB
-	{
-		file.Close();
-		return false;
-	}
-	const int len = (int)len64;
-
-	std::vector<char> buf((size_t)len + 1, 0);
-	const UINT readBytes = file.Read(buf.data(), (UINT)len);
-	file.Close();
-
-	if ((int)readBytes != len)
-		return false;
-
-	// ANSI -> UTF-16
-	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
-	if (wlen <= 0)
-		return false;
-
-	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
-	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
-	wbuf[(size_t)wlen] = L'\0';
-
-	CString content(wbuf.data());
-
-	// Lines splitten (\r\n oder \n)
-	int start = 0;
-	const int n = content.GetLength();
-	while (start < n)
-	{
-		int posCR = content.Find(_T('\r'), start);
-		int posLF = content.Find(_T('\n'), start);
-
-		int end;
-		if (posCR == -1) end = posLF;
-		else if (posLF == -1) end = posCR;
-		else end = min(posCR, posLF);
-
-		if (end == -1)
-		{
-			CString line = content.Mid(start);
-			line.TrimRight(_T("\r\n"));
-			outLines.push_back(line);
-			break;
-		}
-
-		CString line = content.Mid(start, end - start);
-		line.TrimRight(_T("\r\n"));
-		outLines.push_back(line);
-
-		// CRLF oder einzelnes CR / LF überspringen
-		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
-			start = end + 2;
-		else
-			start = end + 1;
-	}
-
-	return true;
-}
-
-bool CMainFrame::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
-{
-	//#begin[GAEBInfo]
-	//#end[GAEBInfo]
-	int k1 = line.Find(_T('['));
-	if(k1 != 0)
-		return false;
-	int k2 = line.Find(_T(']'), k1 +1);
-	if (k2 <= 1)
-		return false;
-	CString s = line;
-	s.Trim();
-
-	int endTag = s.ReverseFind(_T('['));
-	if (endTag <0)
-		return false;
-	CString tail = s.Mid(endTag);
-	if (tail.CompareNoCase(_T("[end]")) != 0) return false;
-
-	outKey = s.Mid(1, k2 - 1);
-	outKey.Trim();
-
-	outValue = s.Mid(k2 + 1, endTag - (k2 + 1));
-	outValue.Trim();
-	return !outKey.IsEmpty();
-}
-
+}*/
 
 CString CMainFrame::Utf8ToString(const char* utf8Str)
 {
