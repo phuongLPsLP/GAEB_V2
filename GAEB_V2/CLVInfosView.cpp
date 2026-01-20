@@ -1,4 +1,4 @@
-// CKalkulationsInfosView.cpp : implementation file
+  // CKalkulationsInfosView.cpp : implementation file
 //
 
 #include "pch.h"

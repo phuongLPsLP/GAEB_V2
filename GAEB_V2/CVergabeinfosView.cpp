@@ -81,7 +81,8 @@ void CVergabeinfosView::OnInitialUpdate()
 			return;
 		}
 
-		CString phase, auftragsgeber, auftragsnehmer, adresse, name1, name2, name3, name4, tel, fon, fax, mail, str, plz, ort;
+		CString phase, auftragsgeber, auftragsnehmer, adresse, name1, name2, name3, name4, tel, fon, fax, mail, str, plz, ort, waehrung,
+			wae_bez;
 		bool inGaebInfo = false;
 		for (const auto& raw : lines)
 		{
@@ -103,29 +104,48 @@ void CVergabeinfosView::OnInitialUpdate()
 			if (!TryParseGaebKeyValueLine(line, key, value))
 				continue;
 
-			if (key.CompareNoCase(_T("DP")) == 0) version = value;
-			else if (key.CompareNoCase(_T("AG")) == 0) versMon = value;
-			else if (key.CompareNoCase(_T("AN")) == 0) versJahr = value;
-			else if (key.CompareNoCase(_T("Adresse")) == 0) progName = value;
-			else if (key.CompareNoCase(_T("Strasse")) == 0) progsystem = value;
-			else if (key.CompareNoCase(_T("PLZ")) == 0) zeit = value;
-			else if (key.CompareNoCase(_T("Ort")) == 0) datum = value;
-			else if (key.CompareNoCase(_T("Telefon")) == 0) zeichensatz = value;
-			else if (key.CompareNoCase(_T("Fax")) == 0) zeichensatz = value;
-			else if (key.CompareNoCase(_T("Email")) == 0) zeichensatz = value;
+			if (key.CompareNoCase(_T("DP")) == 0) phase = value;
+			else if (key.CompareNoCase(_T("AG")) == 0) auftragsgeber = value;
+			else if (key.CompareNoCase(_T("AN")) == 0) auftragsnehmer = value;
+			else if (key.CompareNoCase(_T("Adresse")) == 0) adresse = value;
+			else if (key.CompareNoCase(_T("Strasse")) == 0) str = value;
+			else if (key.CompareNoCase(_T("PLZ")) == 0) plz = value;
+			else if (key.CompareNoCase(_T("Ort")) == 0) ort = value;
+			else if (key.CompareNoCase(_T("Telefon")) == 0) tel = value;
+			else if (key.CompareNoCase(_T("Fax")) == 0) fax = value;
+			else if (key.CompareNoCase(_T("Email")) == 0) mail = value;
+			else if (key.CompareNoCase(_T("Name1")) == 0) name1 = value;
+			else if (key.CompareNoCase(_T("Name2")) == 0) name2 = value;
+			else if (key.CompareNoCase(_T("Name3")) == 0) name3 = value;
+			else if (key.CompareNoCase(_T("Name4")) == 0) name4 = value;
+			else if (key.CompareNoCase(_T("Wae")) == 0) waehrung = value;
+			else if (key.CompareNoCase(_T("WaeBez")) == 0) wae_bez = value;
+
+
 		}
 
 		CFont* pFont = pMainFrame->GetFont();
 
-		CreateStaticText(this, _T("Version:"), version, yPos_GaebInfo, pFont, 2000);
-		CreateStaticText(this, _T("Ausgabejahr der Regelung:"), date, yPos_GaebInfo, pFont, 2020);
-		CreateStaticText(this, _T("Erstellungsdatum der Datei:"), datum, yPos_GaebInfo, pFont, 2030);
-		CreateStaticText(this, _T("Erstellungsszeit der Datei:"), zeit, yPos_GaebInfo, pFont, 2040);
-		CreateStaticText(this, _T("Programmsystem:"), progName, yPos_GaebInfo, pFont, 2050);
-		CreateStaticText(this, _T("Umsetzprogramm:"), progsystem, yPos_GaebInfo, pFont, 2060);
-		CreateStaticText(this, _T("Zeichensatz:"), zeichensatz, yPos_GaebInfo, pFont, 2070);
+		CreateStaticText(this, _T("Datenaustauschphase:"), phase, y_pos_vergabeinfo, pFont, 2000);
+		CreateStaticText(this, _T("Auftragsgeber:"), auftragsgeber, y_pos_vergabeinfo, pFont, 2020);
+		CreateStaticText(this, _T("Auftragsnehmer:"), auftragsnehmer, y_pos_vergabeinfo, pFont, 2030);
+		CreateStaticText(this, _T("Adresse:"), adresse, y_pos_vergabeinfo, pFont, 2040);
+		CreateStaticText(this, _T("Strasse:"), str, y_pos_vergabeinfo, pFont, 2050);
+		CreateStaticText(this, _T("PLZ:"), plz, y_pos_vergabeinfo, pFont, 2060);
+		CreateStaticText(this, _T("Ort:"), ort, y_pos_vergabeinfo, pFont, 2070);
+		CreateStaticText(this, _T("Telefon:"), tel, y_pos_vergabeinfo, pFont, 2090);
+		CreateStaticText(this, _T("Fax:"), fax, y_pos_vergabeinfo, pFont, 2100);
+		CreateStaticText(this, _T("Email:"), name1, y_pos_vergabeinfo, pFont, 2110);
+		CreateStaticText(this, _T("Name1:"), name1, y_pos_vergabeinfo, pFont, 2120);
+		CreateStaticText(this, _T("Name2:"), name2, y_pos_vergabeinfo, pFont, 2130);
+		CreateStaticText(this, _T("Name3:"), name3, y_pos_vergabeinfo, pFont, 2140);
+		CreateStaticText(this, _T("Name4:"), name4, y_pos_vergabeinfo, pFont, 2150);
+		CreateStaticText(this, _T("Währung:"), waehrung, y_pos_vergabeinfo, pFont, 2160);
+		CreateStaticText(this, _T("Bezeichnung der Währung:"), wae_bez, y_pos_vergabeinfo, pFont, 2170);
+
 	}
 
+	//GAEB XML
 	else {
 		m_Doc = pMainFrame->GetXmlDoc();
 		m_Root = pMainFrame->GetRootNode();
