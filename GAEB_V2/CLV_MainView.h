@@ -56,6 +56,10 @@ protected:
 	CSize m_wndSize;
 	CString m_path;
 
+	CString* m_format;
+	std::vector<CStatic*> m_dynamicStatics;
+
+
 
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -70,6 +74,12 @@ public:
 	void TraverseItemlist(xml_node<>* itemList, int& index, std::vector<int> levelPath);
 	void TraverseRemark(xml_node<>* remark, int& index);
 	CString FormatPath(const std::vector<int>& path);
+
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
+	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
+	void ClearAllStatics();
+
 private:
 	void GetDeviceScrollSize(int& nMapMode,
 		SIZE& sizeTotal,

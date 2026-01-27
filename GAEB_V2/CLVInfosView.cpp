@@ -121,14 +121,23 @@ void CLVInfosView::OnInitialUpdate()
 
 		CFont* pFont = pMainFrame->GetFont();
 		CString date = versMon + _T(".") + versJahr;
+		int id = 2000;
 
-		CreateStaticText(this, _T("Version:"), version, yPos_GaebInfo, pFont, 2000);
-		CreateStaticText(this, _T("Ausgabejahr der Regelung:"), date, yPos_GaebInfo, pFont, 2020);
-		CreateStaticText(this, _T("Erstellungsdatum der Datei:"), datum, yPos_GaebInfo, pFont, 2030);
-		CreateStaticText(this, _T("Erstellungsszeit der Datei:"), zeit, yPos_GaebInfo, pFont, 2040);
-		CreateStaticText(this, _T("Programmsystem:"), progName, yPos_GaebInfo, pFont, 2050);
-		CreateStaticText(this, _T("Umsetzprogramm:"), progsystem, yPos_GaebInfo, pFont, 2060);
-		CreateStaticText(this, _T("Zeichensatz:"), zeichensatz, yPos_GaebInfo, pFont, 2070);
+		auto AddIfNotEmpty = [&](LPCTSTR label, const CString& value, CFont* font)
+			{
+				if (!value.IsEmpty())
+				{
+					CreateStaticText(this, label, value, yPos_GaebInfo, font, id);
+					id += 2;
+				}
+			};
+		AddIfNotEmpty( _T("Version:"), version,  pFont);
+		AddIfNotEmpty( _T("Ausgabejahr der Regelung:"), date,  pFont);
+		AddIfNotEmpty( _T("Erstellungsdatum der Datei:"), datum,  pFont);
+		AddIfNotEmpty( _T("Erstellungsszeit der Datei:"), zeit,  pFont);
+		AddIfNotEmpty( _T("Programmsystem:"), progName,  pFont);
+		AddIfNotEmpty( _T("Umsetzprogramm:"), progsystem,  pFont);
+		AddIfNotEmpty( _T("Zeichensatz:"), zeichensatz,  pFont);
 
 	}
 	//GAEB XML

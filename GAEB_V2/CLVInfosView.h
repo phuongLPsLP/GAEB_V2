@@ -57,7 +57,6 @@ public:
 	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
 	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
-
 	void ClearAllStatics();
 
 };

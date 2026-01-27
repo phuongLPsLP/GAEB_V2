@@ -116,39 +116,290 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 	for (CStatic* pStatic_LV : staticControls_LV)
 	{
 		pStatic_LV->SetFont(pMainFrame->GetFontBold());
-		//pStatic_LV->ShowWindow(state);
 	}
 
-	for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
+	m_format = pMainFrame->GetFormat();
+
+	if (*m_format == "2000") 
 	{
-		CString BoQ_node_text(BoQ_node->name());
-		//BoQ_node_text = DP / OWN / AddText / BoQ
-		if (BoQ_node_text == "BoQ")
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+		bool inLVBereich = false;   
+		bool inPosition = false;
+
+
+		struct LVBereich {
+			CString ber_oz;
+			CString ber_kurztext;
+		};
+
+		struct LVPosition {
+			CString pos_oz;
+			CString pos_menge;
+			CString pos_einheit;
+			CString pos_kurztext;
+			CString pos_einheitpreis;
+			CString pos_gesamtpreis;
+			std::vector<LVBereich> path;
+		};
+
+		std::vector<LVBereich> lvStack;
+		std::vector<LVPosition> positions;
+
+		LVBereich currentLV{};
+		LVPosition currentPos{};
+
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		for(const auto& raw : lines)
 		{
-			for (xml_node<>* BoQChild_node = BoQ_node->first_node(); BoQChild_node; BoQChild_node = BoQChild_node->next_sibling())
-			{// BoQInfo / BoQBody
-				CString BoQChild_node_text(BoQChild_node->name());
-				if (BoQChild_node_text == "BoQInfo")
-				{
-					continue;
+			CString line = raw;
+			line.Trim();
+			if (line.IsEmpty())
+				continue;
+
+			if (line.CompareNoCase(_T("#begin[LVBereich]")) == 0)
+			{
+				// neuer Bereich beginnt: wir sammeln OZ/BezTx und pushen beim #end oder sobald wir OZ haben?
+				// robust: wir merken einen "currentLv", pushen erst, wenn wir OZ oder BezTx gesehen haben.
+				currentLV = LVBereich{};
+				inLVBereich = true;
+				continue;
+			}
+			if(line.CompareNoCase(_T("#end[LVBereich]")) == 0)
+			{
+				// Wenn currentLv noch nicht gepusht wurde (weil OZ/BezTx erst gelesen wurde),
+				// dann wurde er schon in lvStack gepusht? -> siehe unten: wir pushen sofort, sobald OZ kommt.
+				// Hier müssen wir einfach poppen, wenn Stack nicht leer.
+				if (!lvStack.empty())
+					lvStack.pop_back();
+
+				inLVBereich = false;
+				continue;
+			}
+
+			if (line.CompareNoCase(_T("#begin[Position]")) == 0)
+			{
+				currentPos = LVPosition{};
+				currentPos.path = lvStack;  // aktueller Bereichspfad
+				inPosition = true;
+				continue;
+			}
+			if (line.CompareNoCase(_T("#end[Position]")) == 0)
+			{
+				positions.push_back(currentPos);
+				inPosition = false;
+				continue;
+			}
+
+			CString key, value;
+			if(!TryParseGaebKeyValueLine(line, key, value))
+				continue;
+
+			if (inLVBereich && !inPosition) {
+				if (key.CompareNoCase(_T("OZ")) == 0) {
+					currentLV.ber_oz = value;
+					lvStack.push_back(currentLV);
 				}
-				else {
-					int yPos_LV = 100;
-					xml_node<>* bodyNode = BoQChild_node; // should be BoQBody
-					if (CString(bodyNode->name()) == "BoQBody")
+				else if (key.CompareNoCase(_T("BezTx")) == 0) {
+					if (!lvStack.empty())
+						lvStack.back().ber_kurztext = value;
+					else
+						currentLV.ber_kurztext = value; 
+				}
+				continue;
+			}
+			if (inPosition) {
+				if (key.CompareNoCase(_T("OZ")) == 0) currentPos.pos_oz = value;
+				else if(key.CompareNoCase(_T("Menge")) == 0) currentPos.pos_menge = value;
+				else if (key.CompareNoCase(_T("Einheit")) == 0) currentPos.pos_einheit = value;
+				else if (key.CompareNoCase(_T("Kurztext")) == 0) currentPos.pos_kurztext = value;
+				else if (key.CompareNoCase(_T("Einheitpreis")) == 0) currentPos.pos_einheitpreis = value;
+				else if (key.CompareNoCase(_T("Gesamtpreis")) == 0) currentPos.pos_gesamtpreis = value;
+				continue;
+			}
+		}
+	}
+
+	else {
+		for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
+		{
+			CString BoQ_node_text(BoQ_node->name());
+			//BoQ_node_text = DP / OWN / AddText / BoQ
+			if (BoQ_node_text == "BoQ")
+			{
+				for (xml_node<>* BoQChild_node = BoQ_node->first_node(); BoQChild_node; BoQChild_node = BoQChild_node->next_sibling())
+				{// BoQInfo / BoQBody
+					CString BoQChild_node_text(BoQChild_node->name());
+					if (BoQChild_node_text == "BoQInfo")
 					{
-						std::vector<int> rootPath;
-						for (xml_node<>* ctgyNode = bodyNode->first_node("BoQCtgy"); ctgyNode; ctgyNode = ctgyNode->next_sibling("BoQCtgy"))
+						continue;
+					}
+					else {
+						int yPos_LV = 100;
+						xml_node<>* bodyNode = BoQChild_node; // should be BoQBody
+						if (CString(bodyNode->name()) == "BoQBody")
 						{
-							TraverseBoQCtgy(ctgyNode, yPos_LV, rootPath);
+							std::vector<int> rootPath;
+							for (xml_node<>* ctgyNode = bodyNode->first_node("BoQCtgy"); ctgyNode; ctgyNode = ctgyNode->next_sibling("BoQCtgy"))
+							{
+								TraverseBoQCtgy(ctgyNode, yPos_LV, rootPath);
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-
 }
+
+bool CLV_MainView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
+{
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL) // simple safety limit 200MB
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// ANSI -> UTF-16
+	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+
+	// Lines splitten (\r\n oder \n)
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		// CRLF oder einzelnes CR / LF überspringen
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+}
+
+bool CLV_MainView::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
+{
+	//#begin[GAEBInfo]
+	//#end[GAEBInfo]
+	int k1 = line.Find(_T('['));
+	if (k1 != 0)
+		return false;
+	int k2 = line.Find(_T(']'), k1 + 1);
+	if (k2 <= 1)
+		return false;
+	CString s = line;
+	s.Trim();
+
+	int endTag = s.ReverseFind(_T('['));
+	if (endTag < 0)
+		return false;
+	CString tail = s.Mid(endTag);
+	if (tail.CompareNoCase(_T("[end]")) != 0) return false;
+
+	outKey = s.Mid(1, k2 - 1);
+	outKey.Trim();
+
+	outValue = s.Mid(k2 + 1, endTag - (k2 + 1));
+	outValue.Trim();
+	return !outKey.IsEmpty();
+}
+
+void CLV_MainView::CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase)
+{
+
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+	const int labelX = 20;
+	const int valueX = 270;
+	const int height = 20;
+	const int labelWidth = 240;
+	const int valueWidth = 400;
+
+	CStatic* pLabel = new CStatic();
+
+	pLabel->Create(label,
+		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+		CRect(labelX, yPos, labelX + labelWidth, yPos + height),
+		this, idBase);
+
+	CStatic* pValue = new CStatic();
+	pValue->Create(value,
+		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+		CRect(valueX, yPos, valueX + valueWidth, yPos + height),
+		this, idBase);
+	pLabel->SetFont(pMainFrame->GetFont());
+	pValue->SetFont(pMainFrame->GetFont());
+
+	m_dynamicStatics.push_back(pLabel);
+	m_dynamicStatics.push_back(pValue);
+
+	yPos += height;
+}
+
+void CLV_MainView::ClearAllStatics()
+{
+	for (CStatic* p : m_dynamicStatics)
+	{
+		if (p && ::IsWindow(p->GetSafeHwnd()))
+			p->DestroyWindow();
+		delete p;
+	}
+	m_dynamicStatics.clear();
+}
+
 
 #ifdef _DEBUG
 void CLV_MainView::AssertValid() const
@@ -167,15 +418,9 @@ HBRUSH CLV_MainView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CScrollView::OnCtlColor(pDC, pWnd, nCtlColor);
 	int ctrlID = pWnd->GetDlgCtrlID();
-
-	if (ctrlID == 1001)
-	{
-		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
-		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
-	}
-	if (ctrlID == 1003) {
-		pDC->SetBkMode(TRANSPARENT);  // Set transparent background
-		return (HBRUSH)GetStockObject(NULL_BRUSH); // No background fill
+	if (nCtlColor == CTLCOLOR_STATIC) {
+		pDC->SetBkMode(TRANSPARENT);  
+		return (HBRUSH)GetStockObject(NULL_BRUSH);
 	}
 	return hbr;
 }

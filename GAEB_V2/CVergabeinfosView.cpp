@@ -71,7 +71,7 @@ void CVergabeinfosView::OnInitialUpdate()
 		CRect(CPoint(20, 20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 	m_staticText_Vergabeinfos.SetFont(pMainFrame->GetFontBold());
 
-	if(*m_format == "2000")
+	if (*m_format == "2000")
 	{
 		std::vector<CString> lines;
 		m_path = pMainFrame->GetPath();
@@ -81,68 +81,134 @@ void CVergabeinfosView::OnInitialUpdate()
 			return;
 		}
 
-		CString phase, auftragsgeber, auftragsnehmer, adresse, name1, name2, name3, name4, tel, fon, fax, mail, str, plz, ort, waehrung,
-			wae_bez;
-		bool inGaebInfo = false;
+		bool hasAG = false;
+		bool hasAN = false;
+		bool hasInfo = false;
+
+		CString phase;
+		CString ag, ag_name1, ag_name2, ag_name3, ag_name4, ag_tel, ag_fon, ag_fax, ag_mail, ag_str, ag_plz, ag_ort;
+		CString an, an_name1, an_name2, an_name3, an_name4, an_tel, an_fon, an_fax, an_mail, an_str, an_plz, an_ort;			
+		CString	waehrung, wae_bez;
+		bool inVergabe = false;
+		bool inAG = false;
+		bool inAN = false;
+		bool inAdresse = false;
+		bool inVergabeInfo = false;
+
+		CFont* pFont = pMainFrame->GetFont();
+		CFont* pBold = pMainFrame->GetFontBold();
+
 		for (const auto& raw : lines)
 		{
 			CString line = raw;
 			line.Trim();
+			CString key, value;
+
+
 			if (line.IsEmpty())
 				continue;
-			if (line.CompareNoCase(_T("#begin[VergabeInfo]")) == 0) {
-				inGaebInfo = true;
+			if (line.CompareNoCase(_T("#begin[Vergabe]")) == 0) {
+				inVergabe = true;
 				continue;
 			}
-			if (line.CompareNoCase(_T("#end[VergabeInfo]")) == 0) {
-				inGaebInfo = false;
+			if (line.CompareNoCase(_T("#end[Vergabe]")) == 0) {
+				inVergabe = false;
 				continue;
 			}
-			if (!inGaebInfo)
+			
+			if (!inVergabe)
 				continue;
-			CString key, value;
+
+			if (line.CompareNoCase(_T("#begin[AG]")) == 0) { inAG = true; hasAG = true; continue; }
+			if (line.CompareNoCase(_T("#end[AG]")) == 0) { inAG = false; continue; }
+
+			if (line.CompareNoCase(_T("#begin[AN]")) == 0) { inAN = true; hasAN = true; continue; }
+			if (line.CompareNoCase(_T("#end[AN]")) == 0) { inAN = false; continue; }
+
+			if (line.CompareNoCase(_T("#begin[Adresse]")) == 0) { inAdresse = true; continue; }
+			if (line.CompareNoCase(_T("#end[Adresse]")) == 0) { inAdresse = false; continue; }
+
+			if (line.CompareNoCase(_T("#begin[VergabeInfo]")) == 0) { inVergabeInfo = true; hasInfo = true; continue; }
+			if (line.CompareNoCase(_T("#end[VergabeInfo]")) == 0) { inVergabeInfo = false; continue; }
+
 			if (!TryParseGaebKeyValueLine(line, key, value))
 				continue;
 
-			if (key.CompareNoCase(_T("DP")) == 0) phase = value;
-			else if (key.CompareNoCase(_T("AG")) == 0) auftragsgeber = value;
-			else if (key.CompareNoCase(_T("AN")) == 0) auftragsnehmer = value;
-			else if (key.CompareNoCase(_T("Adresse")) == 0) adresse = value;
-			else if (key.CompareNoCase(_T("Strasse")) == 0) str = value;
-			else if (key.CompareNoCase(_T("PLZ")) == 0) plz = value;
-			else if (key.CompareNoCase(_T("Ort")) == 0) ort = value;
-			else if (key.CompareNoCase(_T("Telefon")) == 0) tel = value;
-			else if (key.CompareNoCase(_T("Fax")) == 0) fax = value;
-			else if (key.CompareNoCase(_T("Email")) == 0) mail = value;
-			else if (key.CompareNoCase(_T("Name1")) == 0) name1 = value;
-			else if (key.CompareNoCase(_T("Name2")) == 0) name2 = value;
-			else if (key.CompareNoCase(_T("Name3")) == 0) name3 = value;
-			else if (key.CompareNoCase(_T("Name4")) == 0) name4 = value;
-			else if (key.CompareNoCase(_T("Wae")) == 0) waehrung = value;
-			else if (key.CompareNoCase(_T("WaeBez")) == 0) wae_bez = value;
 
+			if (key.CompareNoCase(_T("DP")) == 0) phase = value;	
+			if (inAdresse && inAG) {
+				if(key.CompareNoCase(_T("Name1")) == 0) ag_name1 = value;
+				else if (key.CompareNoCase(_T("Name2")) == 0) ag_name2 = value;
+				else if (key.CompareNoCase(_T("Name3")) == 0) ag_name3 = value;
+				else if (key.CompareNoCase(_T("Name4")) == 0) ag_name4 = value;
+				else if (key.CompareNoCase(_T("Strasse")) == 0) ag_str = value;
+				else if (key.CompareNoCase(_T("PLZ")) == 0) ag_plz = value;
+				else if (key.CompareNoCase(_T("Ort")) == 0) ag_ort = value;
+				else if (key.CompareNoCase(_T("Telefon")) == 0) ag_tel = value;
+				else if (key.CompareNoCase(_T("Fax")) == 0) ag_fax = value;
+				else if (key.CompareNoCase(_T("Email")) == 0) ag_mail = value;
 
+			}
+			if (inAdresse && inAN) {
+				if (key.CompareNoCase(_T("Name1")) == 0) an_name1 = value;
+				else if (key.CompareNoCase(_T("Name2")) == 0) an_name2 = value;
+				else if (key.CompareNoCase(_T("Name3")) == 0) an_name3 = value;
+				else if (key.CompareNoCase(_T("Name4")) == 0) an_name4 = value;
+				else if (key.CompareNoCase(_T("Strasse")) == 0) an_str = value;
+				else if (key.CompareNoCase(_T("PLZ")) == 0) an_plz = value;
+				else if (key.CompareNoCase(_T("Ort")) == 0) an_ort = value;
+				else if (key.CompareNoCase(_T("Telefon")) == 0) an_tel = value;
+				else if (key.CompareNoCase(_T("Fax")) == 0) an_fax = value;
+				else if (key.CompareNoCase(_T("Email")) == 0) an_mail = value;
+
+			}
+			if (inVergabeInfo) {
+				if (key.CompareNoCase(_T("Wae")) == 0) waehrung = value;
+				else if (key.CompareNoCase(_T("WaeBez")) == 0) wae_bez = value;
+			}		
 		}
 
-		CFont* pFont = pMainFrame->GetFont();
+		int id = 3000;
+		CreateStaticText(this, _T("Datenaustauschphase:"), phase, y_pos_vergabeinfo, pFont, id);
 
-		CreateStaticText(this, _T("Datenaustauschphase:"), phase, y_pos_vergabeinfo, pFont, 2000);
-		CreateStaticText(this, _T("Auftragsgeber:"), auftragsgeber, y_pos_vergabeinfo, pFont, 2020);
-		CreateStaticText(this, _T("Auftragsnehmer:"), auftragsnehmer, y_pos_vergabeinfo, pFont, 2030);
-		CreateStaticText(this, _T("Adresse:"), adresse, y_pos_vergabeinfo, pFont, 2040);
-		CreateStaticText(this, _T("Strasse:"), str, y_pos_vergabeinfo, pFont, 2050);
-		CreateStaticText(this, _T("PLZ:"), plz, y_pos_vergabeinfo, pFont, 2060);
-		CreateStaticText(this, _T("Ort:"), ort, y_pos_vergabeinfo, pFont, 2070);
-		CreateStaticText(this, _T("Telefon:"), tel, y_pos_vergabeinfo, pFont, 2090);
-		CreateStaticText(this, _T("Fax:"), fax, y_pos_vergabeinfo, pFont, 2100);
-		CreateStaticText(this, _T("Email:"), name1, y_pos_vergabeinfo, pFont, 2110);
-		CreateStaticText(this, _T("Name1:"), name1, y_pos_vergabeinfo, pFont, 2120);
-		CreateStaticText(this, _T("Name2:"), name2, y_pos_vergabeinfo, pFont, 2130);
-		CreateStaticText(this, _T("Name3:"), name3, y_pos_vergabeinfo, pFont, 2140);
-		CreateStaticText(this, _T("Name4:"), name4, y_pos_vergabeinfo, pFont, 2150);
-		CreateStaticText(this, _T("Währung:"), waehrung, y_pos_vergabeinfo, pFont, 2160);
-		CreateStaticText(this, _T("Bezeichnung der Währung:"), wae_bez, y_pos_vergabeinfo, pFont, 2170);
+		auto AddIfNotEmpty = [&](LPCTSTR label, const CString& value, CFont* font)
+			{
+				if (!value.IsEmpty())
+				{
+					CreateStaticText(this, label, value, y_pos_vergabeinfo, font, id);
+					id += 2;
+				}
+			};
+		if (hasAG) {
+			CreateStaticText(this, _T("Auftragsgeber:"), ag, y_pos_vergabeinfo, pBold, id += 2);
 
+			AddIfNotEmpty(_T("Name1:"), ag_name1, pFont);
+			AddIfNotEmpty(_T("Name2:"), ag_name2, pFont);
+			AddIfNotEmpty(_T("Name3:"), ag_name3, pFont);
+			AddIfNotEmpty(_T("Name4:"), ag_name4, pFont);
+			AddIfNotEmpty(_T("Straße:"), ag_str, pFont);
+			AddIfNotEmpty(_T("PLZ:"), ag_plz, pFont);
+			AddIfNotEmpty(_T("Ort:"), ag_ort, pFont);
+			AddIfNotEmpty(_T("Telefon:"), ag_tel, pFont);
+			AddIfNotEmpty(_T("Fax:"), ag_fax, pFont);
+		}
+		if (hasAN) {
+			CreateStaticText(this, _T("Auftragsnehmer:"), an, y_pos_vergabeinfo, pBold, id += 2);
+
+			AddIfNotEmpty(_T("Name1:"), an_name1, pFont);
+			AddIfNotEmpty(_T("Name2:"), an_name2, pFont);
+			AddIfNotEmpty(_T("Name3:"), an_name3, pFont);
+			AddIfNotEmpty(_T("Name4:"), an_name4, pFont);
+			AddIfNotEmpty(_T("Straße:"), an_str, pFont);
+			AddIfNotEmpty(_T("PLZ:"), an_plz, pFont);
+			AddIfNotEmpty(_T("Ort:"), an_ort, pFont);
+			AddIfNotEmpty(_T("Telefon:"), an_tel, pFont);
+			AddIfNotEmpty(_T("Fax:"), an_fax, pFont);
+		}
+		if (hasInfo) {
+			CreateStaticText(this, _T("Waehrung:"), waehrung, y_pos_vergabeinfo, pFont, id); id += 2;
+			CreateStaticText(this, _T("Bezeichnung:"), wae_bez, y_pos_vergabeinfo, pFont, id); id += 2;
+		}
 	}
 
 	//GAEB XML
@@ -290,7 +356,11 @@ void CVergabeinfosView::OnInitialUpdate()
 			}
 		}
 	}
+
+
+
 }
+
 
 void CVergabeinfosView::Auftraggeber() {
 
@@ -566,6 +636,7 @@ void CVergabeinfosView::CreateStaticText(CWnd* parent, const CString& label, con
 	const int valueWidth = 400;
 
 	CStatic* pLabel = new CStatic();
+	CStatic* pSubtitel = new CStatic();
 
 	pLabel->Create(label,
 		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
@@ -577,8 +648,9 @@ void CVergabeinfosView::CreateStaticText(CWnd* parent, const CString& label, con
 		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
 		CRect(valueX, yPos, valueX + valueWidth, yPos + height),
 		this, idBase);
-	pLabel->SetFont(pMainFrame->GetFont());
-	pValue->SetFont(pMainFrame->GetFont());
+	pLabel->SetFont(pFont);
+	pValue->SetFont(pFont);
+	
 
 	m_dynamicStatics.push_back(pLabel);
 	m_dynamicStatics.push_back(pValue);
