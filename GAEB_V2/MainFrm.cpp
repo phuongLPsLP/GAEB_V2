@@ -1239,83 +1239,121 @@ void CMainFrame::OnOpenFile()
 		if (ext.CompareNoCase(_T(".X80")) == 0 || ext.CompareNoCase(_T(".x80")) == 0) {
 			m_string_phase = _T("X80 Universelle LV-Daten");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X81")) == 0 || ext.CompareNoCase(_T(".x81")) == 0) {
 			m_string_phase = _T("X81 Leistungsbeschreibung");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X82")) == 0 || ext.CompareNoCase(_T(".x82")) == 0) {
 			m_string_phase = _T("X82 Kostenanschlag");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X83")) == 0 || ext.CompareNoCase(_T(".x83")) == 0) {
 			m_string_phase = _T("X83 Angebotsaufforderung");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X84")) == 0 || ext.CompareNoCase(_T(".x84")) == 0) {
 			AfxMessageBox(_T("Hinweis beim Laden von .X84 Datei: \r\n Sie laden eine Angebotsabgabedatei(D84) ohne vorher ein LV geladen zu haben(D81, D82, D83, D86)! \r\n Eine reine Angebotsabgabe enthält nur die Ordnungsnummern und die Preise. \r\n Durch die fehlenden Mengenangaben wird die Darstellung der Daten nicht korrekt sein."));
 
 			m_string_phase = _T("X84 Angebotsabgabe");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X85")) == 0 || ext.CompareNoCase(_T(".x85")) == 0) {
 			m_string_phase = _T("X85 Nebenangebot");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X86")) == 0 || ext.CompareNoCase(_T(".x86")) == 0) {
 			m_string_phase = _T("X86 Auftragserteilung");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".X94")) == 0 || ext.CompareNoCase(_T(".x94")) == 0) {
 			m_string_phase = _T("X94 Handel - Preisangebot");
 			m_checkbox_GXML = TRUE;
+			m_checkbox_G90 = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 
 //GAEB 2000
 		else if (ext.CompareNoCase(_T(".P81")) == 0 || ext.CompareNoCase(_T(".p81")) == 0) {
 			m_string_phase = _T("P81 Leistungsbeschreibung");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".P82")) == 0 || ext.CompareNoCase(_T(".p82")) == 0) {
 			m_string_phase = _T("P82 Kostenanschlag");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".P83")) == 0 || ext.CompareNoCase(_T(".p83")) == 0) {
 			m_string_phase = _T("P83 Angebotsaufforderung");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".P84")) == 0 || ext.CompareNoCase(_T(".p84")) == 0) {
 			m_string_phase = _T("P84 Angebotsabgabe");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".P85")) == 0 || ext.CompareNoCase(_T(".p85")) == 0) {
 			m_string_phase = _T("P85 Nebenangebot");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".P86")) == 0 || ext.CompareNoCase(_T(".p86")) == 0) {
 			m_string_phase = _T("P86 Auftragserteilung");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".P94")) == 0 || ext.CompareNoCase(_T(".p94")) == 0) {
 			m_string_phase = _T("P94 Handel - Preisangebot");
 			m_checkbox_G2000 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G90 = FALSE;
 		}
 //GAEB 90
 		else if (ext.CompareNoCase(_T(".D81")) == 0 || ext.CompareNoCase(_T(".d81")) == 0) {
 			m_string_phase = _T("D81 Leistungsbeschreibung");
 			m_checkbox_G90 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".D82")) == 0 || ext.CompareNoCase(_T(".d82")) == 0) {
 			m_string_phase = _T("D82 Kostenanschlag");
 			m_checkbox_G90 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".D83")) == 0 || ext.CompareNoCase(_T(".d83")) == 0) {
 			m_string_phase = _T("D83 Angebotsaufforderung");
 			m_checkbox_G90 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".D84")) == 0 || ext.CompareNoCase(_T(".d84")) == 0) {
 			m_string_phase = _T("D84 Angebotsabgabe");
 			m_checkbox_G90 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 		else if (ext.CompareNoCase(_T(".D85")) == 0 || ext.CompareNoCase(_T(".d85")) == 0) {
 			m_string_phase = _T("D85 Nebenangebot");
@@ -1324,6 +1362,8 @@ void CMainFrame::OnOpenFile()
 		else if (ext.CompareNoCase(_T(".D86")) == 0 || ext.CompareNoCase(_T(".d86")) == 0) {
 			m_string_phase = _T("D86 Auftragserteilung");
 			m_checkbox_G90 = TRUE;
+			m_checkbox_GXML = FALSE;
+			m_checkbox_G2000 = FALSE;
 		}
 
 		if (m_checkbox_G90 == TRUE) {

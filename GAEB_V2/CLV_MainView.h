@@ -3,6 +3,7 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
+#include <set>
 
 using namespace rapidxml;
 
@@ -41,6 +42,10 @@ protected:
 	rapidxml::xml_node<>* m_award = nullptr;
 
 	CTreeCtrl m_LV_Angabe_View;
+	CListCtrl m_list_LV;
+	bool m_listCreated = false;
+
+	CFont m_headerFontBold;
 
 	CStatic m_staticText_Title;
 	BOOL m_bInfoVisible_LV;
@@ -58,9 +63,40 @@ protected:
 
 	CString* m_format;
 	std::vector<CStatic*> m_dynamicStatics;
+	int yPos_LV = 100;
 
+	struct LVBereich {
+		CString ber_oz;
+		CString ber_oz_formatted;
+		CString ber_kurztext;
+	};
 
+	const int xOZ = 20;
+	const int xM = 180;
+	const int xME = 300;
+	const int xTxt = 420;
+	const int xEP = 1250;
+	const int xGP = 1450;
 
+	const int hRow = 20;
+
+	struct LVPosition {
+		CString pos_oz;
+		CString pos_menge;
+		CString pos_einheit;
+		CString pos_kurztext;
+		CString pos_langtext;
+		CString pos_einheitpreis;
+		CString pos_gesamtpreis;
+		std::vector<LVBereich> path;
+	};
+
+	struct  LVBeschreibung
+	{
+		CString beschr_langtext;
+		CString beschr_kurztext;
+	};
+	enum class rowKind{Section, Position};
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
@@ -79,6 +115,9 @@ public:
 	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
 	void ClearAllStatics();
+	//void CLV_MainView::CreateCell(int x, int y, int w, int h, const CString& text, CFont* font, int id);
+	//void CLV_MainView::RenderRow(int y,		const CString& oz, const CString& menge, const CString& me,		const CString& text, const CString& ep, const CString& gp,		CFont* font, int& id);
+	void CLV_MainView::ClearAllViews();
 
 private:
 	void GetDeviceScrollSize(int& nMapMode,

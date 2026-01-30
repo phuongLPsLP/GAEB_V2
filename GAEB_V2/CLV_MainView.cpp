@@ -29,6 +29,11 @@ END_MESSAGE_MAP()
 
 // CLV_MainView drawing
 
+static double ParseGermanDouble(CString s);
+static CString NormalizeOZ(CString s);
+static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ);
+
+
 void CLV_MainView::OnDraw(CDC* pDC)
 {
 	CDocument* pDoc = GetDocument();
@@ -61,7 +66,7 @@ void CLV_MainView::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
 	//m_wndSize.cy = 100000;
-//	SetScrollSizes(MM_TEXT, m_wndSize);
+	SetScrollSizes(MM_TEXT, m_wndSize);
 
 	CSize textSize;
 	GetClientRect(&clientRect);
@@ -84,6 +89,7 @@ void CLV_MainView::OnInitialUpdate()
 
 void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 {
+	ClearAllViews();
 	CStatic* staticControls_LV[] =
 	{
 	 &m_staticText_OZ,
@@ -100,61 +106,61 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 	{
 		pStatic_LV->DestroyWindow();
 	}
-	m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
-	m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(180, 70), CSize(80, 20)), this, 1001);
-	m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(300, 70), CSize(80, 20)), this, 1001);
-	m_staticText_LeiBe.Create(_T("Leitungsbeschreibung"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(420, 70), CSize(700, 20)), this, 1001);
-	m_staticText_Einheitpreis.Create(_T("Einheitpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(1250, 70), CSize(180, 20)), this, 1001);
-	m_staticText_Gesamtpreis.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
-		CRect(CPoint(1450, 70), CSize(180, 20)), this, 1001);
 
-	for (CStatic* pStatic_LV : staticControls_LV)
-	{
-		pStatic_LV->SetFont(pMainFrame->GetFontBold());
-	}
 
 	m_format = pMainFrame->GetFormat();
 
-	if (*m_format == "2000") 
+	if (*m_format == "2000")
 	{
+		
+		if (!m_listCreated)
+		{
+			CRect rc; GetClientRect(&rc);
+
+			// unterhalb deiner Überschrift starten (z.B. ab y=70)
+			CRect rcList(20, 70, rc.right - 20, rc.bottom - 20);
+			m_list_LV.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SINGLESEL,
+				rcList, this, 9001);
+
+			m_list_LV.SetExtendedStyle(LVS_EX_FULLROWSELECT);
+
+			m_list_LV.InsertColumn(0, _T("Ordnungszahl"), LVCFMT_LEFT, 120);
+			m_list_LV.InsertColumn(1, _T("Menge"), LVCFMT_RIGHT, 80);
+			m_list_LV.InsertColumn(2, _T("Einheit"), LVCFMT_LEFT, 80);
+			m_list_LV.InsertColumn(3, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 700);
+			m_list_LV.InsertColumn(4, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 180);
+			m_list_LV.InsertColumn(5, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 180);
+
+			m_list_LV.SetFont(pMainFrame->GetFont());
+			CHeaderCtrl* pHeader = m_list_LV.GetHeaderCtrl();
+			pHeader->SetFont(pMainFrame->GetFontBold());
+
+			m_listCreated = true;
+		}
+		else
+		{
+			m_list_LV.DeleteAllItems();
+		}
+
 		std::vector<CString> lines;
 		m_path = pMainFrame->GetPath();
-		bool inLVBereich = false;   
+		bool inLVBereich = false;
 		bool inPosition = false;
-
-
-		struct LVBereich {
-			CString ber_oz;
-			CString ber_kurztext;
-		};
-
-		struct LVPosition {
-			CString pos_oz;
-			CString pos_menge;
-			CString pos_einheit;
-			CString pos_kurztext;
-			CString pos_einheitpreis;
-			CString pos_gesamtpreis;
-			std::vector<LVBereich> path;
-		};
 
 		std::vector<LVBereich> lvStack;
 		std::vector<LVPosition> positions;
+		std::vector<LVBeschreibung> beschreibung;
 
 		LVBereich currentLV{};
 		LVPosition currentPos{};
+		LVBeschreibung currentBesch{};
 
 		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
 			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
 			return;
 		}
 
-		for(const auto& raw : lines)
+		for (const auto& raw : lines)
 		{
 			CString line = raw;
 			line.Trim();
@@ -169,7 +175,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				inLVBereich = true;
 				continue;
 			}
-			if(line.CompareNoCase(_T("#end[LVBereich]")) == 0)
+			if (line.CompareNoCase(_T("#end[LVBereich]")) == 0)
 			{
 				// Wenn currentLv noch nicht gepusht wurde (weil OZ/BezTx erst gelesen wurde),
 				// dann wurde er schon in lvStack gepusht? -> siehe unten: wir pushen sofort, sobald OZ kommt.
@@ -194,37 +200,128 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				inPosition = false;
 				continue;
 			}
+			if (line.CompareNoCase(_T("#begin[Hinweis]")) == 0) 
+			{
+
+			}
+			if (line.CompareNoCase(_T("#end[Hinweis]")) == 0) 
+			{
+
+			}
 
 			CString key, value;
-			if(!TryParseGaebKeyValueLine(line, key, value))
+			if (!TryParseGaebKeyValueLine(line, key, value))
 				continue;
 
 			if (inLVBereich && !inPosition) {
 				if (key.CompareNoCase(_T("OZ")) == 0) {
+					value.Trim();
 					currentLV.ber_oz = value;
+
+					if (lvStack.empty())
+						currentLV.ber_oz_formatted = value;
+					else
+						currentLV.ber_oz_formatted =
+						FormatOZByParent(lvStack.back().ber_oz,
+							lvStack.back().ber_oz_formatted,
+							value);
+
 					lvStack.push_back(currentLV);
 				}
 				else if (key.CompareNoCase(_T("BezTx")) == 0) {
 					if (!lvStack.empty())
 						lvStack.back().ber_kurztext = value;
 					else
-						currentLV.ber_kurztext = value; 
+						currentLV.ber_kurztext = value;
 				}
 				continue;
 			}
 			if (inPosition) {
-				if (key.CompareNoCase(_T("OZ")) == 0) currentPos.pos_oz = value;
-				else if(key.CompareNoCase(_T("Menge")) == 0) currentPos.pos_menge = value;
-				else if (key.CompareNoCase(_T("Einheit")) == 0) currentPos.pos_einheit = value;
-				else if (key.CompareNoCase(_T("Kurztext")) == 0) currentPos.pos_kurztext = value;
-				else if (key.CompareNoCase(_T("Einheitpreis")) == 0) currentPos.pos_einheitpreis = value;
-				else if (key.CompareNoCase(_T("Gesamtpreis")) == 0) currentPos.pos_gesamtpreis = value;
+				if (key.CompareNoCase(_T("OZ")) == 0) 
+				{
+					value.Trim();
+					currentPos.pos_oz = value;
+					if (!lvStack.empty())
+					{
+						currentPos.pos_oz = FormatOZByParent(
+							lvStack.back().ber_oz,
+							lvStack.back().ber_oz_formatted,
+							value
+						);
+					}
+				}
+				else if (key.CompareNoCase(_T("Menge")) == 0) currentPos.pos_menge = value;
+				else if (key.CompareNoCase(_T("ME")) == 0) currentPos.pos_einheit = value;
+				else if (key.CompareNoCase(_T("BezTx")) == 0) currentPos.pos_kurztext = value;
+				else if (key.CompareNoCase(_T("EP")) == 0) currentPos.pos_einheitpreis = value;
+				else if (key.CompareNoCase(_T("GP")) == 0) currentPos.pos_gesamtpreis = value;
+				else if (key.CompareNoCase(_T("Langtext")) == 0) currentPos.pos_langtext = value;
 				continue;
 			}
 		}
-	}
 
-	else {
+		CFont* pFont = pMainFrame->GetFont();
+		int id = 2200;
+		for (auto& p : positions) {
+			double menge = ParseGermanDouble(p.pos_menge);
+			double ep = ParseGermanDouble(p.pos_einheitpreis);
+			if (menge > 0 && ep > 0) {
+				CString gesamt;
+				gesamt.Format(_T("%.2f"), menge * ep);
+				p.pos_gesamtpreis = gesamt;
+			}
+		}
+		std::set<CString> printedLv;
+
+		auto AddListRow = [&](const CString& oz, const CString& menge, const CString& me,
+			const CString& text, const CString& ep, const CString& gp)
+			{
+				int i = m_list_LV.InsertItem(m_list_LV.GetItemCount(), oz);
+				m_list_LV.SetItemText(i, 1, menge);
+				m_list_LV.SetItemText(i, 2, me);
+				m_list_LV.SetItemText(i, 3, text);
+				m_list_LV.SetItemText(i, 4, ep);
+				m_list_LV.SetItemText(i, 5, gp);
+			};
+
+		for (const auto& pos : positions)
+		{
+			for (const auto& lv : pos.path)
+			{
+				CString oz = lv.ber_oz_formatted;
+				if (printedLv.insert(oz).second)
+				{
+					AddListRow(oz, _T(""), _T(""), lv.ber_kurztext, _T(""), _T(""));
+				}
+			}
+
+			AddListRow(pos.pos_oz,
+				pos.pos_menge,
+				pos.pos_einheit,
+				pos.pos_kurztext,
+				pos.pos_einheitpreis,
+				pos.pos_gesamtpreis);
+		}
+	}
+	else 
+	{
+		m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
+		m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(180, 70), CSize(80, 20)), this, 1002);
+		m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(300, 70), CSize(80, 20)), this, 1003);
+		m_staticText_LeiBe.Create(_T("Leitungsbeschreibung"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(420, 70), CSize(700, 20)), this, 1004);
+		m_staticText_Einheitpreis.Create(_T("Einheitpreis [EUR]"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(1250, 70), CSize(180, 20)), this, 1005);
+		m_staticText_Gesamtpreis.Create(_T("Gesamtpreis [EUR]"), WS_CHILD | WS_VISIBLE,
+			CRect(CPoint(1450, 70), CSize(180, 20)), this, 1006);
+
+		for (CStatic* pStatic_LV : staticControls_LV)
+		{
+			pStatic_LV->SetFont(pMainFrame->GetFontBold());
+		}
 		for (xml_node<>* BoQ_node = m_award->first_node(); BoQ_node; BoQ_node = BoQ_node->next_sibling())
 		{
 			CString BoQ_node_text(BoQ_node->name());
@@ -239,7 +336,6 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 						continue;
 					}
 					else {
-						int yPos_LV = 100;
 						xml_node<>* bodyNode = BoQChild_node; // should be BoQBody
 						if (CString(bodyNode->name()) == "BoQBody")
 						{
@@ -255,6 +351,103 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 		}
 	}
 }
+
+static double ParseGermanDouble(CString s)
+{
+	s.Trim();
+	s.Replace(_T("."), _T(""));
+	s.Replace(_T(","), _T("."));
+	return _tstof(s);
+}
+
+static CString NormalizeOZ(CString s)
+{
+	s.Trim();
+	for (int i = 0; i < 64; ++i)
+	{
+		CString before = s;
+		s.Replace(_T("  "), _T(" "));
+		if (s == before) break;   
+	}
+	return s;
+}
+
+static int CommonPrefixLen(const CString& m, const CString& n) 
+{
+	int i = 0;
+	int j = min(m.GetLength(), n.GetLength());
+	for (; i < j; ++i) 
+	{
+		if (m[i] != n[i])
+			break;
+	}
+	return i;
+}
+
+
+static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ) 
+{
+	CString p = parentRawOZ;
+	p.Trim();
+	CString c = childRawOZ;
+	c.Trim();
+
+	if (p.IsEmpty() || c.IsEmpty()) 
+	{
+		return c;
+	}
+
+	int pref = CommonPrefixLen(p, c);
+	if (pref > 0 && pref <= c.GetLength())
+	{
+		CString suffix = c.Mid(pref);
+		suffix.Trim();
+
+		if (suffix.IsEmpty())
+			return parentFormattedOZ;
+
+		if (!parentFormattedOZ.IsEmpty())
+			return parentFormattedOZ + _T(".") + suffix;
+
+		return c.Left(pref) + _T(".") + suffix;
+	}
+	return c;
+}
+void CLV_MainView::ClearAllViews()
+{
+	// 1) ListCtrl leeren (falls vorhanden)
+	if (m_list_LV.GetSafeHwnd())
+	{
+		m_list_LV.DeleteAllItems();
+	}
+
+	// 2) Dynamische Statics löschen
+	for (CStatic* p : m_dynamicStatics)
+	{
+		if (p && ::IsWindow(p->GetSafeHwnd()))
+			p->DestroyWindow();
+		delete p;
+	}
+	m_dynamicStatics.clear();
+
+	// 3) Header-Statics sicher entfernen
+	CStatic* headers[] =
+	{
+		&m_staticText_OZ,
+		&m_staticText_Menge,
+		&m_staticText_Einheit,
+		&m_staticText_LeiBe,
+		&m_staticText_Einheitpreis,
+		&m_staticText_Gesamtpreis
+	};
+
+	for (CStatic* p : headers)
+	{
+		if (p && ::IsWindow(p->GetSafeHwnd()))
+			p->DestroyWindow();
+	}
+}
+
 
 bool CLV_MainView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
 {
@@ -357,38 +550,6 @@ bool CLV_MainView::TryParseGaebKeyValueLine(const CString& line, CString& outKey
 	return !outKey.IsEmpty();
 }
 
-void CLV_MainView::CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase)
-{
-
-	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-
-	const int labelX = 20;
-	const int valueX = 270;
-	const int height = 20;
-	const int labelWidth = 240;
-	const int valueWidth = 400;
-
-	CStatic* pLabel = new CStatic();
-
-	pLabel->Create(label,
-		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
-		CRect(labelX, yPos, labelX + labelWidth, yPos + height),
-		this, idBase);
-
-	CStatic* pValue = new CStatic();
-	pValue->Create(value,
-		WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
-		CRect(valueX, yPos, valueX + valueWidth, yPos + height),
-		this, idBase);
-	pLabel->SetFont(pMainFrame->GetFont());
-	pValue->SetFont(pMainFrame->GetFont());
-
-	m_dynamicStatics.push_back(pLabel);
-	m_dynamicStatics.push_back(pValue);
-
-	yPos += height;
-}
-
 void CLV_MainView::ClearAllStatics()
 {
 	for (CStatic* p : m_dynamicStatics)
@@ -399,6 +560,7 @@ void CLV_MainView::ClearAllStatics()
 	}
 	m_dynamicStatics.clear();
 }
+
 
 
 #ifdef _DEBUG
