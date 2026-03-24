@@ -11,7 +11,7 @@ using namespace rapidxml;
 
 class CLV_MainView : public CScrollView
 {
-	DECLARE_DYNCREATE(CLV_MainView)
+	DECLARE_DYNCREATE(CLV_MainView);
 
 public:
 	CLV_MainView();           // protected constructor used by dynamic creation

@@ -39,7 +39,7 @@ class CMainFrame : public CFrameWndEx
 	
 protected: // create from serialization only
 	CMainFrame() noexcept;
-	DECLARE_DYNCREATE(CMainFrame)
+	DECLARE_DYNCREATE(CMainFrame);
 
 // Attributes
 public:	
@@ -62,7 +62,7 @@ public:
 private:
 	//int AddXMLToTreeCtrl(HTREEITEM parentItem, xml_node<>* node, int currentDepth, int& maxDepth);
 	//int AddXMLToTreeCtrl(HTREEITEM parentItem, CString string,  xml_node<>* node, int currentDepth, int& maxDepth);
-	HTREEITEM AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth);
+	//HTREEITEM AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth);
 
 
 protected:  // control bar embedded members

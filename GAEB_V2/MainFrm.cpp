@@ -311,7 +311,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 }
 
 
-HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
+/*HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
 //int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
 {
 	if (!node) return parentItem;
@@ -321,22 +321,32 @@ HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml
 
 	HTREEITEM hItem = m_wndClassView.InsertItem(string, parentItem);
 
-	for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
-	{		
-		if (child->type() == rapidxml::node_element && CString(child->name()) != _T("LblTx"))
-		{
-			CString childText(child->name());
 
-			if(child->value() && strlen(child->value()) > 0)
+	if (m_format == "XML") {
+		AfxMessageBox(_T("XML"));
+		for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
+		{
+			if (child->type() == rapidxml::node_element && CString(child->name()) != _T("LblTx"))
 			{
-				childText += _T(": ");
-				childText += Utf8ToString(child->value());	
+				CString childText(child->name());
+
+				if (child->value() && strlen(child->value()) > 0)
+				{
+					childText += _T(": ");
+					childText += Utf8ToString(child->value());
+				}
+				AddXMLToTreeCtrl(hItem, childText, child, currentDepth + 1, maxDepth);
 			}
-			AddXMLToTreeCtrl(hItem, childText, child, currentDepth + 1, maxDepth);
 		}
 	}
+	else if (m_format == "2000"){
+		AfxMessageBox(_T("2000"));
+	}
+	else if (m_format == "90"){
+		AfxMessageBox(_T("90"));
+	}
 	return hItem;
-}
+}*/
 
 
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)

@@ -100,6 +100,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 	 &m_staticText_Gesamtpreis,
 	};
 
+
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
 	for (CStatic* pStatic_LV : staticControls_LV)
@@ -302,6 +303,10 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				pos.pos_einheitpreis,
 				pos.pos_gesamtpreis);
 		}
+	}
+
+	else if(*m_format == "90")
+	{
 	}
 	else 
 	{
