@@ -134,7 +134,6 @@ void CMainFrame::LoadXMLFile()
 		dlg.SetProgress(i);
 		AfxPumpMessage();
 		Sleep(20);  
-
 	}
 	dlg.DestroyWindow();
 }
