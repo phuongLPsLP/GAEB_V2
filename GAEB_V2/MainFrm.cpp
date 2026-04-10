@@ -281,7 +281,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 	else if (m_format == "2000") {
 		CStdioFile file;
-		if (file.Open(fileName, CFile::modeRead | CFile::typeText)) {
+		if (file.Open(filePath, CFile::modeRead | CFile::typeText)) {
 			CString line;
 			while (file.ReadString(line)) {
 
@@ -290,7 +290,13 @@ void CMainFrame::FillClassView(const CString& filePath)
 		}
 	}
 	else if (m_format == "90") {
-		AfxMessageBox(m_format);
+		CStdioFile file;
+		if (file.Open(filePath, CFile::modeRead | CFile::typeText)) {
+			CString line;
+			while (file.ReadString(line)) {
+			}
+			file.Close();
+		}
 	}
 
 	m_wndClassView.Expand(info, TVE_EXPAND);

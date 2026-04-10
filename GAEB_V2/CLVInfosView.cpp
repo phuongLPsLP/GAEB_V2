@@ -140,6 +140,61 @@ void CLVInfosView::OnInitialUpdate()
 		AddIfNotEmpty( _T("Zeichensatz:"), zeichensatz,  pFont);
 
 	}
+
+	else if (*m_format == "90")
+	{
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		CString allText;
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		CString phase, datum, bez, waehrung, auftraggeber;
+
+		bool inGaebInfo = false;
+		for (const auto& raw : lines) {
+
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			if (line.IsEmpty())
+				continue;
+			if (line.GetLength() < 2)
+				continue;
+			CString satzart = line.Left(2);
+			if (satzart == _T("00") || satzart == _T("01") || satzart == _T("02") || satzart == _T("03") || satzart == _T("08"))
+			{
+				CString value = line.Mid(2);
+				value.Trim();
+				 
+				CString outline;
+				outline.Format(_T("Satzart"), satzart);
+
+				allText += outline;
+			}	
+		}
+
+		auto AddIfNotEmpty = [&](LPCTSTR label, const CString& value, CFont* font)
+			{
+				int id = 2000;
+				if (!value.IsEmpty())
+				{
+					CreateStaticText(this, label, value, yPos_GaebInfo, font, id);
+					id += 2;
+				}
+			};
+
+		AddIfNotEmpty(_T("Version:"), version, pFont);
+		AddIfNotEmpty(_T("Ausgabejahr der Regelung:"), date, pFont);
+		AddIfNotEmpty(_T("Erstellungsdatum der Datei:"), datum, pFont);
+		AddIfNotEmpty(_T("Erstellungsszeit der Datei:"), zeit, pFont);
+		AddIfNotEmpty(_T("Programmsystem:"), progName, pFont);
+		AddIfNotEmpty(_T("Umsetzprogramm:"), progsystem, pFont);
+		AddIfNotEmpty(_T("Zeichensatz:"), zeichensatz, pFont);
+
+	}
 	//GAEB XML
 	else
 	{
@@ -210,6 +265,26 @@ void CLVInfosView::OnInitialUpdate()
 			yPos_GaebInfo += 20;
 		}
 	}
+}
+
+CString CLVInfosView::GetField(const CString& line, int start, int len)
+{
+	if (start < 0 || len <= 0 || start >= line.GetLength())
+		return _T("");
+
+	int maxLen = min(len, line.GetLength() - start);
+	CString value = line.Mid(start, maxLen);
+	value.Trim();
+	return value;
+}
+
+void CLVInfosView::ParseGaeb90Position(const CString& line)
+{
+	/*CString posNr = GetField(line, 2, 10);
+	CString kurzTxt = GetField(line, 12, 40);
+	CString menge = GetField(line, 52, 11);
+	CString einheit = GetField(line, 63, 4);
+	CString ep = GetField(line, 67, 12);*/
 }
 
 
