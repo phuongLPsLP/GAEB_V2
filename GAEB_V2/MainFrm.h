@@ -221,6 +221,9 @@ public:
 	CString* GetFormat() { return &m_format; }
 	CString& GetPath() { return filePath; }
 
+	CString GetPhase() { return m_string_phase; }
+	void SetPhase(const CString& phase) { m_string_phase = phase; }
+
 	CString Utf8ToString(const char* utf8Str);
 
 	afx_msg void OnKurztext();

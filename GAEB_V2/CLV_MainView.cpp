@@ -30,6 +30,9 @@ END_MESSAGE_MAP()
 // CLV_MainView drawing
 
 static double ParseGermanDouble(CString s);
+static CString GetField(const CString& line, int start, int len);
+static double ParseGaebNumber(const CString& text, int decimals);
+static CString FormatGaebNumber(double value, int decimals);
 static CString NormalizeOZ(CString s);
 static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ);
 
@@ -113,7 +116,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 
 	if (*m_format == "2000")
 	{
-		
+
 		if (!m_listCreated)
 		{
 			CRect rc; GetClientRect(&rc);
@@ -201,11 +204,11 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				inPosition = false;
 				continue;
 			}
-			if (line.CompareNoCase(_T("#begin[Hinweis]")) == 0) 
+			if (line.CompareNoCase(_T("#begin[Hinweis]")) == 0)
 			{
 
 			}
-			if (line.CompareNoCase(_T("#end[Hinweis]")) == 0) 
+			if (line.CompareNoCase(_T("#end[Hinweis]")) == 0)
 			{
 
 			}
@@ -238,7 +241,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				continue;
 			}
 			if (inPosition) {
-				if (key.CompareNoCase(_T("OZ")) == 0) 
+				if (key.CompareNoCase(_T("OZ")) == 0)
 				{
 					value.Trim();
 					currentPos.pos_oz = value;
@@ -305,9 +308,177 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 		}
 	}
 
-	else if(*m_format == "90")
+	else if (*m_format == "90")
 	{
+
+		if (!m_listCreated)
+		{
+			CRect rc; GetClientRect(&rc);
+
+			// unterhalb deiner Überschrift starten (z.B. ab y=70)
+			CRect rcList(20, 70, rc.right - 20, rc.bottom - 20);
+			m_list_LV.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SINGLESEL,
+				rcList, this, 9001);
+
+			m_list_LV.SetExtendedStyle(LVS_EX_FULLROWSELECT);
+
+			m_list_LV.InsertColumn(0, _T("Ordnungszahl"), LVCFMT_LEFT, 120);
+			m_list_LV.InsertColumn(1, _T("Menge"), LVCFMT_RIGHT, 80);
+			m_list_LV.InsertColumn(2, _T("Einheit"), LVCFMT_LEFT, 80);
+			m_list_LV.InsertColumn(3, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 700);
+			m_list_LV.InsertColumn(4, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 180);
+			m_list_LV.InsertColumn(5, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 180);
+
+			m_list_LV.SetFont(pMainFrame->GetFont());
+			CHeaderCtrl* pHeader = m_list_LV.GetHeaderCtrl();
+			pHeader->SetFont(pMainFrame->GetFontBold());
+
+			m_listCreated = true;
+		}
+		else
+		{
+			m_list_LV.DeleteAllItems();
+		}
+
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		struct LVRow
+		{
+			CString oz;
+			CString menge;
+			CString einheit;
+			CString kurztext;
+			CString einheitpreis;
+			CString gesamtpreis;
+		};
+
+		std::vector<LVRow> rows;
+		LVRow currentRow;
+		bool hasCurrentRow = false;
+
+		/*auto GetValueWithoutSatznummer = [](const CString& line) -> CString
+			{
+				if (line.GetLength() <= 8)   // 2 Zeichen Satzart + 6 Zeichen Satznummer
+					return _T("");
+
+				CString value = line.Mid(2, line.GetLength() - 8);
+				value.Trim();
+				return value;
+			};
+		*/
+		for (const auto& raw : lines) {
+
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			line.Trim();
+
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+
+			CString satzart = GetField(line, 0, 2);
+
+			if (satzart == _T("23")) { //preisangabe einer Position			
+				LVRow row;
+
+				CString ozRaw = GetField(line, 2, 8);
+				CString mengeRaw = GetField(line, 12, 10);
+				CString gpRaw = GetField(line, 24, 12);
+				CString epRaw = GetField(line, 12, 10);
+
+				double menge = ParseGaebNumber(mengeRaw, 2);
+				double gp = ParseGaebNumber(gpRaw, 2);
+				double ep = ParseGaebNumber(epRaw, 2);
+
+				row.oz = ozRaw;
+				row.menge = _T(" ");
+				//row.menge = FormatGaebNumber(menge, 4);
+				row.einheit = _T("");
+				row.kurztext = _T("");
+				row.einheitpreis = FormatGaebNumber(ep, 2);
+				row.gesamtpreis = FormatGaebNumber(gp, 2);
+				rows.push_back(row);
+			}
+			else if (satzart == _T("32"))
+			{
+				CString bereich = GetField(line, 2, 4);
+				CString summeRaw = GetField(line, 12, 12);
+
+				double summe = ParseGaebNumber(summeRaw, 2);
+
+				LVRow row;
+				row.oz = bereich;
+				row.menge = _T("");
+				row.einheit = _T("");
+				row.kurztext = _T("");
+				row.einheitpreis = _T("");
+				row.gesamtpreis = FormatGaebNumber(summe, 2);
+
+				rows.push_back(row);
+			}
+
+
+			/*
+			hasCurrentRow = true;
+			if (hasCurrentRow) {
+				if (value.GetLength() >= 12)
+				{
+					currentRow.gesamtpreis = value.Right(12);
+					currentRow.gesamtpreis.Trim();
+				}
+				if (value.GetLength() >= 24)
+				{
+					currentRow.einheitpreis = value.Mid(value.GetLength() - 24, 12);
+					currentRow.einheitpreis.Trim();
+				}
+
+				// Falls OZ auch hier enthalten ist:
+				if (currentRow.oz.IsEmpty() && value.GetLength() >= 10)
+				{
+					currentRow.oz = value.Left(10);
+					currentRow.oz.Trim();
+				}
+			}
+			if (hasCurrentRow)
+				rows.push_back(currentRow);*/
+		}
+
+		CFont* pFont = pMainFrame->GetFont();
+		CFont* pBold = pMainFrame->GetFontBold();
+		int id = 4000;
+
+		/*if (hasCurrentRow)
+			rows.push_back(currentRow);*/
+
+			/*auto AddListRow = [&](const LVRow& row)
+				{
+					int i = m_list_LV.InsertItem(m_list_LV.GetItemCount(), row.oz);
+					m_list_LV.SetItemText(i, 1, row.menge);
+					m_list_LV.SetItemText(i, 2, row.einheit);
+					m_list_LV.SetItemText(i, 3, row.kurztext);
+					m_list_LV.SetItemText(i, 4, row.einheitpreis);
+					m_list_LV.SetItemText(i, 5, row.gesamtpreis);
+				};
+			for (const auto& row : rows)
+				AddListRow(row);*/
+
+		for (const auto& row : rows)
+		{
+			int i = m_list_LV.InsertItem(m_list_LV.GetItemCount(), row.oz);
+			m_list_LV.SetItemText(i, 1, row.menge);
+			m_list_LV.SetItemText(i, 2, row.einheit);
+			m_list_LV.SetItemText(i, 3, row.kurztext);
+			m_list_LV.SetItemText(i, 4, row.einheitpreis);
+			m_list_LV.SetItemText(i, 5, row.gesamtpreis);
+		}
+
 	}
+	
 	else 
 	{
 		m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,
@@ -355,6 +526,38 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			}
 		}
 	}
+}
+
+static CString GetField(const CString& line, int start, int len) {
+	if (start >= line.GetLength())
+		return _T("");
+	int reallen = min(len, line.GetLength() - start);
+	CString s = line.Mid(start, reallen);
+	s.Trim();
+	return s;
+}
+
+static double ParseGaebNumber(const CString& text, int decimals) {
+	CString s = text;
+	s.Trim();
+	if (s.IsEmpty())
+		return 0.0;
+
+	long long raw = _ttoi64(s);
+	double factor = 1.0;
+
+	for (int i = 0; i < decimals; ++i)
+		factor *= 10.0;
+
+	return raw / factor;
+}
+
+static CString FormatGaebNumber(double value, int decimals)
+{
+	CString s;
+	s.Format(_T("%.*f"), decimals, value);
+	s.Replace(_T("."), _T(",")); 
+	return s;
 }
 
 static double ParseGermanDouble(CString s)

@@ -379,7 +379,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		SwitchView(RUNTIME_CLASS(CVergabeinfosView), m_VergabeView);
 	}
 	else if (itemText == _T("Vertragliche Regelung")) {
-		SwitchView(RUNTIME_CLASS(CVertragView), (CView*&)m_VertragView);
+		//SwitchView(RUNTIME_CLASS(CVertragView), (CView*&)m_VertragView);
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
 		m_checkbox_KT = TRUE;

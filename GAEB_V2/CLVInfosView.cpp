@@ -67,7 +67,10 @@ void CLVInfosView::OnInitialUpdate()
 	GetClientRect(&clientRect);
 	CClientDC dc(this);
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+	CMainFrame* pMainFrm = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+
 	m_format = pMainFrame->GetFormat();	
+	m_phase = pMainFrm->GetPhase();
 
 	m_staticText_Title.Create(_T("Informationen zum GAEB Datenaustausch"), WS_CHILD | WS_VISIBLE,
 		CRect(CPoint(20, 20), CSize(clientRect.Width(), 50)), this, 1001);
@@ -131,7 +134,10 @@ void CLVInfosView::OnInitialUpdate()
 					id += 2;
 				}
 			};
-		AddIfNotEmpty( _T("Version:"), version,  pFont);
+
+
+		AddIfNotEmpty(_T("GAEB-Version:"), m_phase, pFont);
+		AddIfNotEmpty( _T("Versionsnummer:"), version,  pFont);
 		AddIfNotEmpty( _T("Ausgabejahr der Regelung:"), date,  pFont);
 		AddIfNotEmpty( _T("Erstellungsdatum der Datei:"), datum,  pFont);
 		AddIfNotEmpty( _T("Erstellungsszeit der Datei:"), zeit,  pFont);
@@ -146,39 +152,35 @@ void CLVInfosView::OnInitialUpdate()
 		std::vector<CString> lines;
 		m_path = pMainFrame->GetPath();
 
-		CString allText;
 		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
 			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
 			return;
 		}
 
-		CString phase, datum, bez, waehrung, auftraggeber;
+		CString phase, version, datum, bez, waehrung, auftraggeber, auftragnehmer;
 
-		bool inGaebInfo = false;
 		for (const auto& raw : lines) {
 
 			CString line = raw;
 			line.TrimRight(_T("\r\n"));
-			if (line.IsEmpty())
-				continue;
-			if (line.GetLength() < 2)
-				continue;
-			CString satzart = line.Left(2);
-			if (satzart == _T("00") || satzart == _T("01") || satzart == _T("02") || satzart == _T("03") || satzart == _T("08"))
-			{
-				CString value = line.Mid(2);
-				value.Trim();
-				 
-				CString outline;
-				outline.Format(_T("Satzart"), satzart);
+			line.Trim();
 
-				allText += outline;
-			}	
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+
+			CString satzart = line.Left(2);
+			CString value = line.Mid(2);
+			value = value.Left(value.GetLength() - 6);
+
+			if (satzart == _T("00"))
+				phase = value;	
 		}
+		CFont* pFont = pMainFrame->GetFont();
+		CFont* pBold = pMainFrame->GetFontBold();
+		int id = 3000;
 
 		auto AddIfNotEmpty = [&](LPCTSTR label, const CString& value, CFont* font)
 			{
-				int id = 2000;
 				if (!value.IsEmpty())
 				{
 					CreateStaticText(this, label, value, yPos_GaebInfo, font, id);
@@ -186,13 +188,14 @@ void CLVInfosView::OnInitialUpdate()
 				}
 			};
 
+		CMainFrame* pMainFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		if (pMainFrame)
+		{
+			CString phase = pMainFrame->GetPhase();
+		}
+
+		AddIfNotEmpty(_T("GAEB-Version"), m_phase, pFont);
 		AddIfNotEmpty(_T("Version:"), version, pFont);
-		AddIfNotEmpty(_T("Ausgabejahr der Regelung:"), date, pFont);
-		AddIfNotEmpty(_T("Erstellungsdatum der Datei:"), datum, pFont);
-		AddIfNotEmpty(_T("Erstellungsszeit der Datei:"), zeit, pFont);
-		AddIfNotEmpty(_T("Programmsystem:"), progName, pFont);
-		AddIfNotEmpty(_T("Umsetzprogramm:"), progsystem, pFont);
-		AddIfNotEmpty(_T("Zeichensatz:"), zeichensatz, pFont);
 
 	}
 	//GAEB XML
@@ -277,16 +280,6 @@ CString CLVInfosView::GetField(const CString& line, int start, int len)
 	value.Trim();
 	return value;
 }
-
-void CLVInfosView::ParseGaeb90Position(const CString& line)
-{
-	/*CString posNr = GetField(line, 2, 10);
-	CString kurzTxt = GetField(line, 12, 40);
-	CString menge = GetField(line, 52, 11);
-	CString einheit = GetField(line, 63, 4);
-	CString ep = GetField(line, 67, 12);*/
-}
-
 
 bool CLVInfosView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
 {
@@ -473,4 +466,6 @@ CString CLVInfosView::Utf8ToCString(const char* utf8Str)
 	result.ReleaseBuffer();
 	return result;
 }
+
+
 

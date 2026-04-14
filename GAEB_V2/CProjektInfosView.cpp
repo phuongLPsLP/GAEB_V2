@@ -122,6 +122,57 @@ void CProjektInfosView::OnInitialUpdate()
 		CreateStaticText(this, _T("Währungsbezeichnung:"), wae_bez, y_pos_projectinfo, pFont, 2040);		
 	}
 
+	else if (*m_format == "90") {
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		CString name, bezeichnung, beschreibung, waehrung, waehrung_bez;
+
+		for (const auto& raw : lines) {
+
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			line.Trim();
+
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+
+			CString satzart = line.Left(2);
+			CString value = line.Mid(2);
+			value = value.Left(value.GetLength() - 6);
+
+			if (satzart == "02") {
+				bezeichnung = value;
+			}
+			else if (satzart == "08") {
+				waehrung = value;
+			}
+			
+		}
+
+		CFont* pFont = pMainFrame->GetFont();
+		int id = 3000;
+
+		auto AddIfNotEmpty = [&](LPCTSTR label, const CString& value, CFont* font)
+			{
+				if (!value.IsEmpty())
+				{
+					CreateStaticText(this, label, value, y_pos_projectinfo, font, id);
+					id += 2;
+				}
+			};
+
+		AddIfNotEmpty(_T("Name"), name, pFont);
+		AddIfNotEmpty(_T("Bezeichnung:"), bezeichnung, pFont);
+		AddIfNotEmpty(_T("Währung:"), waehrung, pFont);
+		AddIfNotEmpty(_T("Währungsbezeichnung:"), waehrung_bez, pFont);
+
+	}
 	//GAEB XML
 	else {
 		m_Doc = pMainFrame->GetXmlDoc();

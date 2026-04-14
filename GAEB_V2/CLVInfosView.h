@@ -20,7 +20,6 @@ public:
 	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
 	virtual void OnInitialUpdate();
 	CString GetField(const CString& line, int start, int len);
-	void ParseGaeb90Position(const CString& line);
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
@@ -44,6 +43,7 @@ protected:
 
 	CString* m_format;
 	CString m_path;
+	CString m_phase;
 
 	CBrush m_brush_edit_bg_color;
 

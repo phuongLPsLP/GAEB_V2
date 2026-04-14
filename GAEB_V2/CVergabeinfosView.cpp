@@ -71,6 +71,7 @@ void CVergabeinfosView::OnInitialUpdate()
 		CRect(CPoint(20, 20), CSize(clientRect_Vergabe.Width(), 30)), this, 1001);
 	m_staticText_Vergabeinfos.SetFont(pMainFrame->GetFontBold());
 
+	//GAEB 2000
 	if (*m_format == "2000")
 	{
 		std::vector<CString> lines;
@@ -209,6 +210,62 @@ void CVergabeinfosView::OnInitialUpdate()
 			CreateStaticText(this, _T("Waehrung:"), waehrung, y_pos_vergabeinfo, pFont, id); id += 2;
 			CreateStaticText(this, _T("Bezeichnung:"), wae_bez, y_pos_vergabeinfo, pFont, id); id += 2;
 		}
+	}
+
+	//GAEB 90
+	else if (*m_format == "90") {
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		CString ag, ag_name1, ag_name2, ag_name3, ag_name4, ag_tel, ag_fon, ag_fax, ag_mail, ag_str, ag_plz, ag_ort;
+		CString an, an_name1, an_name2, an_name3, an_name4, an_tel, an_fon, an_fax, an_mail, an_str, an_plz, an_ort;
+
+		for (const auto& raw : lines) {
+
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			line.Trim();
+
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+
+			CString satzart = line.Left(2);
+			CString value = line.Mid(2);
+			value = value.Left(value.GetLength() - 6);
+
+			if (satzart == _T("04")) {
+				an_name1 = value;
+				an = _T(" ");
+			}
+			else if (satzart == _T("03")) {
+				ag = _T(" ");
+				ag_name1 = value;
+
+			}
+		}
+		CFont* pFont = pMainFrame->GetFont();
+		CFont* pBold = pMainFrame->GetFontBold();
+		int id = 4000;
+
+		auto AddIfNotEmpty = [&](LPCTSTR label, const CString& value, CFont* font)
+			{
+				if (!value.IsEmpty())
+				{
+					CreateStaticText(this, label, value, y_pos_vergabeinfo, font, id);
+					id += 2;
+				}
+			};
+
+		AddIfNotEmpty(_T("Auftraggeber"), ag, pBold);
+		AddIfNotEmpty(_T("Name:"), ag_name1, pFont);
+
+		AddIfNotEmpty(_T("Auftragnehmer"), an, pBold);
+		AddIfNotEmpty(_T("Name:"), an_name1, pFont);
 	}
 
 	//GAEB XML
