@@ -383,27 +383,40 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 
 			CString satzart = GetField(line, 0, 2);
 
+			if (satzart == _T("21")) {
+				LVRow row;
+
+				CString mengeKenz = GetField(line, 12, 3);
+				CString mengeRaw = GetField(line, 24, 11);
+				CString einheitRaw = GetField(line, 34, 4);
+
+				double menge = ParseGaebNumber(mengeRaw, 3);
+				string einheit = CT2A(einheitRaw);		
+
+
+				row.menge = FormatGaebNumber(menge, 2);
+				row.einheit = einheit.c_str();
+				rows.push_back(row);
+
+			}
 			if (satzart == _T("23")) { //preisangabe einer Position			
 				LVRow row;
 
 				CString ozRaw = GetField(line, 2, 8);
-				CString mengeRaw = GetField(line, 12, 10);
 				CString gpRaw = GetField(line, 24, 12);
 				CString epRaw = GetField(line, 12, 10);
 
-				double menge = ParseGaebNumber(mengeRaw, 2);
 				double gp = ParseGaebNumber(gpRaw, 2);
 				double ep = ParseGaebNumber(epRaw, 2);
 
 				row.oz = ozRaw;
-				row.menge = _T(" ");
-				//row.menge = FormatGaebNumber(menge, 4);
-				row.einheit = _T("");
 				row.kurztext = _T("");
 				row.einheitpreis = FormatGaebNumber(ep, 2);
 				row.gesamtpreis = FormatGaebNumber(gp, 2);
 				rows.push_back(row);
+
 			}
+
 			else if (satzart == _T("32"))
 			{
 				CString bereich = GetField(line, 2, 4);
@@ -418,11 +431,10 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				row.kurztext = _T("");
 				row.einheitpreis = _T("");
 				row.gesamtpreis = FormatGaebNumber(summe, 2);
-
 				rows.push_back(row);
+
 			}
-
-
+			
 			/*
 			hasCurrentRow = true;
 			if (hasCurrentRow) {
