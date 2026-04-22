@@ -38,6 +38,7 @@
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
 
+
 // CMainFrame
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -82,6 +83,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_LANGTEXT, &CMainFrame::OnUpdateLangtext)
 	ON_UPDATE_COMMAND_UI(ID_EXPORT, &CMainFrame::OnUpdateExport)
 END_MESSAGE_MAP()
+
+
+static CString GetField(const CString& line, int start, int len);
 
 
 // CMainFrame construction/destruction
@@ -297,6 +301,42 @@ void CMainFrame::FillClassView(const CString& filePath)
 			}
 			file.Close();
 		}
+		HTREEITEM item_added = nullptr;
+
+		std::vector<CString> lines;
+		bool art21 = false;
+		for (const auto& raw : lines) {
+
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			line.Trim();
+
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+
+			CString satzart = GetField(line, 0, 2);
+			if (satzart == _T("21")) {
+				art21 = true;
+				break;
+			}
+		}
+		if (art21) {
+			for (const auto& raw : lines)
+			{
+				CString line = raw;
+				line.TrimRight(_T("\r\n"));
+
+				if (line.IsEmpty() || line.GetLength() < 2)
+					continue;
+
+				CString satzart = GetField(line, 0, 2);
+
+				if (satzart == _T("25")) {
+					CString kurztextRaw = GetField(line, 2, 70);
+					item_added = m_wndClassView.InsertItem(kurztextRaw, LV_Main);
+				}
+			}
+		}
 	}
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
@@ -306,53 +346,17 @@ void CMainFrame::FillClassView(const CString& filePath)
 	if (!hDefault) {
 		hDefault = info;
 	}
-
-
-	//Check later
-
-	//m_wndClassView.SelectItem(hDefault);
-	//m_wndClassView.EnsureVisible(hDefault);
 	OnTreeSelectedItem(nullptr, nullptr);
 }
 
-
-/*HTREEITEM CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
-//int CMainFrame::AddXMLToTreeCtrl(HTREEITEM parentItem, CString string, xml_node<>* node, int currentDepth, int& maxDepth)
-{
-	if (!node) return parentItem;
-	//if (!node) return currentDepth;
-	if (currentDepth > maxDepth)
-		maxDepth = currentDepth;
-
-	HTREEITEM hItem = m_wndClassView.InsertItem(string, parentItem);
-
-
-	if (m_format == "XML") {
-		AfxMessageBox(_T("XML"));
-		for (xml_node<>* child = node->first_node(); child; child = child->next_sibling())
-		{
-			if (child->type() == rapidxml::node_element && CString(child->name()) != _T("LblTx"))
-			{
-				CString childText(child->name());
-
-				if (child->value() && strlen(child->value()) > 0)
-				{
-					childText += _T(": ");
-					childText += Utf8ToString(child->value());
-				}
-				AddXMLToTreeCtrl(hItem, childText, child, currentDepth + 1, maxDepth);
-			}
-		}
-	}
-	else if (m_format == "2000"){
-		AfxMessageBox(_T("2000"));
-	}
-	else if (m_format == "90"){
-		AfxMessageBox(_T("90"));
-	}
-	return hItem;
-}*/
-
+static CString GetField(const CString& line, int start, int len) {
+	if (start >= line.GetLength())
+		return _T("");
+	int reallen = min(len, line.GetLength() - start);
+	CString s = line.Mid(start, reallen);
+	s.Trim();
+	return s;
+}
 
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 {

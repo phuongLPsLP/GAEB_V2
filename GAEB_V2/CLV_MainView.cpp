@@ -359,19 +359,8 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 		};
 
 		std::vector<LVRow> rows;
-		LVRow currentRow;
-		bool hasCurrentRow = false;
 
-		/*auto GetValueWithoutSatznummer = [](const CString& line) -> CString
-			{
-				if (line.GetLength() <= 8)   // 2 Zeichen Satzart + 6 Zeichen Satznummer
-					return _T("");
-
-				CString value = line.Mid(2, line.GetLength() - 8);
-				value.Trim();
-				return value;
-			};
-		*/
+		bool art21 = false;
 		for (const auto& raw : lines) {
 
 			CString line = raw;
@@ -384,100 +373,155 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			CString satzart = GetField(line, 0, 2);
 
 			if (satzart == _T("21")) {
-				LVRow row;
-
-				CString mengeKenz = GetField(line, 12, 3);
-				CString mengeRaw = GetField(line, 24, 11);
-				CString einheitRaw = GetField(line, 34, 4);
-
-				double menge = ParseGaebNumber(mengeRaw, 3);
-				string einheit = CT2A(einheitRaw);		
-
-
-				row.menge = FormatGaebNumber(menge, 2);
-				row.einheit = einheit.c_str();
-				rows.push_back(row);
-
+				art21 = true;
+				break;
 			}
-			if (satzart == _T("23")) { //preisangabe einer Position			
-				LVRow row;
+		}
 
-				CString ozRaw = GetField(line, 2, 8);
-				CString gpRaw = GetField(line, 24, 12);
-				CString epRaw = GetField(line, 12, 10);
-
-				double gp = ParseGaebNumber(gpRaw, 2);
-				double ep = ParseGaebNumber(epRaw, 2);
-
-				row.oz = ozRaw;
-				row.kurztext = _T("");
-				row.einheitpreis = FormatGaebNumber(ep, 2);
-				row.gesamtpreis = FormatGaebNumber(gp, 2);
-				rows.push_back(row);
-
-			}
-
-			else if (satzart == _T("32"))
+		if (art21) {
+			LVRow currentRow;
+			bool hasCurrentRow = false;
+			for (const auto& raw : lines)
 			{
-				CString bereich = GetField(line, 2, 4);
-				CString summeRaw = GetField(line, 12, 12);
+				CString line = raw;
+				line.TrimRight(_T("\r\n"));
 
-				double summe = ParseGaebNumber(summeRaw, 2);
+				if (line.IsEmpty() || line.GetLength() < 2)
+					continue;
 
-				LVRow row;
-				row.oz = bereich;
-				row.menge = _T("");
-				row.einheit = _T("");
-				row.kurztext = _T("");
-				row.einheitpreis = _T("");
-				row.gesamtpreis = FormatGaebNumber(summe, 2);
-				rows.push_back(row);
+				CString satzart = GetField(line, 0, 2);
+				if (satzart == _T("21")) {
 
-			}
-			
-			/*
-			hasCurrentRow = true;
-			if (hasCurrentRow) {
-				if (value.GetLength() >= 12)
-				{
-					currentRow.gesamtpreis = value.Right(12);
-					currentRow.gesamtpreis.Trim();
-				}
-				if (value.GetLength() >= 24)
-				{
-					currentRow.einheitpreis = value.Mid(value.GetLength() - 24, 12);
-					currentRow.einheitpreis.Trim();
+					if (hasCurrentRow)
+						rows.push_back(currentRow);
+
+					currentRow = LVRow{};
+					hasCurrentRow = true;
+
+					CString mengeKenz = GetField(line, 12, 3);
+					CString mengeRaw = GetField(line, 24, 11);
+					CString einheitRaw = GetField(line, 34, 4);
+
+					double menge = ParseGaebNumber(mengeRaw, 3);
+
+					currentRow.menge = FormatGaebNumber(menge, 2);
+					currentRow.einheit = einheitRaw;
 				}
 
-				// Falls OZ auch hier enthalten ist:
-				if (currentRow.oz.IsEmpty() && value.GetLength() >= 10)
+				else if (satzart == _T("23")) { //preisangabe einer Position			
+					if (!hasCurrentRow)
+						continue;
+
+					CString ozRaw = GetField(line, 2, 8);
+					CString gpRaw = GetField(line, 24, 12);
+					CString epRaw = GetField(line, 12, 10);
+
+					if (currentRow.oz.IsEmpty())
+						currentRow.oz = ozRaw;
+
+					double gp = ParseGaebNumber(gpRaw, 2);
+					double ep = ParseGaebNumber(epRaw, 2);
+
+					currentRow.oz = ozRaw;
+					currentRow.einheitpreis = FormatGaebNumber(ep, 2);
+					currentRow.gesamtpreis = FormatGaebNumber(gp, 2);
+				}
+
+				else if (satzart == _T("25")) {
+					if (!hasCurrentRow)
+						continue;
+					CString kurztextRaw = GetField(line, 2, 70);
+					if (currentRow.kurztext.IsEmpty())
+						currentRow.kurztext = kurztextRaw;
+
+				}
+
+				else if (satzart == _T("32"))
 				{
-					currentRow.oz = value.Left(10);
-					currentRow.oz.Trim();
+					if (hasCurrentRow)
+					{
+						rows.push_back(currentRow);
+						currentRow = LVRow{};
+						hasCurrentRow = false;
+					}
+
+					CString bereich = GetField(line, 2, 4);
+					CString summeRaw = GetField(line, 12, 12);
+
+					double summe = ParseGaebNumber(summeRaw, 2);
+
+					LVRow row;
+					row.oz = bereich;
+					row.menge = _T("");
+					row.einheit = _T("");
+					row.kurztext = _T("");
+					row.einheitpreis = _T("");
+					row.gesamtpreis = FormatGaebNumber(summe, 2);
+					rows.push_back(row);
 				}
 			}
 			if (hasCurrentRow)
-				rows.push_back(currentRow);*/
+				rows.push_back(currentRow);
 		}
+
+		else {
+			for (const auto& raw : lines)
+			{
+				CString line = raw;
+				line.TrimRight(_T("\r\n"));
+
+				if (line.IsEmpty() || line.GetLength() < 2)
+					continue;
+
+				CString satzart = GetField(line, 0, 2);
+
+				if (satzart == _T("23"))
+				{
+					LVRow row;
+
+					CString ozRaw = GetField(line, 2, 8);
+					CString epRaw = GetField(line, 12, 10);
+					CString gpRaw = GetField(line, 24, 12);
+
+					double ep = ParseGaebNumber(epRaw, 2);
+					double gp = ParseGaebNumber(gpRaw, 2);
+
+					row.oz = ozRaw;
+					row.menge = _T("");
+					row.einheit = _T("");
+					row.kurztext = _T("");
+					row.einheitpreis = FormatGaebNumber(ep, 2);
+					row.gesamtpreis = FormatGaebNumber(gp, 2);
+
+					rows.push_back(row);
+				}
+				else if (satzart == _T("32"))
+				{
+					LVRow row;
+
+					CString bereich = GetField(line, 2, 4);
+					CString summeRaw = GetField(line, 12, 12);
+
+					double summe = ParseGaebNumber(summeRaw, 2);
+
+					//row.oz = _T("Summe ") + bereich;
+					row.oz = bereich;
+					row.menge = _T("");
+					row.einheit = _T("");
+					//row.kurztext = _T("Bereichssumme");
+					row.einheitpreis = _T("");
+					row.gesamtpreis = FormatGaebNumber(summe, 2);
+
+					rows.push_back(row);
+				}
+			}
+		}
+
+
 
 		CFont* pFont = pMainFrame->GetFont();
 		CFont* pBold = pMainFrame->GetFontBold();
 		int id = 4000;
-
-		/*if (hasCurrentRow)
-			rows.push_back(currentRow);*/
-
-			/*auto AddListRow = [&](const LVRow& row)
-				{
-					int i = m_list_LV.InsertItem(m_list_LV.GetItemCount(), row.oz);
-					m_list_LV.SetItemText(i, 1, row.menge);
-					m_list_LV.SetItemText(i, 2, row.einheit);
-					m_list_LV.SetItemText(i, 3, row.kurztext);
-					m_list_LV.SetItemText(i, 4, row.einheitpreis);
-					m_list_LV.SetItemText(i, 5, row.gesamtpreis);
-				};
-			for (const auto& row : rows)
-				AddListRow(row);*/
 
 		for (const auto& row : rows)
 		{
@@ -488,10 +532,11 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			m_list_LV.SetItemText(i, 4, row.einheitpreis);
 			m_list_LV.SetItemText(i, 5, row.gesamtpreis);
 		}
-
 	}
-	
-	else 
+
+	//GAEB XML
+
+	else
 	{
 		m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,
 			CRect(CPoint(20, 70), CSize(120, 20)), this, 1001);
