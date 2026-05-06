@@ -34,6 +34,7 @@
 #include "CProgressDialog.h"
 
 #include <memory>
+#include <map>
 
 #define IDC_TREE1 1200
 #define IDC_BLANKVIEW 1201
@@ -293,51 +294,188 @@ void CMainFrame::FillClassView(const CString& filePath)
 			file.Close();
 		}
 	}
-	else if (m_format == "90") {
+
+	else if (m_format == "90")
+	{
 		CStdioFile file;
-		if (file.Open(filePath, CFile::modeRead | CFile::typeText)) {
+		std::vector<CString> lines;
+
+		if (file.Open(filePath, CFile::modeRead | CFile::typeText))
+		{
 			CString line;
-			while (file.ReadString(line)) {
-			}
+			while (file.ReadString(line))
+				lines.push_back(line);
+
 			file.Close();
 		}
-		HTREEITEM item_added = nullptr;
 
-		std::vector<CString> lines;
-		bool art21 = false;
-		for (const auto& raw : lines) {
+		std::map<CString, HTREEITEM> itemMap;
 
+		CString currentOZ;
+		HTREEITEM currentItem = nullptr;
+		auto GetParentOZ = [&](CString oz) -> CString
+			{
+				oz.Trim();
+			//Ohne satzart 11 (D84 nur mit 23)
+				if (oz.GetLength() == 8)
+				{
+					CString parent4 = oz.Left(4);
+					if (itemMap.find(parent4) != itemMap.end())
+						return parent4;
+
+					CString parent6 = oz.Left(6);
+					if (itemMap.find(parent6) != itemMap.end())
+						return parent6;
+				}
+
+			//Mit satzart 11 (normal struktur)
+				if (oz.GetLength() > 2)
+				{
+					CString parent = oz.Left(oz.GetLength() - 2);
+					if (itemMap.find(parent) != itemMap.end())
+						return parent;
+				}
+
+			// Fallback für 8-stellige OZ
+				if (oz.GetLength() == 8)
+					return oz.Left(4);
+
+				return _T("");
+			};
+
+		auto InsertOrUpdateItem = [&](const CString& oz, const CString& text)
+			{
+				CString cleanOZ = oz;
+				cleanOZ.Trim();
+
+				if (cleanOZ.IsEmpty())
+					return;
+
+				CString displayText = cleanOZ;
+
+				CString cleanText = text;
+				cleanText.Trim();
+
+				if (!cleanText.IsEmpty())
+					displayText += _T(" ") + cleanText;
+
+				if (itemMap.find(cleanOZ) != itemMap.end())
+				{
+					m_wndClassView.SetItemText(itemMap[cleanOZ], displayText);
+					return;
+				}
+
+				CString parentOZ = GetParentOZ(cleanOZ);
+
+				HTREEITEM parent = LV_Main;
+				if (!parentOZ.IsEmpty() && itemMap.find(parentOZ) != itemMap.end())
+					parent = itemMap[parentOZ];
+
+				Item_data* pData = new Item_data;
+				pData->Full_Kurztext_data = displayText;
+				pData->Full_Langtext_data = _T("");
+
+				HTREEITEM item = m_wndClassView.InsertItem(displayText, parent);
+				m_wndClassView.SetItemData(item, reinterpret_cast<DWORD_PTR>(pData));
+
+				itemMap[cleanOZ] = item;
+				currentOZ = cleanOZ;
+				currentItem = item;
+			};
+
+		for (const auto& raw : lines)
+		{
 			CString line = raw;
 			line.TrimRight(_T("\r\n"));
-			line.Trim();
 
-			if (line.IsEmpty() || line.GetLength() < 2)
+			if (line.GetLength() < 2)
 				continue;
 
 			CString satzart = GetField(line, 0, 2);
-			if (satzart == _T("21")) {
-				art21 = true;
-				break;
-			}
-		}
-		if (art21) {
-			for (const auto& raw : lines)
+
+			if (satzart == _T("11"))
 			{
-				CString line = raw;
-				line.TrimRight(_T("\r\n"));
+				CString oz = GetField(line, 2, 9);
+				InsertOrUpdateItem(oz, _T(""));
+			}
+			else if (satzart == _T("12"))
+			{
+				CString text = GetField(line, 2, 70);
+				if (!currentOZ.IsEmpty())
+					InsertOrUpdateItem(currentOZ, text);
+			}
+			else if (satzart == _T("21"))
+			{
+				CString oz = GetField(line, 2, 9);
+				InsertOrUpdateItem(oz, _T(""));
+			}
+			else if (satzart == _T("25"))
+			{
+				CString text = GetField(line, 2, 70);
+				if (!currentOZ.IsEmpty())
+					InsertOrUpdateItem(currentOZ, text);
+			}
+			else if (satzart == _T("26"))
+			{
+				CString lang = GetField(line, 2, 70);
+				
 
-				if (line.IsEmpty() || line.GetLength() < 2)
-					continue;
+				if (currentItem != nullptr)
+				{
+					Item_data* pData = reinterpret_cast<Item_data*>(
+						m_wndClassView.GetItemData(currentItem)
+						);
 
-				CString satzart = GetField(line, 0, 2);
+					if (pData)
+					{
+						if (!pData->Full_Langtext_data.IsEmpty())
+							pData->Full_Langtext_data += _T("\r\n");
 
-				if (satzart == _T("25")) {
-					CString kurztextRaw = GetField(line, 2, 70);
-					item_added = m_wndClassView.InsertItem(kurztextRaw, LV_Main);
+						pData->Full_Langtext_data += lang;
+					}
+				}
+			}
+			else if(satzart == _T("23"))
+			{
+				CString oz = GetField(line, 2, 8); 
+
+				if (!oz.IsEmpty())
+				{
+					CString oz1 = oz.Left(2);      // 01
+					CString oz2 = oz.Left(4);      // 0101
+					CString oz3 = oz;              // 01010001
+
+					InsertOrUpdateItem(oz1, _T(""));
+					InsertOrUpdateItem(oz2, _T(""));
+					InsertOrUpdateItem(oz3, _T(""));
+
+					currentOZ = oz3;
+					currentItem = itemMap[oz3];
+
+					Item_data* pData = reinterpret_cast<Item_data*>(
+						m_wndClassView.GetItemData(currentItem)
+						);
+
+					if (pData)
+					{
+						pData->Full_Kurztext_data = oz3;
+
+						CString ep = GetField(line, 12, 10);
+						CString gp = GetField(line, 24, 12);
+
+						pData->UP = ep;
+						pData->IT = gp;
+					}
 				}
 			}
 		}
-	}
+
+		for (auto& pair : itemMap)
+		{
+			m_wndClassView.Expand(pair.second, TVE_EXPAND);
+		}
+		}
+	
 
 	m_wndClassView.Expand(info, TVE_EXPAND);
 	m_wndClassView.Expand(LV_Main, TVE_EXPAND);	
@@ -346,7 +484,9 @@ void CMainFrame::FillClassView(const CString& filePath)
 	if (!hDefault) {
 		hDefault = info;
 	}
-	OnTreeSelectedItem(nullptr, nullptr);
+	//OnTreeSelectedItem(nullptr, nullptr);
+	m_wndClassView.SelectItem(info);
+	m_wndClassView.SetFocus();
 }
 
 static CString GetField(const CString& line, int start, int len) {
@@ -1396,6 +1536,10 @@ void CMainFrame::OnOpenFile()
 		}
 
 		FillClassView(filePath);
+
+		SwitchView(RUNTIME_CLASS(CLVInfosView), m_LVInfosView);
+		m_wndClassView.SelectItem(m_wndClassView.GetRootItem());
+		m_wndClassView.SetFocus();
 
 		CDocument* pDoc = GetActiveDocument();
 		if (pDoc) {
