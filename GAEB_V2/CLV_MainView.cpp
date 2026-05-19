@@ -459,6 +459,17 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 					row.gesamtpreis = FormatGaebNumber(summe, 2);
 					rows.push_back(row);
 				}
+
+				else if (satzart == _T("11")) {
+					if (!hasCurrentRow)
+						continue;
+
+					CString ozRaw = GetField(line, 2, 9);
+					if (currentRow.oz.IsEmpty())
+						currentRow.oz = ozRaw;
+					currentRow.oz = ozRaw;
+
+				}
 			}
 			if (hasCurrentRow)
 				rows.push_back(currentRow);
@@ -511,6 +522,25 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 					//row.kurztext = _T("Bereichssumme");
 					row.einheitpreis = _T("");
 					row.gesamtpreis = FormatGaebNumber(summe, 2);
+
+					rows.push_back(row);
+				}
+				else if (satzart == _T("11")) {
+					LVRow row;
+
+					CString ozRaw = GetField(line, 2, 8);
+					CString epRaw = GetField(line, 12, 10);
+					CString gpRaw = GetField(line, 24, 12);
+
+					double ep = ParseGaebNumber(epRaw, 2);
+					double gp = ParseGaebNumber(gpRaw, 2);
+
+					row.oz = ozRaw;
+					row.menge = _T("");
+					row.einheit = _T("");
+					row.kurztext = _T("");
+					row.einheitpreis = FormatGaebNumber(ep, 2);
+					row.gesamtpreis = FormatGaebNumber(gp, 2);
 
 					rows.push_back(row);
 				}

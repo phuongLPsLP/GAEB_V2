@@ -313,35 +313,59 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 		CString currentOZ;
 		HTREEITEM currentItem = nullptr;
+
+		auto clean = [](CString  s) -> CString {
+			s.Trim();
+			return s;
+			};
+
+		auto ParentItem23 = [&](const CString& oz)
+			{
+			if (oz.GetLength() >= 2)
+				InsertOrUpdateItem(oz.Left(2), _T(""));
+
+			if (oz.GetLength() >= 4)
+				InsertOrUpdateItem(oz.Left(4), _T(""));
+			};
+
+		//Dachdeckungsarbeiten.D83
+		auto ReadOZ21 = [&](const CString& line) -> CString 
+			{
+			
+			CString ozTeil = GetField(line, 2, 4);  
+			CString posTeil = GetField(line, 6, 3); 
+
+			ozTeil.Trim();
+			posTeil.Trim();
+
+			CString pos;
+			pos.Format(_T("%03d"), _ttoi(posTeil)); 
+
+			return ozTeil + pos;
+			};
+
+		//Für D84 
+
 		auto GetParentOZ = [&](CString oz) -> CString
 			{
 				oz.Trim();
-			//Ohne satzart 11 (D84 nur mit 23)
-				if (oz.GetLength() == 8)
+				if (oz.GetLength() > 3)
 				{
-					CString parent4 = oz.Left(4);
-					if (itemMap.find(parent4) != itemMap.end())
-						return parent4;
-
-					CString parent6 = oz.Left(6);
-					if (itemMap.find(parent6) != itemMap.end())
-						return parent6;
-				}
-
-			//Mit satzart 11 (normal struktur)
-				if (oz.GetLength() > 2)
-				{
-					CString parent = oz.Left(oz.GetLength() - 2);
+					CString parent = oz.Left(oz.GetLength() - 3);
 					if (itemMap.find(parent) != itemMap.end())
 						return parent;
 				}
 
-			// Fallback für 8-stellige OZ
-				if (oz.GetLength() == 8)
-					return oz.Left(4);
+				if (oz.GetLength() > 1)
+				{
+					CString parent = oz.Left(oz.GetLength() - 1);
+					if (itemMap.find(parent) != itemMap.end())
+						return parent;
+				}
 
 				return _T("");
 			};
+		
 
 		auto InsertOrUpdateItem = [&](const CString& oz, const CString& text)
 			{
@@ -383,6 +407,8 @@ void CMainFrame::FillClassView(const CString& filePath)
 				currentItem = item;
 			};
 
+		
+
 		for (const auto& raw : lines)
 		{
 			CString line = raw;
@@ -406,7 +432,8 @@ void CMainFrame::FillClassView(const CString& filePath)
 			}
 			else if (satzart == _T("21"))
 			{
-				CString oz = GetField(line, 2, 9);
+				//CString oz = GetField(line, 2, 9);
+				CString oz = ReadOZ21(line);
 				InsertOrUpdateItem(oz, _T(""));
 			}
 			else if (satzart == _T("25"))
