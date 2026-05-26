@@ -238,6 +238,13 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 					else
 						currentLV.ber_kurztext = value;
 				}
+
+				else if (key.CompareNoCase(_T("Bez")) == 0) {
+					if (!lvStack.empty())
+						lvStack.back().ber_kurztext = value;
+					else
+						currentLV.ber_kurztext = value;
+				}
 				continue;
 			}
 			if (inPosition) {
@@ -758,7 +765,7 @@ bool CLV_MainView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vec
 		file.Close();
 		return true;
 	}
-	if (len64 > 200ULL * 1024ULL * 1024ULL) // simple safety limit 200MB
+	if (len64 > 200ULL * 1024ULL * 1024ULL) 
 	{
 		file.Close();
 		return false;
@@ -782,8 +789,6 @@ bool CLV_MainView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vec
 	wbuf[(size_t)wlen] = L'\0';
 
 	CString content(wbuf.data());
-
-	// Lines splitten (\r\n oder \n)
 	int start = 0;
 	const int n = content.GetLength();
 	while (start < n)
@@ -808,7 +813,6 @@ bool CLV_MainView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vec
 		line.TrimRight(_T("\r\n"));
 		outLines.push_back(line);
 
-		// CRLF oder einzelnes CR / LF überspringen
 		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
 			start = end + 2;
 		else

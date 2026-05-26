@@ -286,17 +286,242 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 	else if (m_format == "2000") {
 		CStdioFile file;
+		std::vector<CString> lines;
+
 		if (file.Open(filePath, CFile::modeRead | CFile::typeText)) {
 			CString line;
 			while (file.ReadString(line)) {
-
+				lines.push_back(line);
 			}
 			file.Close();
 		}
 
-		std::map<CString, HTREEITEM> itemMap;
-		HTREEITEM currentItem = nullptr;
+		struct NodeCtx
+		{
+			CString type;
+			CString oz;
+			CString bez;
+			CString kurztext;
+			CString langtext;
+			CString menge;
+			CString me;
+			CString ep;
+			CString bedarf;
+			HTREEITEM item = nullptr;
+		};
 
+		bool inBeschreibung = false;
+		bool readingKurztext = false;
+		bool readingLangtext = false;
+		CString textBuffer;
+
+		std::vector<NodeCtx> stack;
+
+		auto GetTagValue = [](CString line, CString tag) -> CString
+			{
+				line.Trim();
+
+				CString start = _T("[") + tag + _T("]");
+				int p1 = line.Find(start);
+				if (p1 < 0)
+					return _T("");
+
+				p1 += start.GetLength();
+
+				int p2 = line.Find(_T("[end]"), p1);
+				if (p2 < 0)
+					return _T("");
+
+				CString value = line.Mid(p1, p2 - p1);
+				value.Trim();
+				return value;
+			};
+
+		auto FormatOZ2000 = [](CString oz) -> CString
+			{
+				oz.Trim();
+
+				if (oz.GetLength() == 3)
+					return oz; // 000
+
+				if (oz.GetLength() == 5)
+					return oz.Left(3) + _T(".") + oz.Mid(3, 2); // 000.10
+
+				if (oz.GetLength() == 9)
+					return oz.Left(3) + _T(".") + oz.Mid(3, 2) + _T(".") + oz.Mid(5, 4); // 000.10.0010
+
+				return oz;
+			};
+
+		auto EnsureCurrentItem = [&]()
+			{
+				if (stack.empty())
+					return;
+
+				NodeCtx& cur = stack.back();
+
+				if (cur.item != nullptr)
+					return;
+
+				if (cur.oz.IsEmpty())
+					return;
+
+				CString display = FormatOZ2000(cur.oz);
+
+				if (!cur.bez.IsEmpty())
+					display += _T(" ") + cur.bez;
+
+				HTREEITEM parent = LV_Main;
+
+				if (stack.size() >= 2)
+				{
+					NodeCtx& parentCtx = stack[stack.size() - 2];
+					if (parentCtx.item != nullptr)
+						parent = parentCtx.item;
+				}
+
+				Item_data* pData = new Item_data;
+				pData->Full_Kurztext_data = display;
+				pData->Full_Langtext_data = _T("");
+
+				cur.item = m_wndClassView.InsertItem(display, parent);
+				m_wndClassView.SetItemData(cur.item, reinterpret_cast<DWORD_PTR>(pData));
+			};
+
+		for (const auto& raw : lines)
+		{
+			if (readingKurztext || readingLangtext)
+			{
+				if (line.Find(_T("[end]")) >= 0)
+				{
+					int p = line.Find(_T("[end]"));
+					textBuffer += line.Left(p);
+
+					CString text = textBuffer;
+					text.Replace(_T("\\line"), _T("\r\n"));
+					text.Replace(_T("\\par"), _T("\r\n"));
+					text.Trim();
+
+					// Position suchen = oberster Stack-Eintrag mit type Position
+					for (int i = (int)stack.size() - 1; i >= 0; --i)
+					{
+						if (stack[i].type == _T("Position"))
+						{
+							Item_data* pData = reinterpret_cast<Item_data*>(
+								m_wndClassView.GetItemData(stack[i].item)
+								);
+
+							if (pData)
+							{
+								if (readingKurztext)
+								{
+									stack[i].kurztext = text;
+
+									CString display = FormatOZ2000(stack[i].oz) + _T(" ") + text;
+									m_wndClassView.SetItemText(stack[i].item, display);
+									pData->Full_Kurztext_data = display;
+								}
+								else
+								{
+									stack[i].langtext = text;
+									pData->Full_Langtext_data = text;
+								}
+							}
+
+							break;
+						}
+					}
+
+					readingKurztext = false;
+					readingLangtext = false;
+					textBuffer.Empty();
+				}
+				else
+				{
+					textBuffer += line + _T("\r\n");
+				}
+
+				continue;
+			}
+			CString line = raw;
+			line.Trim();
+
+			if (line.Find(_T("#begin[LVBereich]")) >= 0)
+			{
+				NodeCtx ctx;
+				ctx.type = _T("LVBereich");
+				stack.push_back(ctx);
+			}
+			else if (line.Find(_T("#begin[Position]")) >= 0)
+			{
+				NodeCtx ctx;
+				ctx.type = _T("Position");
+				stack.push_back(ctx);			
+			}					
+
+			else if (line.Find(_T("#begin[Beschreibung]")) >= 0) {
+				inBeschreibung = true;		
+			}
+			else if (line.Find(_T("#end[Beschreibung]")) >= 0) {
+				inBeschreibung = false;
+			}
+
+			else if (line.Find(_T("#end[LVBereich]")) >= 0 ||
+				line.Find(_T("#end[Position]")) >= 0)
+			{
+				if (!stack.empty())
+					stack.pop_back();
+			}
+			else if (!stack.empty())
+			{
+				CString oz = GetTagValue(line, _T("OZ"));
+				if (!oz.IsEmpty())
+				{
+					stack.back().oz = oz;
+					EnsureCurrentItem();
+				}
+
+				CString bez = GetTagValue(line, _T("Bez"));
+				CString beztxt = GetTagValue(line, _T("BezTx"));
+				if (!beztxt.IsEmpty()) {
+					bez = beztxt;
+				}
+
+				if (!bez.IsEmpty())
+				{
+					stack.back().bez = bez;
+
+					if (stack.back().item != nullptr)
+					{
+						CString display = FormatOZ2000(stack.back().oz) + _T(" ") + bez;
+						m_wndClassView.SetItemText(stack.back().item, display);
+
+						Item_data* pData = reinterpret_cast<Item_data*>(
+							m_wndClassView.GetItemData(stack.back().item)
+							);
+
+						if (pData)
+							pData->Full_Kurztext_data = display;
+					}
+				}				
+			}
+
+			if (line.Find(_T("[Kurztext]")) >= 0)
+			{
+				readingKurztext = true;
+				textBuffer.Empty();
+				continue;
+			}
+
+			if (line.Find(_T("[Langtext]")) >= 0)
+			{
+				readingLangtext = true;
+				textBuffer.Empty();
+				continue;
+			}
+		}
+
+		m_wndClassView.Expand(LV_Main, TVE_EXPAND);
 	}
 
 	else if (m_format == "90")
