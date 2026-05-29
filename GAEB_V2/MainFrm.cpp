@@ -287,6 +287,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 	else if (m_format == "2000") {
 		CStdioFile file;
 		std::vector<CString> lines;
+		Item_data* pData = new Item_data;
 
 		if (file.Open(filePath, CFile::modeRead | CFile::typeText)) {
 			CString line;
@@ -335,6 +336,63 @@ void CMainFrame::FillClassView(const CString& filePath)
 				CString value = line.Mid(p1, p2 - p1);
 				value.Trim();
 				return value;
+			};
+
+		auto RemoveFont = [](CString text)->CString {
+			int start = text.Find(_T("{\\fonttbl"));
+			if (start >= 0) {
+				int level = 0;
+				for (int i = start; i< text.GetLength(); ++i) {
+					if (text[i] == _T('{'))
+						++level;
+					else if (text[i] == _T('}'))
+					{
+						--level;
+						if (level == 0)
+						{
+							text.Delete(start, i - start + 1);
+							break;
+						}
+					}
+				}
+			}
+			return text;
+				
+			};
+
+		auto ExtractTextFromRTF = [](CString rtf) -> CString
+			{
+				rtf.Replace(_T("\\par"), _T("\r\n"));
+				rtf.Replace(_T("\\line"), _T("\r\n"));
+
+				CString result;
+				bool command = false;
+
+				for (int i = 0; i < rtf.GetLength(); ++i)
+				{
+					TCHAR c = rtf[i];
+
+					if (c == _T('{') || c == _T('}'))
+						continue;
+
+					if (c == _T('\\'))
+					{
+						command = true;
+						continue;
+					}
+
+					if (command)
+					{
+						if (c == _T(' ') || c == _T('\r') || c == _T('\n'))
+							command = false;
+						continue;
+					}
+
+					result += c;
+				}
+
+				result.Trim();
+				return result;
 			};
 
 		auto FormatOZ2000 = [](CString oz) -> CString
@@ -388,8 +446,64 @@ void CMainFrame::FillClassView(const CString& filePath)
 				m_wndClassView.SetItemData(cur.item, reinterpret_cast<DWORD_PTR>(pData));
 			};
 
+		auto StartTextBlock = [&](const CString& line, const CString& tag, bool& readingFlag)
+			{
+				readingFlag = true;
+				textBuffer.Empty();
+
+				CString startTag = _T("[") + tag + _T("]");
+				int p1 = line.Find(startTag);
+				if (p1 < 0)
+					return;
+
+				p1 += startTag.GetLength();
+
+				int p2 = line.Find(_T("[end]"), p1);
+
+				// Einzeilig: [Kurztext]Text[end]
+				if (p2 >= 0)
+				{
+					textBuffer = line.Mid(p1, p2 - p1);
+					readingFlag = false;
+
+					// direkt speichern
+					CString text = textBuffer;
+					text.Trim();
+
+					for (int i = (int)stack.size() - 1; i >= 0; --i)
+					{
+						if (stack[i].type == _T("Position"))
+						{
+							Item_data* pData = reinterpret_cast<Item_data*>(
+								m_wndClassView.GetItemData(stack[i].item)
+								);
+
+							if (pData)
+							{
+								CString display = FormatOZ2000(stack[i].oz) + _T(" ") + text;
+								m_wndClassView.SetItemText(stack[i].item, display);
+								pData->Full_Kurztext_data = display;
+							}
+							break;
+						}
+					}
+				}
+				// Mehrzeilig: [Kurztext] ... später [end]
+				else
+				{
+					CString rest = line.Mid(p1);
+					rest.Trim();
+
+					if (!rest.IsEmpty())
+						textBuffer += rest + _T("\r\n");
+				}
+			};
+
 		for (const auto& raw : lines)
 		{
+
+			CString line = raw;
+			line.Trim();
 			if (readingKurztext || readingLangtext)
 			{
 				if (line.Find(_T("[end]")) >= 0)
@@ -398,11 +512,9 @@ void CMainFrame::FillClassView(const CString& filePath)
 					textBuffer += line.Left(p);
 
 					CString text = textBuffer;
-					text.Replace(_T("\\line"), _T("\r\n"));
-					text.Replace(_T("\\par"), _T("\r\n"));
-					text.Trim();
+					text = RemoveFont(text);
+					text = ExtractTextFromRTF(text);
 
-					// Position suchen = oberster Stack-Eintrag mit type Position
 					for (int i = (int)stack.size() - 1; i >= 0; --i)
 					{
 						if (stack[i].type == _T("Position"))
@@ -442,9 +554,53 @@ void CMainFrame::FillClassView(const CString& filePath)
 				}
 
 				continue;
+			}		
+
+			if (line.Find(_T("[Kurztext]")) >= 0)
+			{
+				StartTextBlock(line, _T("Kurztext"), readingKurztext);
+				int p1 = line.Find(_T("[Kurztext]")) + CString(_T("[Kurztext]")).GetLength();
+				int p2 = line.Find(_T("[end]"), p1);
+
+				if (p2 >= 0)
+				{
+					textBuffer = line.Mid(p1, p2 - p1);
+					CString text = RemoveFont(textBuffer);
+					text = ExtractTextFromRTF(text);
+				}
+				else
+				{
+					readingKurztext = true;
+					textBuffer.Empty();
+				}
+
+				continue;
 			}
-			CString line = raw;
-			line.Trim();
+
+			if (line.Find(_T("[Langtext]")) >= 0)
+			{
+				int p1 = line.Find(_T("[Langtext]")) + CString(_T("[Langtext]")).GetLength();
+				int p2 = line.Find(_T("[end]"), p1);
+
+				if (p2 >= 0)
+				{
+					textBuffer = line.Mid(p1, p2 - p1);
+					CString text = RemoveFont(textBuffer);
+					text = ExtractTextFromRTF(text);
+				}
+				else
+				{
+					readingLangtext = true;
+					textBuffer.Empty();
+					CString rest = line.Mid(p1);
+					rest.Trim();
+
+					if(!rest.IsEmpty())
+						textBuffer += rest + _T("\r\n");
+				}
+
+				continue;
+			}
 
 			if (line.Find(_T("#begin[LVBereich]")) >= 0)
 			{
@@ -504,21 +660,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 							pData->Full_Kurztext_data = display;
 					}
 				}				
-			}
-
-			if (line.Find(_T("[Kurztext]")) >= 0)
-			{
-				readingKurztext = true;
-				textBuffer.Empty();
-				continue;
-			}
-
-			if (line.Find(_T("[Langtext]")) >= 0)
-			{
-				readingLangtext = true;
-				textBuffer.Empty();
-				continue;
-			}
+			}		
 		}
 
 		m_wndClassView.Expand(LV_Main, TVE_EXPAND);
@@ -778,7 +920,7 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 		SwitchView(RUNTIME_CLASS(CVergabeinfosView), m_VergabeView);
 	}
 	else if (itemText == _T("Vertragliche Regelung")) {
-		//SwitchView(RUNTIME_CLASS(CVertragView), (CView*&)m_VertragView);
+		SwitchView(RUNTIME_CLASS(CVertragView), (CView*&)m_VertragView);
 	}
 	else if (itemText == _T("Leistungsverzeichnis")) {
 		m_checkbox_KT = TRUE;

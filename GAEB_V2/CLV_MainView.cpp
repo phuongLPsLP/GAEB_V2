@@ -159,38 +159,102 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 		LVPosition currentPos{};
 		LVBeschreibung currentBesch{};
 
+		bool readingKurztext = false;
+		CString textBuffer;		
+
 		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
 			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
 			return;
 		}
 
+		auto StartTextBlock = [&](const CString& line, const CString& tag, bool& readingFlag)
+			{
+				readingFlag = true;
+				textBuffer.Empty();
+
+				CString startTag = _T("[") + tag + _T("]");
+				int p1 = line.Find(startTag);
+				if (p1 < 0)
+					return;
+
+				p1 += startTag.GetLength();
+
+				int p2 = line.Find(_T("[end]"), p1);
+
+				if (p2 >= 0)
+				{
+					textBuffer = line.Mid(p1, p2 - p1);
+					readingFlag = false;
+
+					CString text = textBuffer;
+					text.Trim();					
+				}
+				else
+				{
+					CString rest = line.Mid(p1);
+					rest.Trim();
+
+					if (!rest.IsEmpty())
+						textBuffer += rest + _T("\r\n");
+				}
+			};
+
 		for (const auto& raw : lines)
 		{
 			CString line = raw;
 			line.Trim();
+
+			if (readingKurztext)
+			{
+				if (line.Find(_T("[end]")) >= 0)
+				{
+					int p = line.Find(_T("[end]"));
+					textBuffer += line.Left(p);
+
+					CString text = textBuffer;
+					text.Replace(_T("\\par"), _T(""));
+					text.Replace(_T("\\line"), _T("\r\n"));
+					text.Replace(_T("{"), _T(""));
+					text.Replace(_T("}"), _T(""));
+					text.Trim();
+
+					int plain = text.Find(_T("\\plain"));
+					if (plain >= 0)
+					{
+						text = text.Mid(plain + 6);
+						text.Trim();
+					}
+
+					currentPos.pos_kurztext = text;
+
+					readingKurztext = false;
+					textBuffer.Empty();
+				}
+				else
+				{
+					textBuffer += line + _T("\r\n");
+				}
+
+				continue;
+			}
+
 			if (line.IsEmpty())
 				continue;
 
 			if (line.CompareNoCase(_T("#begin[LVBereich]")) == 0)
 			{
-				// neuer Bereich beginnt: wir sammeln OZ/BezTx und pushen beim #end oder sobald wir OZ haben?
-				// robust: wir merken einen "currentLv", pushen erst, wenn wir OZ oder BezTx gesehen haben.
 				currentLV = LVBereich{};
 				inLVBereich = true;
 				continue;
 			}
 			if (line.CompareNoCase(_T("#end[LVBereich]")) == 0)
 			{
-				// Wenn currentLv noch nicht gepusht wurde (weil OZ/BezTx erst gelesen wurde),
-				// dann wurde er schon in lvStack gepusht? -> siehe unten: wir pushen sofort, sobald OZ kommt.
-				// Hier müssen wir einfach poppen, wenn Stack nicht leer.
 				if (!lvStack.empty())
 					lvStack.pop_back();
 
 				inLVBereich = false;
 				continue;
 			}
-
 			if (line.CompareNoCase(_T("#begin[Position]")) == 0)
 			{
 				currentPos = LVPosition{};
@@ -211,6 +275,31 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 			if (line.CompareNoCase(_T("#end[Hinweis]")) == 0)
 			{
 
+			}
+
+			if (line.Find(_T("[Kurztext]")) >= 0)
+			{
+				int p1 = line.Find(_T("[Kurztext]")) + CString(_T("[Kurztext]")).GetLength();
+				int p2 = line.Find(_T("[end]"), p1);
+
+				if (p2 >= 0)
+				{
+					CString text = line.Mid(p1, p2 - p1);
+					text.Trim();
+					currentPos.pos_kurztext = text;
+				}
+				else
+				{
+					readingKurztext = true;
+					textBuffer.Empty();
+
+					CString rest = line.Mid(p1);
+					rest.Trim();
+					if (!rest.IsEmpty())
+						textBuffer += rest + _T("\r\n");
+				}
+
+				continue;
 			}
 
 			CString key, value;

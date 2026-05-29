@@ -90,73 +90,75 @@ void CPositionView::OnInitialUpdate()
 	_tcscpy_s(lf_edit_small.lfFaceName, _T("Segoe UI"));
 	m_font_edit.CreateFontIndirect(&lf_edit_small);
 
+	
+	if (m_format == "XML") {
+		xml_node<>* boqNode = m_award->first_node("BoQ");
+		xml_node<>* boqInfoNode = boqNode->first_node("BoQInfo");
 
+		//Einheitpreis Anteile
+		for (xml_node<>* lblupcomp_node = boqInfoNode->first_node(); lblupcomp_node; lblupcomp_node = lblupcomp_node->next_sibling()) {
+			CString lblupcomp_node_name(lblupcomp_node->name());
+			if (lblupcomp_node_name == "LblUPComp1") {
+				CString value = Utf8ToString(lblupcomp_node->value());
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(860, 750), CSize(120, 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+			}
+			else if (lblupcomp_node_name == "LblUPComp2") {
+				CString value = Utf8ToString(lblupcomp_node->value());
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(860, 790), CSize(120, 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+			}
+			else if (lblupcomp_node_name == "LblUPComp3") {
+				CString value = Utf8ToString(lblupcomp_node->value());
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(860, 830), CSize(120, 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+			}
+			else if (lblupcomp_node_name == "LblUPComp4") {
+				CString value = Utf8ToString(lblupcomp_node->value());
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(860, 870), CSize(120, 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+			}
+			else if (lblupcomp_node_name == "LblUPComp5") {
+				CString value = Utf8ToString(lblupcomp_node->value());
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(860, 910), CSize(120, 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+			}
+			else if (lblupcomp_node_name == "LblUPComp6") {
+				CString value = Utf8ToString(lblupcomp_node->value());
+				CStatic* pstaticValue_value = new CStatic();
+				pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
+					CRect(CPoint(860, 950), CSize(120, 20)), this, 1001);
+				pstaticValue_value->SetFont(pMainFrame->GetFont());
+			}
+		}
+	}
 
-	xml_node<>* boqNode = m_award->first_node("BoQ");
-	xml_node<>* boqInfoNode = boqNode->first_node("BoQInfo");
+	else if (m_format == "2000") {
+		AfxMessageBox(_T("Format 2000 - Noch nicht implementiert"));
+	}
 
-	//Einheitpreis Anteile
-	for (xml_node<>* lblupcomp_node = boqInfoNode->first_node(); lblupcomp_node; lblupcomp_node = lblupcomp_node->next_sibling()) {
-		CString lblupcomp_node_name(lblupcomp_node->name());
-		if (lblupcomp_node_name == "LblUPComp1") {
-			CString value = Utf8ToString(lblupcomp_node->value());
-			CStatic* pstaticValue_value = new CStatic();
-			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(860, 750), CSize(120, 20)), this, 1001);
-			pstaticValue_value->SetFont(pMainFrame->GetFont());
-		}
-		else if (lblupcomp_node_name == "LblUPComp2") {
-			CString value = Utf8ToString(lblupcomp_node->value());
-			CStatic* pstaticValue_value = new CStatic();
-			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(860, 790), CSize(120, 20)), this, 1001);
-			pstaticValue_value->SetFont(pMainFrame->GetFont());
-		}
-		else if (lblupcomp_node_name == "LblUPComp3") {
-			CString value = Utf8ToString(lblupcomp_node->value());
-			CStatic* pstaticValue_value = new CStatic();
-			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(860, 830), CSize(120, 20)), this, 1001);
-			pstaticValue_value->SetFont(pMainFrame->GetFont());
-		}
-		else if (lblupcomp_node_name == "LblUPComp4") {
-			CString value = Utf8ToString(lblupcomp_node->value());
-			CStatic* pstaticValue_value = new CStatic();
-			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(860, 870), CSize(120, 20)), this, 1001);
-			pstaticValue_value->SetFont(pMainFrame->GetFont());
-		}
-		else if (lblupcomp_node_name == "LblUPComp5") {
-			CString value = Utf8ToString(lblupcomp_node->value());
-			CStatic* pstaticValue_value = new CStatic();
-			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(860, 910), CSize(120, 20)), this, 1001);
-			pstaticValue_value->SetFont(pMainFrame->GetFont());
-		}
-		else if (lblupcomp_node_name == "LblUPComp6") {
-			CString value = Utf8ToString(lblupcomp_node->value());
-			CStatic* pstaticValue_value = new CStatic();
-			pstaticValue_value->Create(value, WS_CHILD | WS_VISIBLE,
-				CRect(CPoint(860, 950), CSize(120, 20)), this, 1001);
-			pstaticValue_value->SetFont(pMainFrame->GetFont());
-		}
-
-
+	else if (m_format == "90"){
+		AfxMessageBox(_T("Format 90 - Noch nicht implementiert"));
 	}
 
 	m_staticText_Position.Create(_T("Position"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(200, 30)), this, 1001);
 
 	m_staticText_Ordnungszahl.Create(_T("Ordnungszahl (OZ)"), WS_CHILD | WS_VISIBLE |BS_MULTILINE, CRect(CPoint(20, 50), CSize(100, 50)), this, 1001);
-	//m_staticText_Positionsart.Create(_T("Positionsart"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 100), CSize(80, 20)), this, 1001);
 	m_staticText_Kurztext.Create(_T("Kurztext"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 140), CSize(80, 20)), this, 1001);
 	m_staticText_Langtext.Create(_T("Langtext"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 250), CSize(80, 20)), this, 1001);
 	
 	m_edit_OZ.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(160,50), CSize(120,20)), this, 1002);
 	m_edit_OZ.SetWindowTextW(m_text_OZ);
-
-	//m_combobox_PosArt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | CBS_DROPDOWNLIST | CBS_SORT |WS_VSCROLL, 
-	//	CRect(CPoint(160, 100), CSize(250, 20)), this, 1003);
-	//m_combobox_PosArt.SetFont(&m_font);
 
 	m_edit_kurztext.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | SS_LEFT, CRect(CPoint(20, 180), CSize(rect.Width(), 50)), this, 1005);
 	m_edit_kurztext.SetFont(&m_font);
@@ -220,7 +222,6 @@ void CPositionView::OnInitialUpdate()
 	}
 	CStatic* staticControls_normal[] = {
 	&m_staticText_Ordnungszahl,
-	//&m_staticText_Positionsart,
 	&m_staticText_Menge,
 	&m_staticText_Einheit,
 	&m_staticText_Kurztext,

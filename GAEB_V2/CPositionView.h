@@ -2,6 +2,8 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
+#include <afxwin.h>
+#include <afxext.h>
 
 // CPositionView view
 
@@ -133,6 +135,8 @@ public:
 	void SetUP6(CString text);
 	void SetSumme(CString text);
 	
+
+	CString m_format;
 
 	CFont* GetFont() { return &m_font; }
 	CFont* GetFontBold() { return &m_font_bold; }
