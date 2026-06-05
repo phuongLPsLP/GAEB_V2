@@ -660,8 +660,6 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 		}
 	}
 
-	//GAEB XML
-
 	else
 	{
 		m_staticText_OZ.Create(_T("Ordnungszahl"), WS_CHILD | WS_VISIBLE,

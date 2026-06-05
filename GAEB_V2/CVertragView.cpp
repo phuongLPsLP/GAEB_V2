@@ -84,6 +84,7 @@ void CVertragView::OnInitialUpdate()
 	GetClientRect(&clientRect_VR);
 	CClientDC dc(this);
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+	SetScrollSizes(MM_TEXT, CSize(clientRect_VR.Width(), 3000));
 
 	m_Doc = pMainFrame->GetXmlDoc();
 	m_Root = pMainFrame->GetRootNode();
@@ -108,20 +109,133 @@ void CVertragView::OnInitialUpdate()
 		pStatic->SetFont(pMainFrame->GetFontBold());
 	}
 	y_pos_vertrag = 70;
-
-	for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
+	m_format = pMainFrame->GetFormat();
+	if (*m_format == "2000")
 	{
-		CString award_text(award->name());
-		//awardtext = DP / OWN / AddText
-		if (award_text == "AddText")
+		struct LVZusText
 		{
-			for (xml_node<>* addtext_node = award->first_node(); addtext_node; addtext_node = addtext_node->next_sibling())
-			{
-				//CString addtext_text(addtext_node->name());
-				//OutlineAddText / DetailAddText
+			CString titel;     // [Text]
+			CString inhalt;    // [TextRTF]
+		};
 
-				for (xml_node<>* p_node = addtext_node->first_node(); p_node; p_node = p_node->next_sibling())
-				{	
+		LVZusText currentZusText;
+		std::vector<LVZusText> zusTexte;
+
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		if (!ReadFileLinesAnsiToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+		bool inZusText = false;
+		bool readingTextRTF = false;
+		CString textBuffer;
+
+		for (const auto& raw : lines)
+		{
+			CString line = raw;
+			line.Trim();
+			if (line.CompareNoCase(_T("#begin[ZusText]")) == 0)
+			{
+				currentZusText = LVZusText{};
+				inZusText = true;
+				continue;
+			}
+
+			if (line.CompareNoCase(_T("#end[ZusText]")) == 0) {
+				zusTexte.push_back(currentZusText);
+				inZusText = false;
+				continue;
+			}
+
+			if (!inZusText)
+				continue;
+
+			if (line.Find(_T("[TextRTF]")) >= 0)
+			{
+				readingTextRTF = true;
+
+				int p = line.Find(_T("[TextRTF]")) + 9;
+
+				textBuffer = line.Mid(p);
+
+				continue;
+			}
+			if (readingTextRTF)
+			{
+				if (line.Find(_T("[end]")) >= 0)
+				{
+					int p = line.Find(_T("[end]"));
+					textBuffer += _T("\r\n") + line.Left(p);
+
+					currentZusText.inhalt = textBuffer;
+
+					readingTextRTF = false;
+					textBuffer.Empty();
+				}
+				else
+				{
+					textBuffer += _T("\r\n") + line;
+				}
+
+				continue;
+			}
+		}
+
+	}
+	else if (*m_format == "90")
+	{
+		
+	}
+	else {
+		for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
+		{
+			CString award_text(award->name());
+			//awardtext = DP / OWN / AddText
+			if (award_text == "AddText")
+			{
+				for (xml_node<>* addtext_node = award->first_node(); addtext_node; addtext_node = addtext_node->next_sibling())
+				{
+					//CString addtext_text(addtext_node->name());
+					//OutlineAddText / DetailAddText
+
+					for (xml_node<>* p_node = addtext_node->first_node(); p_node; p_node = p_node->next_sibling())
+					{
+						CStatic* pstaticValue = new CStatic();
+						CString Fulltext;
+						for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
+						{
+							CString span_node_text = Utf8ToCString(span_node->value());
+							if (!span_node_text.IsEmpty()) {
+								Fulltext += span_node_text;
+							}
+						}
+
+						CRect textRect(0, 0, clientRect_VR.Width() - 40, 0); // start with 0 height
+
+						CClientDC dc(this);
+						CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
+						dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
+						dc.SelectObject(pOldFont);
+
+						textRect.OffsetRect(20, y_pos_vertrag); // apply margins
+
+
+						pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
+							this, 1001);
+						y_pos_vertrag += textRect.Height() + 20;
+						pstaticValue->SetFont(pMainFrame->GetFont());
+					}
+				}
+			}
+		}
+
+		for (xml_node<>* addtext_node = m_Root->first_node("AddText"); addtext_node; addtext_node = addtext_node->next_sibling("AddText")) {
+			for (xml_node<>* detailtext_node = addtext_node->first_node(); detailtext_node; detailtext_node = detailtext_node->next_sibling())
+			{
+				for (xml_node<>* p_node = detailtext_node->first_node(); p_node; p_node = p_node->next_sibling())
+				{
 					CStatic* pstaticValue = new CStatic();
 					CString Fulltext;
 					for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
@@ -131,50 +245,17 @@ void CVertragView::OnInitialUpdate()
 							Fulltext += span_node_text;
 						}
 					}
-
-					CRect textRect(0, 0, clientRect_VR.Width() - 40, 0); // start with 0 height
-
-					CClientDC dc(this);
-					CFont* pOldFont = dc.SelectObject(pMainFrame->GetFont());
-					dc.DrawText(Fulltext, &textRect, DT_LEFT | DT_WORDBREAK | DT_CALCRECT);
-					dc.SelectObject(pOldFont);
-
-					textRect.OffsetRect(20, y_pos_vertrag); // apply margins
-
-
-					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
-						this, 1001);
+					CRect textRect(0, 0, clientRect_VR.Width() - 40, 0);
+					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+						CRect(CPoint(20, y_pos_vertrag), CSize(clientRect_VR.Width(), 30)), this, 1001);
 					y_pos_vertrag += textRect.Height() + 20;
 					pstaticValue->SetFont(pMainFrame->GetFont());
 				}
 			}
 		}
+		int finalY = y_pos_vertrag;
+		CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect_VR.Width(), finalY + 20));
 	}
-
-	for (xml_node<>* addtext_node = m_Root->first_node("AddText"); addtext_node; addtext_node = addtext_node->next_sibling("AddText")) {
-		for (xml_node<>* detailtext_node = addtext_node->first_node(); detailtext_node; detailtext_node = detailtext_node->next_sibling())
-		{
-			for (xml_node<>* p_node = detailtext_node->first_node(); p_node; p_node = p_node->next_sibling())
-			{
-				CStatic* pstaticValue = new CStatic();
-				CString Fulltext;
-				for (xml_node<>* span_node = p_node->first_node(); span_node; span_node = span_node->next_sibling())
-				{
-					CString span_node_text = Utf8ToCString(span_node->value());
-					if (!span_node_text.IsEmpty()) {
-						Fulltext += span_node_text;
-					}
-				}
-				CRect textRect(0, 0, clientRect_VR.Width() - 40, 0); 
-				pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, 
-					CRect(CPoint(20, y_pos_vertrag), CSize(clientRect_VR.Width(), 30)), this, 1001);
-				y_pos_vertrag += textRect.Height() + 20;
-				pstaticValue->SetFont(pMainFrame->GetFont());
-			}
-		}
-	}
-	int finalY = y_pos_vertrag;
-	CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect_VR.Width(), finalY + 20));
 }
 
 #ifdef _DEBUG
@@ -220,4 +301,75 @@ CString CVertragView::Utf8ToCString(const char* utf8Str)
 	MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, result.GetBuffer(len), len);
 	result.ReleaseBuffer();
 	return result;
+}
+
+bool CVertragView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
+{
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL)
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// ANSI -> UTF-16
+	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
 }
