@@ -110,6 +110,8 @@ void CVertragView::OnInitialUpdate()
 	}
 	y_pos_vertrag = 70;
 	m_format = pMainFrame->GetFormat();
+
+	//GAEB 2000 
 	if (*m_format == "2000")
 	{
 		struct LVZusText
@@ -183,12 +185,45 @@ void CVertragView::OnInitialUpdate()
 			}
 		}
 
+		CFont* pFont = pMainFrame->GetFont();
+		int id = 3000;
+		for (const auto& zt : zusTexte) {
+			if (zt.inhalt.IsEmpty())
+				continue;
+
+			CString text = zt.inhalt;
+			text.Replace(_T("\r\n\r\n\r\n"), _T("\r\n\r\n"));
+			CDC* pDC = GetDC();
+			CFont* pOldFont = pDC->SelectObject(pMainFrame->GetFont());
+
+			CRect textRect(20, y_pos_vertrag, clientRect_VR.Width() - 40, 0);
+			pDC->DrawText(text, &textRect, DT_WORDBREAK | DT_CALCRECT);
+
+			pDC->SelectObject(pOldFont);
+			ReleaseDC(pDC);
+
+			int height = textRect.Height() + 20;
+
+			CStatic* pstaticValue = new CStatic();
+			//CRect textRect(0, 0, clientRect_VR.Width() - 40, 0);
+			pstaticValue->Create(text, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
+				CRect(CPoint(20, y_pos_vertrag), CSize(clientRect_VR.Width() - 40, y_pos_vertrag + height)), 
+				this, id++);
+			//y_pos_vertrag += textRect.Height() + 20;
+			y_pos_vertrag += height + 20;
+			pstaticValue->SetFont(pMainFrame->GetFont());
+		}
+		int finalY = y_pos_vertrag;
+		CScrollView::SetScrollSizes(MM_TEXT, CSize(clientRect_VR.Width(), finalY + 20));
+
 	}
 	else if (*m_format == "90")
 	{
 		
 	}
 	else {
+		int id = 3000;
+
 		for (xml_node<>* award = m_award->first_node(); award; award = award->next_sibling())
 		{
 			CString award_text(award->name());
@@ -223,7 +258,7 @@ void CVertragView::OnInitialUpdate()
 
 
 						pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX, textRect,
-							this, 1001);
+							this, id ++);
 						y_pos_vertrag += textRect.Height() + 20;
 						pstaticValue->SetFont(pMainFrame->GetFont());
 					}
@@ -247,7 +282,7 @@ void CVertragView::OnInitialUpdate()
 					}
 					CRect textRect(0, 0, clientRect_VR.Width() - 40, 0);
 					pstaticValue->Create(Fulltext, WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX,
-						CRect(CPoint(20, y_pos_vertrag), CSize(clientRect_VR.Width(), 30)), this, 1001);
+						CRect(CPoint(20, y_pos_vertrag), CSize(clientRect_VR.Width(), 30)), this, id++);
 					y_pos_vertrag += textRect.Height() + 20;
 					pstaticValue->SetFont(pMainFrame->GetFont());
 				}
@@ -279,6 +314,11 @@ HBRUSH CVertragView::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CView::OnCtlColor(pDC, pWnd, nCtlColor);
 	int ctrlID = pWnd->GetDlgCtrlID();
+
+	if (nCtlColor == CTLCOLOR_STATIC) {
+		pDC->SetBkMode(TRANSPARENT);
+		return (HBRUSH)GetStockObject(NULL_BRUSH);
+	}
 
 	if (ctrlID == 1001)
 	{

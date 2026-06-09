@@ -602,6 +602,30 @@ void CMainFrame::FillClassView(const CString& filePath)
 				continue;
 			}
 
+
+			//Hinweise
+			if (line.Find(_T("#begin[Hinweis]")) >= 0) {
+				NodeCtx ctx;
+				ctx.type = _T("Hinweis");
+				stack.push_back(ctx);
+			}
+			else if (line.Find(_T("#begin[Beschreibung]")) >= 0) {
+				inBeschreibung = true;	
+			}
+			else if (line.Find(_T("#end[Beschreibung]")) >= 0) {
+				inBeschreibung = false;
+			}
+			else if (line.Find(_T(" #end[Hinweis]")) >= 0) {
+				if (!stack.empty())
+					stack.pop_back();
+			}
+
+			else if (!stack.empty())
+			{	
+				if (line.Find(_T("[Kurztext]")) >= 0)
+			}
+
+			//LVBereich
 			if (line.Find(_T("#begin[LVBereich]")) >= 0)
 			{
 				NodeCtx ctx;
