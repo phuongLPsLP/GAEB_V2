@@ -4,6 +4,7 @@
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
+#include<set>
 
 using namespace rapidxml;
 
@@ -46,9 +47,34 @@ protected:
 	int x_pos_leitung;
 
 	CSize m_wndSize;
-
+	CString* m_format;
 	CBrush m_brush_edit_bg_color;
 	std::vector<CStatic*> m_vecStatics_GAEBInfo;
+	bool m_listCreated = false;
+	CListCtrl m_list_LV;
+	CString m_path;
+
+	struct LVBereich {
+		CString ber_oz;
+		CString ber_oz_formatted;
+		CString ber_kurztext;
+	};
+
+	struct LVPosition {
+		CString pos_oz;
+		CString pos_menge;
+		CString pos_einheit;
+		CString pos_kurztext;
+		CString pos_langtext;
+		CString pos_einheitpreis;
+		CString pos_gesamtpreis;
+		std::vector<LVBereich> path;
+	};
+
+	struct LVBeschreibung {
+		CString beschr_langtext;
+		CString beschr_kurztext;
+	};
 
 public:
 	virtual void OnDraw(CDC* pDC);      
@@ -62,6 +88,8 @@ public:
 	void TraverseBoQCtgy_LT(xml_node<>* ctgyNode, int& index, std::vector<int> levelPath);
 	void TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath);
 	void TraverseRemark_LT(xml_node<>* descNode, int& index);
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 
 };
 

@@ -421,10 +421,15 @@ void CMainFrame::FillClassView(const CString& filePath)
 				if (cur.item != nullptr)
 					return;
 
-				if (cur.oz.IsEmpty())
+				if (cur.oz.IsEmpty() && cur.type != _T("Hinweis"))
 					return;
 
-				CString display = FormatOZ2000(cur.oz);
+				//CString display = FormatOZ2000(cur.oz);
+				CString display;
+				if(cur.type == _T("Hinweis"))
+					display = _T("Hinweis");
+				else
+					display = FormatOZ2000(cur.oz);
 
 				if (!cur.bez.IsEmpty())
 					display += _T(" ") + cur.bez;
@@ -486,6 +491,17 @@ void CMainFrame::FillClassView(const CString& filePath)
 							}
 							break;
 						}
+
+						else if (stack[i].type == _T("Hinweis")) {
+							Item_data* pData = reinterpret_cast<Item_data*>
+								(m_wndClassView.GetItemData(stack[i].item));
+							if (pData) {
+								CString display = text;
+								m_wndClassView.SetItemText(stack[i].item, display);
+								pData->Full_Kurztext_data = display;
+							}
+							break;
+						}
 					}
 				}
 				// Mehrzeilig: [Kurztext] ... später [end]
@@ -542,6 +558,23 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 							break;
 						}
+
+						else if(stack[i].type == _T("Hinweis")) {
+							Item_data* pData = reinterpret_cast<Item_data*>(m_wndClassView.GetItemData(stack[i].item));
+							if (pData) {
+								if (readingKurztext) {
+									stack[i].kurztext = text;
+									CString display = text;
+									m_wndClassView.SetItemText(stack[i].item, display);
+									pData->Full_Kurztext_data = display;
+								}
+								else{
+									stack[i].langtext = text;
+									pData->Full_Langtext_data = text;
+								}
+							}
+						}
+
 					}
 
 					readingKurztext = false;
@@ -602,29 +635,6 @@ void CMainFrame::FillClassView(const CString& filePath)
 				continue;
 			}
 
-
-			//Hinweise
-			if (line.Find(_T("#begin[Hinweis]")) >= 0) {
-				NodeCtx ctx;
-				ctx.type = _T("Hinweis");
-				stack.push_back(ctx);
-			}
-			else if (line.Find(_T("#begin[Beschreibung]")) >= 0) {
-				inBeschreibung = true;	
-			}
-			else if (line.Find(_T("#end[Beschreibung]")) >= 0) {
-				inBeschreibung = false;
-			}
-			else if (line.Find(_T(" #end[Hinweis]")) >= 0) {
-				if (!stack.empty())
-					stack.pop_back();
-			}
-
-			else if (!stack.empty())
-			{	
-				if (line.Find(_T("[Kurztext]")) >= 0)
-			}
-
 			//LVBereich
 			if (line.Find(_T("#begin[LVBereich]")) >= 0)
 			{
@@ -638,6 +648,12 @@ void CMainFrame::FillClassView(const CString& filePath)
 				ctx.type = _T("Position");
 				stack.push_back(ctx);			
 			}					
+			else if (line.Find(_T("#begin[Hinweis]")) >= 0) {
+				NodeCtx ctx;
+				ctx.type = _T("Hinweis");
+				stack.push_back(ctx);
+				EnsureCurrentItem();
+			}
 
 			else if (line.Find(_T("#begin[Beschreibung]")) >= 0) {
 				inBeschreibung = true;		
@@ -647,11 +663,14 @@ void CMainFrame::FillClassView(const CString& filePath)
 			}
 
 			else if (line.Find(_T("#end[LVBereich]")) >= 0 ||
-				line.Find(_T("#end[Position]")) >= 0)
+				line.Find(_T("#end[Position]")) >= 0 ||
+				line.Find(_T("#end[Hinweis]")) >= 0)
 			{
 				if (!stack.empty())
 					stack.pop_back();
 			}
+
+			
 			else if (!stack.empty())
 			{
 				CString oz = GetTagValue(line, _T("OZ"));
