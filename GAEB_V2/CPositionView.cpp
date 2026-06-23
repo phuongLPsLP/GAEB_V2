@@ -90,8 +90,10 @@ void CPositionView::OnInitialUpdate()
 	_tcscpy_s(lf_edit_small.lfFaceName, _T("Segoe UI"));
 	m_font_edit.CreateFontIndirect(&lf_edit_small);
 
+	m_format = pMainFrame->GetFormat();
+
 	
-	if (m_format == "XML") {
+	if (*m_format == "XML") {
 		xml_node<>* boqNode = m_award->first_node("BoQ");
 		xml_node<>* boqInfoNode = boqNode->first_node("BoQInfo");
 
@@ -143,11 +145,11 @@ void CPositionView::OnInitialUpdate()
 		}
 	}
 
-	else if (m_format == "2000") {
+	else if (*m_format == "2000") {
 		AfxMessageBox(_T("Format 2000 - Noch nicht implementiert"));
 	}
 
-	else if (m_format == "90"){
+	else if (*m_format == "90") {
 		AfxMessageBox(_T("Format 90 - Noch nicht implementiert"));
 	}
 

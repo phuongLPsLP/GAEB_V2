@@ -57,7 +57,7 @@ protected:
 	struct LVBereich {
 		CString ber_oz;
 		CString ber_oz_formatted;
-		CString ber_kurztext;
+		CString ber_langtext;
 	};
 
 	struct LVPosition {

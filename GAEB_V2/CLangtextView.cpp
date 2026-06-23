@@ -28,20 +28,28 @@ END_MESSAGE_MAP()
 
 // CLangtextView drawing
 
+static double ParseGermanDouble(CString s);
+static CString GetField(const CString& line, int start, int len);
+static CString FormatGaebNumber(double value, int decimals);
+static CString NormalizeOZ(CString s);
+static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ);
+static CString WrapText(CDC* pdc, CString text, int maxWidth);
+
 
 void CLangtextView::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
 
-	int maxBottom = 0;
+	int maxBottom = 0;	
 
+	/*CSize sizeTotal;
+	sizeTotal.cx = 2000;
+	sizeTotal.cy = 50000;*/
+
+	SetScrollSizes(MM_TEXT, m_wndSize);
+	CSize textSize;
 	GetClientRect(&clientRect);
 	CClientDC dc(this);
-
-	CSize sizeTotal;
-	sizeTotal.cx = 2000;
-	sizeTotal.cy = 50000;
-	SetScrollSizes(MM_TEXT, sizeTotal);
 
 	int yPos_LV = 100;
 
@@ -144,7 +152,31 @@ void CLangtextView::OnInitialUpdate()
 			line.Trim();			
 
 			if (readingLangtext) {
+				if (line.Find(_T("[end]")) >= 0) {
+					int p = line.Find(_T("[end]"));
+					textBuffer += line.Left(p);
 
+					CString text = textBuffer;
+					text.Replace(_T("\\par"), _T(""));
+					text.Replace(_T("\\line"), _T("\r\n"));
+					text.Replace(_T("{"), _T(""));
+					text.Replace(_T("}"), _T(""));
+					text.Trim();
+
+					int plain = text.Find(_T("\\plain"));
+					if (plain >= 0) {
+						text = text.Mid(plain + 6);
+						text.Trim();
+					}
+
+					currentPos.pos_langtext = text;
+					readingLangtext = false;
+					textBuffer.Empty();
+				}
+				else {
+					textBuffer += line + _T("\r\n");
+				}
+				continue;
 			}
 
 			if (line.IsEmpty()) {
@@ -210,15 +242,60 @@ void CLangtextView::OnInitialUpdate()
 				continue;
 
 			if (inLVBereich && !inPosition) {
+				if (key.CompareNoCase(_T("OZ")) == 0) 
+				{
+					value.Trim();
+					currentLV.ber_oz = value;
 
+					if(lvStack.empty())
+						currentLV.ber_oz_formatted = value;
+					else
+						currentLV.ber_oz_formatted = FormatOZByParent(lvStack.back().ber_oz, 
+							lvStack.back().ber_oz_formatted, value);
+					lvStack.push_back(currentLV);
+				}
+				else if (key.CompareNoCase(_T("BezTx")) == 0) 
+				{
+					if(!lvStack.empty())
+						lvStack.back().ber_langtext = value;
+					else 
+						currentLV.ber_langtext = value;
+				}
+
+				else if (key.CompareNoCase(_T("Bez")) == 0) 
+				{
+					if(!lvStack.empty())
+						lvStack.back().ber_langtext = value;
+					else
+						currentLV.ber_langtext = value;
+				}
+				continue;
 			}
 			if (inPosition) {
-
+				if (key.CompareNoCase(_T("OZ")) == 0) {
+					value.Trim();
+					currentPos.pos_oz = value;
+					if (!lvStack.empty())
+					{
+						currentPos.pos_oz = FormatOZByParent(
+							lvStack.back().ber_oz,
+							lvStack.back().ber_oz_formatted,
+							value
+						);
+					}
+				}
+				else if (key.CompareNoCase(_T("Menge")) == 0) currentPos.pos_menge = value;
+				else if (key.CompareNoCase(_T("ME")) == 0) currentPos.pos_einheit = value;
+				else if (key.CompareNoCase(_T("EP")) == 0) currentPos.pos_einheitpreis = value;
+				else if (key.CompareNoCase(_T("GP")) == 0) currentPos.pos_gesamtpreis = value;
+				else if (key.CompareNoCase(_T("Langtext")) == 0) currentPos.pos_langtext = value;
+				else if (key.CompareNoCase(_T("BezTx")) == 0) currentPos.pos_kurztext = value;
+				continue;
 			}
 		}
 
 		CFont* pFont = pMainFrame->GetFont();
-		int id = 2500;
+		int id = 3000;
 		for (auto& p : positions) 
 		{
 			double menge = ParseGermanDouble(p.pos_menge);
@@ -231,7 +308,34 @@ void CLangtextView::OnInitialUpdate()
 		}
 
 		std::set<CString> printedLv;
-		
+		auto AddListRow = [&](const CString& oz, const CString& menge, const CString& me, const CString& text,
+			const CString& ep, const CString& gp) 
+			{
+				int i = m_list_LV.InsertItem(m_list_LV.GetItemCount(), oz );
+				m_list_LV.SetItemText(i, 1, menge);
+				m_list_LV.SetItemText(i, 2, me);
+				m_list_LV.SetItemText(i, 3, text);
+				m_list_LV.SetItemText(i, 4, ep);
+				m_list_LV.SetItemText(i, 5, gp);
+			};
+
+		for (const auto& pos : positions) 
+		{
+			for (const auto& lv : pos.path)
+			{
+				CString oz = lv.ber_oz_formatted;
+				if (printedLv.insert(oz).second) {
+					AddListRow(oz, _T(""), _T(""), lv.ber_langtext, _T(""), _T(""));
+				}
+			}
+
+			AddListRow(pos.pos_oz,
+				pos.pos_menge,
+				pos.pos_einheit,
+				pos.pos_langtext,
+				pos.pos_einheitpreis,
+				pos.pos_gesamtpreis);
+		}		
 	}
 	else if (*m_format == "XML") {
 		CStatic* staticControls_LV_Langtext[] =
@@ -361,6 +465,7 @@ void CLangtextView::OnDraw(CDC* pDC)
 	CFont* pUnderline = pFrame->GetFontUnderline();
 	pOldFont = pDC->SelectObject(pUnderline);
 	pDC->SelectObject(pOldFont);
+
 }
 
 
@@ -880,6 +985,8 @@ bool CLangtextView::TryParseGaebKeyValueLine(const CString& line, CString& outKe
 	return !outKey.IsEmpty();
 }
 
+
+
 static double ParseGermanDouble(CString s)
 {
 	s.Trim();
@@ -888,4 +995,68 @@ static double ParseGermanDouble(CString s)
 	return _tstof(s);
 }
 
+static CString NormalizeOZ(CString s) {
+	s.Trim();
+	for (int i = 0; i < 64; ++i)
+	{
+		CString before = s;
+		s.Replace(_T("  "), _T(" "));
+		if (s == before) break;
+	}
+	return s;
+}
 
+static int CommonPrefixLen(const CString& m, const CString& n)
+{
+	int i = 0;
+	int j = min(m.GetLength(), n.GetLength());
+	for (; i < j; ++i) {
+		if (m[i] != n[i])
+			break;
+	}
+	return i;
+}
+
+static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ)
+{
+	CString p = parentRawOZ;
+	p.Trim();
+	CString c = childRawOZ;
+	c.Trim();
+
+	if(p.IsEmpty() || c.IsEmpty())
+		return c;
+	int pref = CommonPrefixLen(p, c);
+	if (pref > 0 && pref <= c.GetLength()) {
+		CString suffix = c.Mid(pref);
+		suffix.Trim();
+		if(suffix.IsEmpty())
+			return parentFormattedOZ;
+		else
+			return parentFormattedOZ + _T(".") + suffix;
+		return c.Left(pref) + _T(".") + suffix;
+	}
+	return c;
+}
+
+/*static CString WrapText(CDC* pdc, CString text, int maxWidth) {
+	CString result, line, word;
+	int pos = 0;
+	while(AfxExtractSubString(word, text, pos, _T(''))) {
+		CString testLine = line.IsEmpty() ? word : line + _T("") + word;
+		CSize size = pdc->GetTextExtent(testLine);
+		if (size.cx > maxWidth && !line.IsEmpty()) {
+			result += line + _T("\r\n");
+			line = word;
+		}
+		else {
+			line = testLine;
+		}
+		pos++;
+
+	}
+	if(!line.IsEmpty()) {
+		result += line;
+	}
+	return result;
+}*/

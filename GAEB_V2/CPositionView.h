@@ -136,7 +136,7 @@ public:
 	void SetSumme(CString text);
 	
 
-	CString m_format;
+	CString* m_format;
 
 	CFont* GetFont() { return &m_font; }
 	CFont* GetFontBold() { return &m_font_bold; }

@@ -773,7 +773,6 @@ static int CommonPrefixLen(const CString& m, const CString& n)
 	return i;
 }
 
-
 static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ) 
 {
 	CString p = parentRawOZ;
@@ -802,6 +801,7 @@ static CString FormatOZByParent(const CString& parentRawOZ, const CString& paren
 	}
 	return c;
 }
+
 void CLV_MainView::ClearAllViews()
 {
 	// 1) ListCtrl leeren (falls vorhanden)
