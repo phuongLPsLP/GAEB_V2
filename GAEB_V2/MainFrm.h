@@ -107,20 +107,20 @@ protected:  // control bar embedded members
 	{
 		CString Full_Langtext_data;
 		CString Full_Kurztext_data;
-		CString Qty;
-		CString QU;
-		CString UP;
+		CString Qty;		//Menge
+		CString QU;			//Einheit
+		CString UP;			//Einheitpreis
 		CString UP1;
 		CString UP2;
 		CString UP3;
 		CString UP4;
 		CString UP5;
 		CString UP6;
-		CString IT;
-		CString TimeQu;
+		CString IT;			//Gesamtpreis
+		CString TimeQu;		//Zeitansatz
 		CString Total;
-		CString DiscountAnteil;
-		CString DiscountPauschal;
+		CString DiscountAnteil;			//Nachlass Anteil
+		CString DiscountPauschal;		//Nachlass Pauschal
 	};
 
 	HTREEITEM LV_Main;

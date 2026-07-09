@@ -305,9 +305,10 @@ void CMainFrame::FillClassView(const CString& filePath)
 			CString kurztext;
 			CString langtext;
 			CString menge;
-			CString me;
+			CString me;	//einheit
 			CString ep;
-			CString bedarf;
+			CString gp;
+			CString nachlass;
 			HTREEITEM item = nullptr;
 		};
 
@@ -410,6 +411,11 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 				return oz;
 			};
+		auto FormatQty = [](CString menge) -> CString
+			{
+				menge.Trim();
+				return menge;
+			};
 
 		auto EnsureCurrentItem = [&]()
 			{
@@ -424,11 +430,11 @@ void CMainFrame::FillClassView(const CString& filePath)
 				if (cur.oz.IsEmpty() && cur.type != _T("Hinweis"))
 					return;
 
-				//CString display = FormatOZ2000(cur.oz);
-				CString display;
-				if(cur.type == _T("Hinweis"))
+				CString display, qty, qu, up, it, discount;
+				if (cur.type == _T("Hinweis"))
 					display = _T("Hinweis");
 				else
+					qty = FormatQty(cur.menge);
 					display = FormatOZ2000(cur.oz);
 
 				if (!cur.bez.IsEmpty())
@@ -444,6 +450,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 				}
 
 				Item_data* pData = new Item_data;
+
 				pData->Full_Kurztext_data = display;
 				pData->Full_Langtext_data = _T("");
 
@@ -546,6 +553,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 									stack[i].kurztext = text;
 
 									CString display = FormatOZ2000(stack[i].oz) + _T(" ") + text;
+									AfxMessageBox(display);
 									m_wndClassView.SetItemText(stack[i].item, display);
 									pData->Full_Kurztext_data = display;
 								}
@@ -674,12 +682,43 @@ void CMainFrame::FillClassView(const CString& filePath)
 			else if (!stack.empty())
 			{
 				CString oz = GetTagValue(line, _T("OZ"));
+				CString ep = GetTagValue(line, _T("EP"));
+				CString menge = GetTagValue(line, _T("Menge"));
+				CString me = GetTagValue(line, _T("ME"));
+				CString gp = GetTagValue(line, _T("GP"));
+				CString nachlass = GetTagValue(line, _T("Nachlass"));
+
 				if (!oz.IsEmpty())
 				{
 					stack.back().oz = oz;
 					EnsureCurrentItem();
 				}
+				if (!ep.IsEmpty()) {
+					stack.back().ep = ep;
+					EnsureCurrentItem();
 
+				}
+				if (!menge.IsEmpty()) {
+					stack.back().menge;
+					EnsureCurrentItem();
+
+				}
+				//ME = Einheit
+				if (!me.IsEmpty()) {
+					stack.back().me;
+					EnsureCurrentItem();
+
+				}
+				if (!gp.IsEmpty()) {
+					stack.back().gp;
+					EnsureCurrentItem();
+
+				}
+				if (!nachlass.IsEmpty()) {
+					stack.back().nachlass;
+					EnsureCurrentItem();
+
+				}
 				CString bez = GetTagValue(line, _T("Bez"));
 				CString beztxt = GetTagValue(line, _T("BezTx"));
 				if (!beztxt.IsEmpty()) {
@@ -702,7 +741,12 @@ void CMainFrame::FillClassView(const CString& filePath)
 						if (pData)
 							pData->Full_Kurztext_data = display;
 					}
-				}				
+				}		
+				else {
+					if (stack.back().item != nullptr) {
+
+					}
+				}
 			}		
 		}
 
@@ -2128,17 +2172,6 @@ void CMainFrame::OnButton_SpeichernUnter()
 {
 	// TODO: Add your command handler code here
 }
-
-/*void CMainFrame::Load_GAEB_2000(const CString& filePath)
-{
-	std::vector<CString> lines;
-	if (!ReadFileLinesAnsiToCStringW(filePath, lines))
-	{
-		AfxMessageBox(_T("Konnte Datei nicht lesen."));
-		return;
-	}
-
-}*/
 
 CString CMainFrame::Utf8ToString(const char* utf8Str)
 {

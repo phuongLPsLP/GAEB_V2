@@ -137,10 +137,15 @@ public:
 	
 
 	CString* m_format;
+	CString m_path;
 
 	CFont* GetFont() { return &m_font; }
 	CFont* GetFontBold() { return &m_font_bold; }
 	CFont* GetFontEdit() { return &m_font_edit; }
+
+	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
+
 };
 
 

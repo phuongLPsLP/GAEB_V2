@@ -147,8 +147,8 @@ void CPositionView::OnInitialUpdate()
 
 
 	//GAEB 2000
-	else if (*m_format == "2000") {
-		AfxMessageBox(_T("Format 2000 - Noch nicht implementiert"));
+	else if (*m_format == "2000") {	
+
 	}
 
 	//GAEB 90
@@ -270,7 +270,7 @@ void CPositionView::OnInitialUpdate()
 		if (pEdit->GetSafeHwnd())
 		{
 			pEdit->SetFont(&m_font_edit);
-			pEdit->SetReadOnly(TRUE);
+			pEdit->SetReadOnly(FALSE);
 		}
 
 		
@@ -318,31 +318,39 @@ void CPositionView::SetTextOZ(CString text)
 	CString text_part;
 	int i = 0;
 	int len = text.GetLength();
+	bool letter = false;
+	for (int i = 0; i < text.GetLength(); i++)
+	{
+		if (_istalpha(text[i]))
+		{
+			letter = true;
+		}
+	}
 
-	while (i < len) {
-		TCHAR ch = text[i];
-		if (_istdigit(ch)) {
-			oz_part += ch;
+	if (letter == true) {
+
+		while (i < len && (_istdigit(text[i]) || text[i] == '.')) {
+			oz_part += text[i];
 			i++;
 		}
-		else if (ch == '.') {
-			oz_part += ch;
+		while (i < len && _istspace(text[i])) {
 			i++;
 		}
-		else if (_istspace(ch)) {
-			oz_part += ch;
-			text_part += ch;
-			i++;
-			//break;
-		}
-		else {
-			text_part += ch;
+		text_part = text.Mid(i);
+
+	}
+
+	else {
+		while (i < len) {
+			oz_part += text[i];
 			i++;
 		}
 	}
 
+
+
 	if (m_edit_OZ.GetSafeHwnd() != NULL && ::IsWindow(m_edit_OZ.m_hWnd))
-	{	
+	{
 		m_edit_OZ.SetWindowText(oz_part);
 	}
 
@@ -363,8 +371,6 @@ void CPositionView::SetTextOZ(CString text)
 	else {
 		m_text_bez = text_part;
 	}
-
-
 }
 
 void CPositionView::SetLangtext(CString text)
@@ -550,4 +556,102 @@ CString CPositionView::Utf8ToString(const char* utf8Str)
 	result.ReleaseBuffer();
 	return result;
 	//return CString();
+}
+
+bool CPositionView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
+{
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL)
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// ANSI -> UTF-16
+	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+}
+
+bool CPositionView::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
+{
+	//#begin[GAEBInfo]
+	//#end[GAEBInfo]
+	int k1 = line.Find(_T('['));
+	if (k1 != 0)
+		return false;
+	int k2 = line.Find(_T(']'), k1 + 1);
+	if (k2 <= 1)
+		return false;
+	CString s = line;
+	s.Trim();
+
+	int endTag = s.ReverseFind(_T('['));
+	if (endTag < 0)
+		return false;
+	CString tail = s.Mid(endTag);
+	if (tail.CompareNoCase(_T("[end]")) != 0) return false;
+
+	outKey = s.Mid(1, k2 - 1);
+	outKey.Trim();
+
+	outValue = s.Mid(k2 + 1, endTag - (k2 + 1));
+	outValue.Trim();
+	return !outKey.IsEmpty();
 }
