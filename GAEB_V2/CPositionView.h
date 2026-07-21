@@ -4,6 +4,7 @@
 #include "rapidxml-1.13/rapidxml_utils.hpp"
 #include <afxwin.h>
 #include <afxext.h>
+#include "Item_data.h"
 
 // CPositionView view
 
@@ -25,6 +26,7 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 #endif
+
 public:
 	CString m_text_OZ;
 	CString m_text_KT;
@@ -43,6 +45,8 @@ public:
 	CString m_text_UP5;
 	CString m_text_UP6;
 	CString m_text_Summe;
+	Item_data* m_currentItemData;
+
 
 protected:
 
@@ -115,7 +119,9 @@ protected:
 	rapidxml::xml_node<>* m_award = nullptr;
 
 protected:
-	DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP();
+	
+
 public:
 	CString Utf8ToString(const char* utf8Str);
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -133,10 +139,11 @@ public:
 	void SetUP4(CString text);
 	void SetUP5(CString text);
 	void SetUP6(CString text);
-	void SetSumme(CString text);
-	
+	void SetSumme(CString text);	
 
-	CString* m_format;
+	void SetCurrentItemData(Item_data* itemData);
+
+	CString m_format;
 	CString m_path;
 
 	CFont* GetFont() { return &m_font; }

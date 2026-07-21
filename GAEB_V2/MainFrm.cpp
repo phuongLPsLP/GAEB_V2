@@ -87,6 +87,10 @@ END_MESSAGE_MAP()
 
 
 static CString GetField(const CString& line, int start, int len);
+static double ParseGermanDouble(CString s);
+static CString FormatGermanDigit(CString s);
+
+
 
 
 // CMainFrame construction/destruction
@@ -306,9 +310,11 @@ void CMainFrame::FillClassView(const CString& filePath)
 			CString langtext;
 			CString menge;
 			CString me;	//einheit
-			CString ep;
-			CString gp;
+			CString ep;	//einheitpreis
+			CString gp;	//gesamtpreis
+			CString time; //zeitansatz
 			CString nachlass;
+			CString bedarf;
 			HTREEITEM item = nullptr;
 		};
 
@@ -396,33 +402,81 @@ void CMainFrame::FillClassView(const CString& filePath)
 				return result;
 			};
 
-		auto FormatOZ2000 = [](CString oz) -> CString
+		auto FormatOZ2000 = [](CString currentOz) -> CString
 			{
-				oz.Trim();
+				//parentOz.Trim();
+				currentOz.Trim();
 
-				if (oz.GetLength() == 3)
-					return oz; // 000
+				/*if (parentOz.IsEmpty() || currentOz.IsEmpty())
+					return currentOz;
 
-				if (oz.GetLength() == 5)
-					return oz.Left(3) + _T(".") + oz.Mid(3, 2); // 000.10
+				int maxCompare = parentOz.GetLength();
 
-				if (oz.GetLength() == 9)
-					return oz.Left(3) + _T(".") + oz.Mid(3, 2) + _T(".") + oz.Mid(5, 4); // 000.10.0010
+				if (currentOz.GetLength() < maxCompare)
+					maxCompare = currentOz.GetLength();
 
-				return oz;
+				int position = 0;
+
+				// Gemeinsame Zeichen von links vergleichen
+				while (position < maxCompare &&
+					parentOz[position] == currentOz[position])
+				{
+					++position;
+				}
+
+				// Punkt an der Stelle einfügen, an der die OZ abweicht
+				if (position > 0 &&
+					position < currentOz.GetLength() &&
+					currentOz[position] != _T('.') &&
+					currentOz[position - 1] != _T('.'))
+				{
+					currentOz.Insert(position, _T('.'));
+				}*/
+
+				return currentOz;
+
 			};
 		auto FormatQty = [](CString menge) -> CString
 			{
 				menge.Trim();
 				return menge;
 			};
-
+		auto FormatQU = [](CString einheit) -> CString {
+			einheit.Trim();
+			return einheit;
+			};
+		auto FormatUP = [](CString einheitpreis) -> CString {
+			einheitpreis.Trim();
+			return einheitpreis;
+			};
+		auto FormatIT = [](CString gesamtpreis) -> CString {
+			gesamtpreis.Trim();			
+			return gesamtpreis;
+			};
+		auto FormatDiscountAnteil = [](CString nachlass_anteil) -> CString {
+			nachlass_anteil.Trim();
+			return nachlass_anteil;
+			};
+		auto FormatTime = [](CString zeitansatz) -> CString {
+			zeitansatz.Trim();
+			return zeitansatz;
+			};
 		auto EnsureCurrentItem = [&]()
 			{
 				if (stack.empty())
 					return;
 
+
+				HTREEITEM parent = LV_Main;
 				NodeCtx& cur = stack.back();
+				NodeCtx& parentCtx = stack[stack.size() - 2];
+
+
+				if (stack.size() >= 2)
+				{
+					if (parentCtx.item != nullptr)
+						parent = parentCtx.item;
+				}
 
 				if (cur.item != nullptr)
 					return;
@@ -438,21 +492,18 @@ void CMainFrame::FillClassView(const CString& filePath)
 					display = FormatOZ2000(cur.oz);
 
 				if (!cur.bez.IsEmpty())
-					display += _T(" ") + cur.bez;
-
-				HTREEITEM parent = LV_Main;
-
-				if (stack.size() >= 2)
-				{
-					NodeCtx& parentCtx = stack[stack.size() - 2];
-					if (parentCtx.item != nullptr)
-						parent = parentCtx.item;
-				}
+					display += _T(" ") + cur.bez;				
 
 				Item_data* pData = new Item_data;
 
 				pData->Full_Kurztext_data = display;
 				pData->Full_Langtext_data = _T("");
+				pData->Qty = cur.menge;
+				pData->QU = cur.me;
+				pData->UP = cur.ep;
+				pData->IT = cur.gp;
+				pData->TimeQu = cur.time; 
+				pData->DiscountAnteil = cur.nachlass;
 
 				cur.item = m_wndClassView.InsertItem(display, parent);
 				m_wndClassView.SetItemData(cur.item, reinterpret_cast<DWORD_PTR>(pData));
@@ -654,6 +705,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 			{
 				NodeCtx ctx;
 				ctx.type = _T("Position");
+				ctx.bedarf.IsEmpty();
 				stack.push_back(ctx);			
 			}					
 			else if (line.Find(_T("#begin[Hinweis]")) >= 0) {
@@ -686,7 +738,9 @@ void CMainFrame::FillClassView(const CString& filePath)
 				CString menge = GetTagValue(line, _T("Menge"));
 				CString me = GetTagValue(line, _T("ME"));
 				CString gp = GetTagValue(line, _T("GP"));
-				CString nachlass = GetTagValue(line, _T("Nachlass"));
+				CString zeit = GetTagValue(line, _T(""));		//noch keine Info dazu
+				CString nachlass = GetTagValue(line, _T("Nachlass"));		
+				CString bedarf = GetTagValue(line, _T("Bedarf"));
 
 				if (!oz.IsEmpty())
 				{
@@ -696,31 +750,37 @@ void CMainFrame::FillClassView(const CString& filePath)
 				if (!ep.IsEmpty()) {
 					stack.back().ep = ep;
 					EnsureCurrentItem();
-
 				}
 				if (!menge.IsEmpty()) {
-					stack.back().menge;
+					stack.back().menge = menge;
 					EnsureCurrentItem();
-
 				}
 				//ME = Einheit
 				if (!me.IsEmpty()) {
-					stack.back().me;
+					stack.back().me = me;
 					EnsureCurrentItem();
-
 				}
 				if (!gp.IsEmpty()) {
-					stack.back().gp;
+					stack.back().gp = gp;
 					EnsureCurrentItem();
-
 				}
 				if (!nachlass.IsEmpty()) {
-					stack.back().nachlass;
+					stack.back().nachlass = nachlass;
 					EnsureCurrentItem();
+				}
+				if (!zeit.IsEmpty()) {
+					stack.back().time = zeit;
+					EnsureCurrentItem();
+				}
 
+				if (!bedarf.IsEmpty()) 
+				{
+					bedarf.Trim();
+					stack.back().bedarf = bedarf;
 				}
 				CString bez = GetTagValue(line, _T("Bez"));
 				CString beztxt = GetTagValue(line, _T("BezTx"));
+
 				if (!beztxt.IsEmpty()) {
 					bez = beztxt;
 				}
@@ -743,8 +803,44 @@ void CMainFrame::FillClassView(const CString& filePath)
 					}
 				}		
 				else {
-					if (stack.back().item != nullptr) {
 
+				
+					if (stack.back().item != nullptr) {
+						CString Qty_menge = FormatQty(stack.back().menge);
+						CString QU_einheit = FormatQU(stack.back().me);
+						CString UP_einheitpreis = FormatUP(stack.back().ep);
+						CString IT_gesamtpreis = FormatIT(stack.back().gp);
+						CString Discount_nachlass = FormatDiscountAnteil(stack.back().nachlass);
+						CString TimeQu_zeitansatz = FormatTime(stack.back().time);
+						Item_data* pData = reinterpret_cast<Item_data*>(
+							m_wndClassView.GetItemData(stack.back().item)
+							);
+
+						CString currentBedarf = stack.back().bedarf;
+						currentBedarf.Trim();
+
+						double d_qty = ParseGermanDouble(Qty_menge);
+						double d_ep = ParseGermanDouble(UP_einheitpreis);
+
+						if(currentBedarf.IsEmpty() || currentBedarf == _T("M"))
+						{
+							double d_it = d_qty * d_ep;
+							IT_gesamtpreis.Format(_T("%.2f"), d_it);
+							IT_gesamtpreis = FormatGermanDigit(IT_gesamtpreis);
+
+						}
+						else if (currentBedarf == _T("E")) {
+							IT_gesamtpreis = _T(" ");
+						}
+						
+						if (pData) {							
+							pData->Qty = Qty_menge;
+							pData->QU = QU_einheit;
+							pData->UP = UP_einheitpreis;
+							pData->IT = IT_gesamtpreis;
+							pData->DiscountAnteil = Discount_nachlass;
+							pData->TimeQu = TimeQu_zeitansatz;
+						}
 					}
 				}
 			}		
@@ -1650,6 +1746,19 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	OnApplicationLook(theApp.m_nAppLook);
 
 	return 0;
+}
+
+static double ParseGermanDouble(CString s) // wandelt String in double um
+{
+	s.Trim();
+	s.Replace(_T("."), _T(""));
+	s.Replace(_T(","), _T("."));
+	return _tstof(s);
+}
+static CString FormatGermanDigit(CString s) { // Formatiert "." in ","
+	s.Trim();
+	s.Replace(_T("."), _T(","));
+	return s;
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)

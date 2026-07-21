@@ -19,6 +19,7 @@
 #include "rapidxml-1.13/rapidxml_print.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
 #include <map>
+#include "Item_data.h"
 
 //#include "C:\Users\marku\Downloads\rapidxml-1.13\rapidxml-1.13\rapidxml.hpp"
 //#include "C:\Users\marku\Downloads\rapidxml-1.13\rapidxml-1.13\rapidxml_utils.hpp"
@@ -26,6 +27,7 @@
 
 using namespace rapidxml;
 using namespace std;
+
 
 
 class COutlookBar : public CMFCOutlookBar
@@ -102,26 +104,6 @@ protected:  // control bar embedded members
 	CString m_path;
 	CString Kurz_text;	 
 	CString m_format;
-
-	struct Item_data
-	{
-		CString Full_Langtext_data;
-		CString Full_Kurztext_data;
-		CString Qty;		//Menge
-		CString QU;			//Einheit
-		CString UP;			//Einheitpreis
-		CString UP1;
-		CString UP2;
-		CString UP3;
-		CString UP4;
-		CString UP5;
-		CString UP6;
-		CString IT;			//Gesamtpreis
-		CString TimeQu;		//Zeitansatz
-		CString Total;
-		CString DiscountAnteil;			//Nachlass Anteil
-		CString DiscountPauschal;		//Nachlass Pauschal
-	};
 
 	HTREEITEM LV_Main;
 
