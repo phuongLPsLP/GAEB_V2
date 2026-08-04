@@ -305,6 +305,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 		{
 			CString type;
 			CString oz;
+			CString formattedOZ;
 			CString bez;
 			CString kurztext;
 			CString langtext;
@@ -324,6 +325,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 		CString textBuffer;
 
 		std::vector<NodeCtx> stack;
+
 
 		auto GetTagValue = [](CString line, CString tag) -> CString
 			{
@@ -402,38 +404,29 @@ void CMainFrame::FillClassView(const CString& filePath)
 				return result;
 			};
 
-		auto FormatOZ2000 = [](CString currentOz) -> CString
+		auto FormatOZ2000 = [](CString currentOZ, CString parentOZ, CString formattedParentOZ) -> CString
 			{
-				//parentOz.Trim();
-				currentOz.Trim();
+				currentOZ.Trim();
+				parentOZ.Trim();
+				formattedParentOZ.Trim();
 
-				/*if (parentOz.IsEmpty() || currentOz.IsEmpty())
-					return currentOz;
+				//Kein Elternknoten
+				if(parentOZ.IsEmpty())
+					return currentOZ;
 
-				int maxCompare = parentOz.GetLength();
-
-				if (currentOz.GetLength() < maxCompare)
-					maxCompare = currentOz.GetLength();
-
-				int position = 0;
-
-				// Gemeinsame Zeichen von links vergleichen
-				while (position < maxCompare &&
-					parentOz[position] == currentOz[position])
+				//CurrentOZ begintt mit der ElternOZ  
+				if (currentOZ.Left(parentOZ.GetLength()) == parentOZ)
 				{
-					++position;
+					CString suffix = currentOZ.Mid(parentOZ.GetLength());
+					if (suffix.IsEmpty())
+						return formattedParentOZ;
+
+					return formattedParentOZ + _T(".") + suffix;
+					//currentOZ.Insert(parentOZ.GetLength(), _T("."));
 				}
+				return currentOZ;
 
-				// Punkt an der Stelle einfügen, an der die OZ abweicht
-				if (position > 0 &&
-					position < currentOz.GetLength() &&
-					currentOz[position] != _T('.') &&
-					currentOz[position - 1] != _T('.'))
-				{
-					currentOz.Insert(position, _T('.'));
-				}*/
-
-				return currentOz;
+				
 
 			};
 		auto FormatQty = [](CString menge) -> CString
@@ -466,17 +459,22 @@ void CMainFrame::FillClassView(const CString& filePath)
 				if (stack.empty())
 					return;
 
+				NodeCtx& cur = stack.back();	
+				CString parentOZ;
+				CString parentFormattedOZ;
 
 				HTREEITEM parent = LV_Main;
-				NodeCtx& cur = stack.back();
-				NodeCtx& parentCtx = stack[stack.size() - 2];
-
 
 				if (stack.size() >= 2)
 				{
+					NodeCtx& parentCtx = stack[stack.size() - 2];
 					if (parentCtx.item != nullptr)
 						parent = parentCtx.item;
+					parentOZ = parentCtx.oz;
+					parentFormattedOZ = parentCtx.formattedOZ;
 				}
+
+				cur.formattedOZ = FormatOZ2000(cur.oz, parentOZ, parentFormattedOZ);
 
 				if (cur.item != nullptr)
 					return;
@@ -489,11 +487,12 @@ void CMainFrame::FillClassView(const CString& filePath)
 					display = _T("Hinweis");
 				else
 					qty = FormatQty(cur.menge);
-					display = FormatOZ2000(cur.oz);
+					display = cur.formattedOZ;
 
 				if (!cur.bez.IsEmpty())
-					display += _T(" ") + cur.bez;				
+					display += _T(" ") + cur.bez;			
 
+				
 				Item_data* pData = new Item_data;
 
 				pData->Full_Kurztext_data = display;
@@ -543,7 +542,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 							if (pData)
 							{
-								CString display = FormatOZ2000(stack[i].oz) + _T(" ") + text;
+								CString display = stack[i].formattedOZ + _T(" ") + text;
 								m_wndClassView.SetItemText(stack[i].item, display);
 								pData->Full_Kurztext_data = display;
 							}
@@ -603,8 +602,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 								{
 									stack[i].kurztext = text;
 
-									CString display = FormatOZ2000(stack[i].oz) + _T(" ") + text;
-									AfxMessageBox(display);
+									CString display = stack[i].formattedOZ + _T(" ") + text;
 									m_wndClassView.SetItemText(stack[i].item, display);
 									pData->Full_Kurztext_data = display;
 								}
@@ -791,7 +789,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 					if (stack.back().item != nullptr)
 					{
-						CString display = FormatOZ2000(stack.back().oz) + _T(" ") + bez;
+						CString display = stack.back().formattedOZ + _T(" ") + bez;
 						m_wndClassView.SetItemText(stack.back().item, display);
 
 						Item_data* pData = reinterpret_cast<Item_data*>(
@@ -853,6 +851,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 	{
 		CStdioFile file;
 		std::vector<CString> lines;
+		Item_data* pData = new Item_data;
 
 		if (file.Open(filePath, CFile::modeRead | CFile::typeText))
 		{
@@ -867,6 +866,25 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 		CString currentOZ;
 		HTREEITEM currentItem = nullptr;
+
+		struct NodeCtx {
+			CString type;
+			CString oz;
+			CString formattedOZ;
+			CString bez;
+			CString kurztext;
+			CString langtext;
+			CString menge;
+			CString me;	//einheit
+			CString ep;	//einheitpreis
+			CString gp;	//gesamtpreis
+			CString time; //zeitansatz
+			CString nachlass;
+			CString bedarf;
+			HTREEITEM item = nullptr;
+		};
+
+		std::vector<NodeCtx> stack;
 
 		auto clean = [](CString  s) -> CString {
 			s.Trim();
@@ -892,9 +910,21 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 		auto ReadOZ11 = [&](const CString& line) -> CString
 			{
-				CString oz = GetField(line, 2, 9);
-				oz.Trim();
-				oz.Remove(_T(' '));
+				CString inhalt_11 = line;
+				CString oz = nullptr;
+				inhalt_11.Trim();
+				inhalt_11.Remove(_T(' '));
+				for (int i = 0; i < inhalt_11.GetLength(); ++i)
+				{
+					if (_istdigit(inhalt_11[i]))
+					{
+						oz += inhalt_11[i];
+					}
+					else
+					{
+						break;
+					}
+				}
 				return oz;
 			};
 
@@ -918,7 +948,6 @@ void CMainFrame::FillClassView(const CString& filePath)
 				oz.Trim();
 				return oz;
 			};
-
 
 		auto InsertOrUpdateItem = [&](const CString& oz, const CString& text)
 			{
@@ -960,8 +989,6 @@ void CMainFrame::FillClassView(const CString& filePath)
 				currentItem = item;
 			};
 
-
-
 		for (const auto& raw : lines)
 		{
 			CString line = raw;
@@ -970,14 +997,21 @@ void CMainFrame::FillClassView(const CString& filePath)
 			if (line.GetLength() < 2)
 				continue;
 
-			CString satzart = GetField(line, 0, 2);
+			//2 Zeichen Satzart
+			//6 letzte Zeichen Satznummer
+			//72 Zeichen Inhalt
+
+			CString satzart = line.Mid(0, 2);
+			CString satznummer = line.Right(6);
+			CString inhalt = line.Mid(2, line.GetLength() - 6);
+
 
 			if (satzart == _T("11"))
 			{
-				CString oz = ReadOZ11(line);
+				CString oz = ReadOZ11(inhalt);
 				InsertOrUpdateItem(oz, _T(""));
 			}
-			else if (satzart == _T("12"))
+		/*	else if (satzart == _T("12"))
 			{
 				CString text = GetField(line, 2, 70);
 				if (!currentOZ.IsEmpty())
@@ -1047,12 +1081,8 @@ void CMainFrame::FillClassView(const CString& filePath)
 						pData->IT = gp;
 					}
 				}
-			}
-		}
-
-		for (auto& pair : itemMap)
-		{
-			m_wndClassView.Expand(pair.second, TVE_EXPAND);
+			}*/
+		
 		}
 	}
 	
