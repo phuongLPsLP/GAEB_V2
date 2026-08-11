@@ -868,9 +868,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 		HTREEITEM currentItem = nullptr;
 
 		struct NodeCtx {
-			CString type;
 			CString oz;
-			CString formattedOZ;
 			CString bez;
 			CString kurztext;
 			CString langtext;
@@ -895,99 +893,107 @@ void CMainFrame::FillClassView(const CString& filePath)
 			{
 				CString s = oz;
 				s.Trim();
+				s.Remove(_T('.'));
 
-				if (s.GetLength() == 7 || s.GetLength() == 8)
-					return s.Left(4);
+				if (s.GetLength() <= 2)
+					return _T("");
 
-				if (s.GetLength() == 4)
-					return s.Left(2);
-
-				if (s.GetLength() > 1)
-					return s.Left(s.GetLength() - 1);
-
-				return _T("");
+				return s.Left(s.GetLength() - 2);
 			};
 
-		auto ReadOZ11 = [&](const CString& line) -> CString
+		auto FormatOZ_90 = [](CString inhalt) -> CString
 			{
-				CString inhalt_11 = line;
-				CString oz = nullptr;
-				inhalt_11.Trim();
-				inhalt_11.Remove(_T(' '));
-				for (int i = 0; i < inhalt_11.GetLength(); ++i)
+				CString s = inhalt;
+				s.TrimLeft();
+				CString oz;
+
+				for (int i = 0; i < s.GetLength() && oz.GetLength() < 9; ++i)
 				{
-					if (_istdigit(inhalt_11[i]))
+					if (_istdigit(s[i]))
 					{
-						oz += inhalt_11[i];
+						oz += s[i];
 					}
 					else
 					{
 						break;
 					}
 				}
-				return oz;
-			};
 
-		auto ReadOZ21 = [&](const CString& line) -> CString
-			{
-				CString ozTeil = GetField(line, 2, 4);
-				CString posTeil = GetField(line, 6, 3);
+				CString formatted_oz;
+				for (int i = 0; i < oz.GetLength(); i+=2) {
+					if (!formatted_oz.IsEmpty())
+						formatted_oz += _T(".");
 
-				ozTeil.Trim();
-				posTeil.Trim();
+					formatted_oz += oz.Mid(i, min(2, oz.GetLength() - i));
+				}
 
-				CString pos;
-				pos.Format(_T("%03d"), _ttoi(posTeil));
-
-				return ozTeil + pos;
-			};
-
-		auto ReadOZ23 = [&](const CString& line) -> CString
-			{
-				CString oz = GetField(line, 2, 8);
-				oz.Trim();
-				return oz;
+				return formatted_oz;
 			};
 
 		auto InsertOrUpdateItem = [&](const CString& oz, const CString& text)
 			{
 				CString cleanOZ = oz;
 				cleanOZ.Trim();
+				cleanOZ.Remove(_T('.'));
 
 				if (cleanOZ.IsEmpty())
 					return;
 
-				CString displayText = cleanOZ;
+				CString formattedOZ = FormatOZ_90(cleanOZ);
 
 				CString cleanText = text;
 				cleanText.Trim();
 
+				CString displayText = formattedOZ;
+
 				if (!cleanText.IsEmpty())
 					displayText += _T(" ") + cleanText;
 
-				if (itemMap.find(cleanOZ) != itemMap.end())
+				// Bereits vorhanden -> Text aktualisieren
+				auto it = itemMap.find(cleanOZ);
+
+				if (it != itemMap.end())
 				{
-					m_wndClassView.SetItemText(itemMap[cleanOZ], displayText);
+					m_wndClassView.SetItemText(it->second, displayText);
+
+					currentOZ = cleanOZ;
+					currentItem = it->second;
 					return;
 				}
 
+				// Parent bestimmen
 				CString parentOZ = GetParentOZ(cleanOZ);
+				
+				HTREEITEM parentItem = LV_Main;
 
-				HTREEITEM parent = LV_Main;
-				if (!parentOZ.IsEmpty() && itemMap.find(parentOZ) != itemMap.end())
-					parent = itemMap[parentOZ];
+				if (!parentOZ.IsEmpty())
+				{
+					auto parentIt = itemMap.find(parentOZ);
+
+					if (parentIt != itemMap.end())
+						parentItem = parentIt->second;
+				}
 
 				Item_data* pData = new Item_data;
+
 				pData->Full_Kurztext_data = displayText;
 				pData->Full_Langtext_data = _T("");
 
-				HTREEITEM item = m_wndClassView.InsertItem(displayText, parent);
-				m_wndClassView.SetItemData(item, reinterpret_cast<DWORD_PTR>(pData));
+				HTREEITEM item =
+					m_wndClassView.InsertItem(displayText, parentItem);
+
+				m_wndClassView.SetItemData(
+					item,
+					reinterpret_cast<DWORD_PTR>(pData)
+				);
 
 				itemMap[cleanOZ] = item;
+
 				currentOZ = cleanOZ;
 				currentItem = item;
 			};
+
+		
 
 		for (const auto& raw : lines)
 		{
@@ -1001,37 +1007,39 @@ void CMainFrame::FillClassView(const CString& filePath)
 			//6 letzte Zeichen Satznummer
 			//72 Zeichen Inhalt
 
-			CString satzart = line.Mid(0, 2);
+			CString satzart = line.Left(2);
 			CString satznummer = line.Right(6);
-			CString inhalt = line.Mid(2, line.GetLength() - 6);
-
+			CString inhalt = line.Mid(2, line.GetLength() - 8);
 
 			if (satzart == _T("11"))
 			{
-				CString oz = ReadOZ11(inhalt);
-				InsertOrUpdateItem(oz, _T(""));
+				CString oz = FormatOZ_90(inhalt);
+				if (!oz.IsEmpty())
+					InsertOrUpdateItem(oz, _T(""));
 			}
-		/*	else if (satzart == _T("12"))
+			else if (satzart == _T("21") )
 			{
-				CString text = GetField(line, 2, 70);
+				CString oz = FormatOZ_90(inhalt);
+				if (!oz.IsEmpty())
+					InsertOrUpdateItem(oz, _T(""));
+			}
+			else if (satzart == _T("23")) {
+				CString oz = FormatOZ_90(inhalt);
+				if (!oz.IsEmpty())
+					InsertOrUpdateItem(oz, _T(""));
+			}
+			else if (satzart == _T("12")) {
+				CString text = inhalt;
+				if(!currentOZ.IsEmpty())
+					InsertOrUpdateItem(currentOZ, text);
+			}
+			else if (satzart == _T("25")) {
+				CString text = inhalt;
 				if (!currentOZ.IsEmpty())
 					InsertOrUpdateItem(currentOZ, text);
 			}
-			else if (satzart == _T("21"))
-			{
-				CString oz = ReadOZ21(line);
-				InsertOrUpdateItem(oz, _T(""));
-			}
-			else if (satzart == _T("25"))
-			{
-				CString text = GetField(line, 2, 70);
-				if (!currentOZ.IsEmpty())
-					InsertOrUpdateItem(currentOZ, text);
-			}
-			else if (satzart == _T("26"))
-			{
-				CString lang = GetField(line, 2, 70);
-
+			else if (satzart == _T("26")) {
+				CString langtext = inhalt;
 				if (currentItem != nullptr)
 				{
 					Item_data* pData = reinterpret_cast<Item_data*>(
@@ -1043,46 +1051,10 @@ void CMainFrame::FillClassView(const CString& filePath)
 						if (!pData->Full_Langtext_data.IsEmpty())
 							pData->Full_Langtext_data += _T("\r\n");
 
-						pData->Full_Langtext_data += lang;
+						pData->Full_Langtext_data += langtext;
 					}
 				}
 			}
-			else if (satzart == _T("23"))
-			{
-				CString oz = ReadOZ23(line);
-
-				if (!oz.IsEmpty())
-				{
-					// Parent automatisch erzeugen
-					CString bereich = oz.Left(2);
-					CString titel = oz.Left(4);
-
-					if (itemMap.find(bereich) == itemMap.end())
-						InsertOrUpdateItem(bereich, _T(""));
-
-					if (itemMap.find(titel) == itemMap.end())
-						InsertOrUpdateItem(titel, _T(""));
-
-					InsertOrUpdateItem(oz, _T(""));
-
-					currentOZ = oz;
-					currentItem = itemMap[oz];
-
-					Item_data* pData =
-						reinterpret_cast<Item_data*>(
-							m_wndClassView.GetItemData(currentItem));
-
-					if (pData)
-					{
-						CString ep = GetField(line, 12, 10);
-						CString gp = GetField(line, 24, 12);
-
-						pData->UP = ep;
-						pData->IT = gp;
-					}
-				}
-			}*/
-		
 		}
 	}
 	
@@ -1175,7 +1147,6 @@ void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)
 	}
 
 }
-
 void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass, CView*& pViewPtr)
 {
 	CView* pOldView = GetActiveView();
@@ -1202,8 +1173,6 @@ void CMainFrame::SwitchView(CRuntimeClass* pNewViewClass, CView*& pViewPtr)
 	pOldView->ShowWindow(SW_HIDE);
 	pOldView->DestroyWindow();
 }
-
-
 void CMainFrame::Recursive_Item(xml_node<>* itemNode, std::vector<int> path, HTREEITEM parentItem)
 {
 	int itemCount = 0;

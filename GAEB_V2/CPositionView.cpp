@@ -154,7 +154,6 @@ void CPositionView::OnInitialUpdate()
 
 	//GAEB 90
 	else if (m_format == "90") {
-		AfxMessageBox(_T("Format 90 - Noch nicht implementiert"));
 	}
 
 	m_staticText_Position.Create(_T("Position"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 20), CSize(200, 30)), this, 1001);
