@@ -889,16 +889,35 @@ void CMainFrame::FillClassView(const CString& filePath)
 			return s;
 			};
 
-		auto GetParentOZ = [&](const CString& oz) -> CString
-			{
-				CString s = oz;
-				s.Trim();
-				s.Remove(_T('.'));
+		auto GetParentOZ = [](CString oz) -> CString
+			{ //OZ Maske: 01.01.0020  
+			  //--> Erster, zweistelliger Abschnitt. Zweiter, zweistelliger Abschnitt. Vierstelleige Positionsnummer
 
-				if (s.GetLength() <= 2)
+				oz.Trim();
+				oz.Remove(_T('.'));
+
+				if (oz.GetLength() <= 2)
+				{
+					// 01 -> Root
 					return _T("");
+				}
+				else if (oz.GetLength() == 4)
+				{
+					// 0101 -> 01
+					return oz.Left(2);
+				}
+				else if (oz.GetLength() == 6)
+				{
+					// z.B. 010101 -> 0101
+					return oz.Left(4);
+				}
+				else if (oz.GetLength() == 8)
+				{
+					// z.B. 01010001 -> 0101
+					return oz.Left(4);
+				}
 
-				return s.Left(s.GetLength() - 2);
+				return _T("");
 			};
 
 		auto FormatOZ_90 = [](CString inhalt) -> CString
