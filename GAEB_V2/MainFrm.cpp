@@ -890,10 +890,8 @@ void CMainFrame::FillClassView(const CString& filePath)
 			};
 
 		auto GetParentOZ = [](CString oz) -> CString
-			{ //OZ Maske: 01.01.0020  
-			  //--> Erster, zweistelliger Abschnitt. Zweiter, zweistelliger Abschnitt. Vierstelleige Positionsnummer
-
-				oz.Trim();
+			{ 
+				/*oz.Trim();
 				oz.Remove(_T('.'));
 
 				if (oz.GetLength() <= 2)
@@ -917,12 +915,14 @@ void CMainFrame::FillClassView(const CString& filePath)
 					return oz.Left(4);
 				}
 
-				return _T("");
+				return _T("");*/
+				CString currentOZ = oz;
+				return currentOZ.Left(currentOZ.GetLength() - 2);
 			};
 
 		auto FormatOZ_90 = [](CString inhalt) -> CString
 			{
-				CString s = inhalt;
+				/*CString s = inhalt;
 				s.TrimLeft();
 				CString oz;
 
@@ -938,35 +938,45 @@ void CMainFrame::FillClassView(const CString& filePath)
 					}
 				}
 
-				CString formatted_oz;
-				for (int i = 0; i < oz.GetLength(); i+=2) {
-					if (!formatted_oz.IsEmpty())
-						formatted_oz += _T(".");
+				return oz;*/
 
-					formatted_oz += oz.Mid(i, min(2, oz.GetLength() - i));
+				//OZ besteht aus den ersten 9 Nummern vom Inhalt. 
+				
+				CString formattedOZ;
+
+				for (int i = 0; i < inhalt.GetLength() && formattedOZ.GetLength() < 9; ++i) 
+				{
+					if (_istdigit(inhalt[i])) 
+					{
+						formattedOZ += inhalt[i];
+					}
+					else {
+						break;
+					}
 				}
 
-				return formatted_oz;
+				return formattedOZ;
+							
+				
 			};
 
 		auto InsertOrUpdateItem = [&](const CString& oz, const CString& text)
 			{
-				CString cleanOZ = oz;
+				/*CString cleanOZ = oz;
 				cleanOZ.Trim();
-				cleanOZ.Remove(_T('.'));
 
 				if (cleanOZ.IsEmpty())
 					return;
 
-				CString formattedOZ = FormatOZ_90(cleanOZ);
-
 				CString cleanText = text;
 				cleanText.Trim();
 
-				CString displayText = formattedOZ;
+				CString displayText = cleanOZ;
+
 
 				if (!cleanText.IsEmpty())
 					displayText += _T(" ") + cleanText;
+
 
 				// Bereits vorhanden -> Text aktualisieren
 				auto it = itemMap.find(cleanOZ);
@@ -983,6 +993,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 				// Parent bestimmen
 				CString parentOZ = GetParentOZ(cleanOZ);
 				
+
 				HTREEITEM parentItem = LV_Main;
 
 				if (!parentOZ.IsEmpty())
@@ -1009,7 +1020,55 @@ void CMainFrame::FillClassView(const CString& filePath)
 				itemMap[cleanOZ] = item;
 
 				currentOZ = cleanOZ;
-				currentItem = item;
+				currentItem = item;*/
+
+				if (oz.IsEmpty())
+					return;
+
+				CString cleanText = text;
+				cleanText.Trim();
+
+				CString displayText = oz;
+				if(!cleanText.IsEmpty())
+					displayText += _T(" ") + cleanText;
+
+				auto it = itemMap.find(oz);
+				if (it != itemMap.end()) {
+					m_wndClassView.SetItemText(it->second, displayText);
+					currentOZ = oz;
+					currentItem = it->second;
+					return;
+				}
+				CString parentOZ = GetParentOZ(oz);
+				
+
+				/*HTREEITEM parentItem = LV_Main;
+
+				if (!parentOZ.IsEmpty())
+				{
+					auto parentIt = itemMap.find(parentOZ);
+
+					if (parentIt != itemMap.end())
+						parentItem = parentIt->second;
+				}
+
+				Item_data* pData = new Item_data;
+
+				pData->Full_Kurztext_data = displayText;
+				pData->Full_Langtext_data = _T("");
+
+				HTREEITEM item =
+					m_wndClassView.InsertItem(displayText, parentItem);
+
+				m_wndClassView.SetItemData(
+					item,
+					reinterpret_cast<DWORD_PTR>(pData)
+				);
+
+				itemMap[oz] = item;
+
+				currentOZ = oz;
+				currentItem = item;*/
 			};
 
 		
@@ -1036,7 +1095,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 				if (!oz.IsEmpty())
 					InsertOrUpdateItem(oz, _T(""));
 			}
-			else if (satzart == _T("21") )
+		/*	else if (satzart == _T("21"))
 			{
 				CString oz = FormatOZ_90(inhalt);
 				if (!oz.IsEmpty())
@@ -1073,7 +1132,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 						pData->Full_Langtext_data += langtext;
 					}
 				}
-			}
+			}*/
 		}
 	}
 	

@@ -68,7 +68,217 @@ void CLangtextView::OnInitialUpdate()
 
 	x_pos_leitung = 20;
 
-	if (*m_format == "90"){}
+	if (*m_format == "90"){
+		if(!m_listCreated)
+		{
+			CRect rc; GetClientRect(&rc);
+
+			// unterhalb deiner Überschrift starten (z.B. ab y=70)
+			CRect rcList(20, 70, rc.right - 20, rc.bottom - 20);
+			m_list_LV.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SINGLESEL,
+				rcList, this, 9001);
+
+			m_list_LV.SetExtendedStyle(LVS_EX_FULLROWSELECT);
+
+			m_list_LV.InsertColumn(0, _T("Ordnungszahl"), LVCFMT_LEFT, 120);
+			m_list_LV.InsertColumn(1, _T("Menge"), LVCFMT_RIGHT, 80);
+			m_list_LV.InsertColumn(2, _T("Einheit"), LVCFMT_LEFT, 80);
+			m_list_LV.InsertColumn(3, _T("Leistungsbeschreibung"), LVCFMT_LEFT, 700);
+			m_list_LV.InsertColumn(4, _T("Einheitpreis [EUR]"), LVCFMT_RIGHT, 180);
+			m_list_LV.InsertColumn(5, _T("Gesamtpreis [EUR]"), LVCFMT_RIGHT, 180);
+
+			m_list_LV.SetFont(pMainFrame->GetFont());
+			CHeaderCtrl* pHeader = m_list_LV.GetHeaderCtrl();
+			pHeader->SetFont(pMainFrame->GetFontBold());
+
+			m_listCreated = true;
+		}
+		else
+		{
+			m_list_LV.DeleteAllItems();
+		}
+
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+
+		if (!ReadFileLinesCP850ToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		struct LVRow_LT {
+			CString oz;
+			CString menge;
+			CString einheit;
+			CString langtext;
+			CString einheitpreis;
+			CString gesamtpreis;
+		};
+
+		std::vector<LVRow_LT> rows_LT;
+
+		bool art21 = false;
+		for (const auto& raw : lines) {
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			line.Trim();
+
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+			CString satzart = GetField(line, 0, 2);
+
+			if( satzart == _T("21"))
+			{
+				art21 = true;
+				break;
+			}
+		}
+
+		if (art21) {
+			LVRow_LT currentRow_LT;
+			bool hasCurrentRow_LT = false;
+			for (const auto& raw : lines)
+			{
+				CString line = raw;
+				line.TrimRight(_T("\r\n"));
+
+				if (line.IsEmpty() || line.GetLength() < 2)
+					continue;
+
+				CString satzart = GetField(line, 0, 2);
+				if (satzart == _T("21")) {
+
+					if (hasCurrentRow_LT)
+						rows_LT.push_back(currentRow_LT);
+
+					currentRow_LT = LVRow_LT{};
+					hasCurrentRow_LT = true;
+
+					CString mengeKenz = GetField(line, 12, 3);
+					CString mengeRaw = GetField(line, 24, 11);
+					CString einheitRaw = GetField(line, 34, 4);
+
+					double menge = ParseGaebNumber(mengeRaw, 3);
+
+					currentRow_LT.menge = FormatGaebNumber(menge, 2);
+					currentRow_LT.einheit = einheitRaw;
+				}
+
+				else if (satzart == _T("23")) { //preisangabe einer Position			
+					if (!hasCurrentRow_LT)
+						continue;
+
+					CString ozRaw = GetField(line, 2, 8);
+					CString gpRaw = GetField(line, 24, 12);
+					CString epRaw = GetField(line, 12, 10);
+
+					if (currentRow_LT.oz.IsEmpty())
+						currentRow_LT.oz = ozRaw;
+
+					double gp = ParseGaebNumber(gpRaw, 2);
+					double ep = ParseGaebNumber(epRaw, 2);
+
+					currentRow_LT.oz = ozRaw;
+					currentRow_LT.einheitpreis = FormatGaebNumber(ep, 2);
+					currentRow_LT.gesamtpreis = FormatGaebNumber(gp, 2);
+				}
+
+				else if (satzart == _T("25")) {
+					if (!hasCurrentRow_LT)
+						continue;
+					CString langtextRaw = GetField(line, 2, 70);
+					if (currentRow_LT.langtext.IsEmpty())
+						currentRow_LT.langtext = langtextRaw;
+				}
+
+				else if (satzart == _T("32"))
+				{
+					if (hasCurrentRow_LT)
+					{
+						rows_LT.push_back(currentRow_LT);
+						currentRow_LT = LVRow_LT{};
+						hasCurrentRow_LT = false;
+					}
+
+					CString bereich = GetField(line, 2, 4);
+					CString summeRaw = GetField(line, 12, 12);
+
+					double summe = ParseGaebNumber(summeRaw, 2);
+
+					LVRow_LT row;
+					row.oz = bereich;
+					row.menge = _T("");
+					row.einheit = _T("");
+					row.langtext = _T("");
+					row.einheitpreis = _T("");
+					row.gesamtpreis = FormatGaebNumber(summe, 2);
+					rows_LT.push_back(row);
+				}
+
+				else if (satzart == _T("11")) {
+					if (!hasCurrentRow_LT)
+						continue;
+
+					CString ozRaw = GetField(line, 2, 9);
+					if (currentRow_LT.oz.IsEmpty())
+						currentRow_LT.oz = ozRaw;
+					currentRow_LT.oz = ozRaw;
+				}
+			}
+
+			if(hasCurrentRow_LT)
+				rows_LT.push_back(currentRow_LT);
+		}
+
+		else {
+			for (const auto& raw : lines) {
+				CString line = raw;
+				line.TrimRight(_T("\r\n"));
+
+				if (line.IsEmpty() || line.GetLength() < 2)
+					continue;
+				CString satzart = GetField(line, 0, 2);
+
+				if (satzart == _T("23")) {
+
+				}
+				else if (satzart == _T("32")) {
+
+				}
+				else if (satzart == _T("11")) {
+					LVRow_LT row_LT;
+
+					CString ozRaw = GetField(line, 2, 8);
+					CString epRaw = GetField(line, 12, 10);
+					CString gpRaw = GetField(line, 24, 12);
+
+					double ep = ParseGaebNumber(epRaw, 2);
+					double gp = ParseGaebNumber(gpRaw, 2);
+
+					row_LT.oz = ozRaw;
+					row_LT.menge = _T("");
+					row_LT.einheit = _T("");
+					row_LT.langtext = _T("");
+					row_LT.einheitpreis = FormatGaebNumber(ep, 2);
+					row_LT.gesamtpreis = FormatGaebNumber(gp, 2);
+
+					rows_LT.push_back(row_LT);
+				}
+			}
+		}
+		CFont* pFont = pMainFrame->GetFont();
+		CFont* pBold = pMainFrame->GetFontBold();
+		int id = 4000;
+
+		for (const auto& row : rows_LT) {
+			int i = m_list_LV.InsertItem(m_list_LV.GetItemCount(), row.oz);
+			m_list_LV.SetItemText(i, 1, row.menge);
+			m_list_LV.SetItemText(i, 2, row.einheit);
+			m_list_LV.SetItemText(i, 3, row.langtext);
+			m_list_LV.SetItemText(i, 4, row.einheitpreis);
+			m_list_LV.SetItemText(i, 5, row.gesamtpreis);
+		}
+	}
 	else if (*m_format == "2000") {
 		if (!m_listCreated)
 		{
@@ -958,6 +1168,81 @@ bool CLangtextView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::ve
 	return true;
 }
 
+bool CLangtextView::ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines) {
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL)
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// CP850 -> UTF-18
+
+	int wlen = MultiByteToWideChar(850, 0, buf.data(), len, nullptr, 0);
+
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+
+	MultiByteToWideChar(850, 0, buf.data(), len, wbuf.data(), wlen);
+
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+
+}
+
 bool CLangtextView::TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue)
 {
 	//#begin[GAEBInfo]
@@ -985,7 +1270,18 @@ bool CLangtextView::TryParseGaebKeyValueLine(const CString& line, CString& outKe
 	return !outKey.IsEmpty();
 }
 
+static double ParseGaebNumber(const CString& text, int decimals) {
+	CString s = text;
+	s.Trim();
+	if (s.IsEmpty())
+		return 0.0;
+	long long raw = _ttoi64(s);
+	double factor = 1.0;
 
+	for (int i = 0; i < decimals; ++i)
+		factor *= 10.0;
+	return raw / factor;
+}
 
 static double ParseGermanDouble(CString s)
 {

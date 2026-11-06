@@ -64,6 +64,8 @@ public:
 	CString Utf8ToCString(const char* utf8Str);
 
 	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines);
+
 	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 	void CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& yPos, CFont* pFont, int idBase);
 	void ClearAllStatics();

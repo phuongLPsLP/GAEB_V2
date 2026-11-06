@@ -41,6 +41,7 @@ protected:
 
 	int y_pos_vertrag;
 
+
 	rapidxml::xml_document<>* m_Doc = nullptr;
 	rapidxml::xml_node<>* m_Root = nullptr;
 	rapidxml::xml_node<>* m_pGAEBInfo = nullptr;
@@ -54,7 +55,10 @@ public:
 	CString* m_format;
 	CString m_path;
 	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines);
 
+
+	void CVertragView::CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& ypos, CFont* pFont, int idBase);
 
 
 };

@@ -89,6 +89,7 @@ public:
 	void TraverseItemlist_LT(xml_node<>* itemList, int& index, std::vector<int> levelPath);
 	void TraverseRemark_LT(xml_node<>* descNode, int& index);
 	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines);
 	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 
 };

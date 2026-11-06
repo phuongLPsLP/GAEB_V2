@@ -219,7 +219,36 @@ void CVertragView::OnInitialUpdate()
 	}
 	else if (*m_format == "90")
 	{
-		
+		std::vector<CString> lines;
+		m_path = pMainFrame->GetPath();
+		if (!ReadFileLinesCP850ToCStringW(m_path, lines)) {
+			AfxMessageBox(_T("Datei konnte nicht gelesen werden."));
+			return;
+		}
+
+		int id = 5000;
+		CSize size = CSize(clientRect_VR.Width(), 20);
+
+		for (const auto& raw : lines) {
+			CString line = raw;
+			line.TrimRight(_T("\r\n"));
+			line.Trim();
+
+			if (line.IsEmpty() || line.GetLength() < 2)
+				continue;
+
+			CString satzart = line.Left(2);
+			CString value = line.Mid(2);
+			value = value.Left(value.GetLength() - 6);
+
+			std::string(CT2CA(value)).c_str();
+
+			CStatic* vertrag_regelung_text = new CStatic();
+			vertrag_regelung_text->Create(value, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+				CRect(CPoint(20, y_pos_vertrag), size), this, 5000);
+			vertrag_regelung_text->SetFont(pMainFrame->GetFont());
+			y_pos_vertrag += 20;
+		}
 	}
 	else {
 		int id = 3000;
@@ -343,6 +372,12 @@ CString CVertragView::Utf8ToCString(const char* utf8Str)
 	return result;
 }
 
+void CVertragView::CreateStaticText(CWnd* parent, const CString& label, const CString& value, int& ypos, CFont* pFont, int idBase) {
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+
+}
+
 bool CVertragView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines)
 {
 	outLines.clear();
@@ -373,11 +408,14 @@ bool CVertragView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vec
 
 	// ANSI -> UTF-16
 	int wlen = MultiByteToWideChar(CP_ACP, 0, buf.data(), len, nullptr, 0);
+
 	if (wlen <= 0)
 		return false;
 
 	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+	
 	MultiByteToWideChar(CP_ACP, 0, buf.data(), len, wbuf.data(), wlen);
+
 	wbuf[(size_t)wlen] = L'\0';
 
 	CString content(wbuf.data());
@@ -412,4 +450,80 @@ bool CVertragView::ReadFileLinesAnsiToCStringW(const CString& filePath, std::vec
 	}
 
 	return true;
+}
+
+
+bool CVertragView::ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines){
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL)
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// CP850 -> UTF-18
+
+	int wlen = MultiByteToWideChar(850, 0, buf.data(), len, nullptr, 0);
+
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+
+	MultiByteToWideChar(850, 0, buf.data(), len, wbuf.data(), wlen);
+
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+
 }

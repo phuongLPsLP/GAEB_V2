@@ -151,6 +151,8 @@ public:
 	CFont* GetFontEdit() { return &m_font_edit; }
 
 	static bool ReadFileLinesAnsiToCStringW(const CString& filePath, std::vector<CString>& outLines);
+	static bool ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines);
+
 	static bool TryParseGaebKeyValueLine(const CString& line, CString& outKey, CString& outValue);
 
 };
