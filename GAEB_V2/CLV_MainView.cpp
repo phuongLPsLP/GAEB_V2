@@ -468,7 +468,8 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 
 			CString satzart = GetField(line, 0, 2);
 
-			if (satzart == _T("21")) {
+			
+			 if (satzart == _T("21")) {
 				art21 = true;
 				break;
 			}
@@ -565,7 +566,7 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 						currentRow.oz = ozRaw;
 					currentRow.oz = ozRaw;
 
-				}
+				}			
 			}
 			if (hasCurrentRow)
 				rows.push_back(currentRow);
@@ -601,6 +602,10 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 					row.gesamtpreis = FormatGaebNumber(gp, 2);
 
 					rows.push_back(row);
+				}
+
+				else if (satzart == _T("25")) {
+
 				}
 				else if (satzart == _T("32"))
 				{
@@ -642,7 +647,6 @@ void CLV_MainView::OnBnClickedToggleLeistungsverzeichnis()
 				}
 			}
 		}
-
 
 
 		CFont* pFont = pMainFrame->GetFont();

@@ -65,7 +65,6 @@ void CPositionView::OnInitialUpdate()
 	m_pGAEBInfo = pMainFrame->GetGAEBInfoNode();
 	m_pProjektInfo = pMainFrame->GetProjektInfoNode();
 	m_award = pMainFrame->GetAwardNode();
-
 	CClientDC dc(this);
 
 	LOGFONT lf;
@@ -90,7 +89,6 @@ void CPositionView::OnInitialUpdate()
 	m_font_edit.CreateFontIndirect(&lf_edit_small);
 
 	m_format = *pMainFrame->GetFormat();
-	//m_format = pMainFrame->GetFormat();
 
 	//GAEB XML
 	if (m_format == "XML") {
@@ -147,9 +145,7 @@ void CPositionView::OnInitialUpdate()
 
 
 	//GAEB 2000
-	else if (m_format == "2000") {	
-
-	
+	else if (m_format == "2000") {		
 	}
 
 	//GAEB 90
@@ -173,6 +169,7 @@ void CPositionView::OnInitialUpdate()
 		| ES_AUTOVSCROLL | ES_AUTOHSCROLL |	WS_VSCROLL | WS_HSCROLL, 
 		CRect(CPoint(20, 290), CSize(rect.Width(), 400)), this, 1005);
 	m_edit_langtext.SetFont(&m_font);
+	m_edit_langtext.SetWindowText(m_text_FullLangtext);
 
 	m_staticText_Menge.Create(_T("Menge"), WS_CHILD | WS_VISIBLE, CRect(CPoint(20, 710), CSize(80, 20)), this, 1001);
 	m_staticText_Einheit.Create(_T("Einheit"), WS_CHILD | WS_VISIBLE, CRect(CPoint(360, 710), CSize(80, 20)), this, 1001);
@@ -561,6 +558,7 @@ void CPositionView::SetCurrentItemData(Item_data* itemData)
 	SetGesamtpreis(m_currentItemData->IT);
 	SetNachlass(m_currentItemData->DiscountAnteil);
 	SetZeit(m_currentItemData->TimeQu);
+	SetLangtext(m_currentItemData->Full_Langtext_data);
 }
 
 CString CPositionView::Utf8ToString(const char* utf8Str)

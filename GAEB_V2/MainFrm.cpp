@@ -90,9 +90,6 @@ static CString GetField(const CString& line, int start, int len);
 static double ParseGermanDouble(CString s);
 static CString FormatGermanDigit(CString s);
 
-
-
-
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame() noexcept
@@ -851,7 +848,7 @@ void CMainFrame::FillClassView(const CString& filePath)
 	{
 		CStdioFile file;
 		std::vector<CString> lines;
-		Item_data* pData = new Item_data;
+		//Item_data* pData = new Item_data;
 
 		if (file.Open(filePath, CFile::modeRead | CFile::typeText))
 		{
@@ -861,11 +858,9 @@ void CMainFrame::FillClassView(const CString& filePath)
 
 			file.Close();
 		}
+		ReadFileLinesCP850ToCStringW(filePath, lines);
 
 		std::map<CString, HTREEITEM> itemMap;
-
-		CString currentOZ;
-		HTREEITEM currentItem = nullptr;
 
 		struct NodeCtx {
 			CString oz;
@@ -879,8 +874,22 @@ void CMainFrame::FillClassView(const CString& filePath)
 			CString time; //zeitansatz
 			CString nachlass;
 			CString bedarf;
+			CString type;
 			HTREEITEM item = nullptr;
 		};
+
+		enum class TextType {
+			None,
+			Hinweis,
+			Gliederung,
+			Position
+		};
+
+		TextType textType = TextType::None;	
+		HTREEITEM currentItem = nullptr;
+		HTREEITEM currentHinweisItem = nullptr;
+		HTREEITEM currentPositionItem = nullptr;
+		CString currentOZ;
 
 		std::vector<NodeCtx> stack;
 
@@ -1071,7 +1080,6 @@ void CMainFrame::FillClassView(const CString& filePath)
 				currentItem = item;*/
 			};
 
-		
 
 		for (const auto& raw : lines)
 		{
@@ -1089,11 +1097,77 @@ void CMainFrame::FillClassView(const CString& filePath)
 			CString satznummer = line.Right(6);
 			CString inhalt = line.Mid(2, line.GetLength() - 8);
 
-			if (satzart == _T("11"))
+			HTREEITEM parentItem = LV_Main;
+			CString langtext = GetField(line, 2, 70);
+
+			Item_data* pData = new Item_data;
+			pData->Full_Kurztext_data = _T("");
+			pData->Full_Langtext_data = _T("");
+			pData->Qty = _T("");
+			pData->QU = _T("");
+			pData->UP = _T("");
+			pData->IT = _T("");
+			pData->TimeQu = _T("");
+			pData->DiscountAnteil = _T("");
+
+			// Hinweis
+			if (satzart == _T("20")) {
+				textType = TextType::Hinweis;
+				Item_data* pHinweisData = new Item_data;
+				pHinweisData->Full_Kurztext_data = _T("Hinweis");
+				currentHinweisItem = m_wndClassView.InsertItem(_T("Hinweis"), parentItem);
+				m_wndClassView.SetItemData(currentHinweisItem, reinterpret_cast<DWORD_PTR>(pHinweisData));
+				currentItem = currentHinweisItem;
+			}
+
+			else if (satzart == _T("11"))
 			{
+				textType = TextType::Gliederung;
 				CString oz = FormatOZ_90(inhalt);
 				if (!oz.IsEmpty())
 					InsertOrUpdateItem(oz, _T(""));
+			}
+
+			else if (satzart == _T("26")) {
+				HTREEITEM targetItem = nullptr;
+
+				switch (textType)
+				{
+				case TextType::Hinweis:
+					targetItem = currentHinweisItem;
+					break;
+
+				case TextType::Position:
+					targetItem = currentItem;
+					break;
+
+				case TextType::Gliederung:
+					targetItem = currentPositionItem;
+					break;
+
+				default:
+					break;
+				}
+
+				if (targetItem != nullptr)
+				{
+					Item_data* pItemData =
+						reinterpret_cast<Item_data*>(
+							m_wndClassView.GetItemData(targetItem));
+
+					if (pItemData)
+					{
+						// Führende Leerzeichen für Textformatierung erhalten
+						CString text = inhalt;
+						text.TrimRight();
+
+						if (!pItemData->Full_Langtext_data.IsEmpty())
+						{
+							pItemData->Full_Langtext_data += _T("\r\n");
+						}
+						pItemData->Full_Langtext_data += text;
+					}
+				}
 			}
 		/*	else if (satzart == _T("21"))
 			{
@@ -1156,6 +1230,81 @@ static CString GetField(const CString& line, int start, int len) {
 	CString s = line.Mid(start, reallen);
 	s.Trim();
 	return s;
+}
+
+bool CMainFrame::ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines) {
+	outLines.clear();
+	CFile file;
+
+	if (!file.Open(filePath, CFile::modeRead | CFile::shareDenyNone))
+		return false;
+
+	ULONGLONG len64 = file.GetLength();
+	if (len64 == 0)
+	{
+		file.Close();
+		return true;
+	}
+	if (len64 > 200ULL * 1024ULL * 1024ULL)
+	{
+		file.Close();
+		return false;
+	}
+	const int len = (int)len64;
+
+	std::vector<char> buf((size_t)len + 1, 0);
+	const UINT readBytes = file.Read(buf.data(), (UINT)len);
+	file.Close();
+
+	if ((int)readBytes != len)
+		return false;
+
+	// CP850 -> UTF-18
+
+	int wlen = MultiByteToWideChar(850, 0, buf.data(), len, nullptr, 0);
+
+	if (wlen <= 0)
+		return false;
+
+	std::vector<wchar_t> wbuf((size_t)wlen + 1, 0);
+
+	MultiByteToWideChar(850, 0, buf.data(), len, wbuf.data(), wlen);
+
+	wbuf[(size_t)wlen] = L'\0';
+
+	CString content(wbuf.data());
+	int start = 0;
+	const int n = content.GetLength();
+	while (start < n)
+	{
+		int posCR = content.Find(_T('\r'), start);
+		int posLF = content.Find(_T('\n'), start);
+
+		int end;
+		if (posCR == -1) end = posLF;
+		else if (posLF == -1) end = posCR;
+		else end = min(posCR, posLF);
+
+		if (end == -1)
+		{
+			CString line = content.Mid(start);
+			line.TrimRight(_T("\r\n"));
+			outLines.push_back(line);
+			break;
+		}
+
+		CString line = content.Mid(start, end - start);
+		line.TrimRight(_T("\r\n"));
+		outLines.push_back(line);
+
+		if (content[end] == _T('\r') && end + 1 < n && content[end + 1] == _T('\n'))
+			start = end + 2;
+		else
+			start = end + 1;
+	}
+
+	return true;
+
 }
 
 void CMainFrame::OnTreeSelectedItem(NMHDR* pNMHDR, LRESULT* pResult)

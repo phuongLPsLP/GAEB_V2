@@ -33,7 +33,8 @@ static CString GetField(const CString& line, int start, int len);
 static CString FormatGaebNumber(double value, int decimals);
 static CString NormalizeOZ(CString s);
 static CString FormatOZByParent(const CString& parentRawOZ, const CString& parentFormattedOZ, const CString& childRawOZ);
-static CString WrapText(CDC* pdc, CString text, int maxWidth);
+static double ParseGaebNumber(const CString& text, int decimals);
+
 
 
 void CLangtextView::OnInitialUpdate()
@@ -1281,6 +1282,24 @@ static double ParseGaebNumber(const CString& text, int decimals) {
 	for (int i = 0; i < decimals; ++i)
 		factor *= 10.0;
 	return raw / factor;
+}
+
+static CString FormatGaebNumber(double value, int decimals) 
+{
+	CString s;
+	s.Format(_T("%.*f"), decimals, value);
+	s.Replace(_T("."), _T(""));
+	return s;
+}
+
+static CString GetField(const CString& line, int start, int len)
+{
+	if (start >= line.GetLength())
+		return _T("");
+	int reallen = min(len, line.GetLength() - start);
+	CString s = line.Mid(start, reallen);
+	s.Trim();
+	return s;
 }
 
 static double ParseGermanDouble(CString s)

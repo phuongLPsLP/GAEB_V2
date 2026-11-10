@@ -207,11 +207,14 @@ public:
 	void SetPhase(const CString& phase) { m_string_phase = phase; }
 
 	CString Utf8ToString(const char* utf8Str);
+	static bool ReadFileLinesCP850ToCStringW(const CString& filePath, std::vector<CString>& outLines);
+
 
 	afx_msg void OnKurztext();
 	afx_msg void OnUpdateKurztext(CCmdUI* pCmdUI);
 	afx_msg void OnLangtext();
 	afx_msg void OnUpdateLangtext(CCmdUI* pCmdUI);
+
 
 	CView* m_LVInfosView ;
 	CView* m_PInfoView;

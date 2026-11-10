@@ -238,18 +238,27 @@ void CVertragView::OnInitialUpdate()
 				continue;
 
 			CString satzart = line.Left(2);
-			CString value = line.Mid(2);
-			value = value.Left(value.GetLength() - 6);
 
-			std::string(CT2CA(value)).c_str();
+			//Satzart = T0 -> Vertragliche Regelung
+			//Satzart = T9 -> Ende vertragliche Regelung
+			//Satzart = T1 -> 
+			if (satzart == "T1" )		//Vertragliche Regelung
+			{
+				CString value = line.Mid(2);
+				value = value.Left(value.GetLength() - 6);
 
-			CStatic* vertrag_regelung_text = new CStatic();
-			vertrag_regelung_text->Create(value, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
-				CRect(CPoint(20, y_pos_vertrag), size), this, 5000);
-			vertrag_regelung_text->SetFont(pMainFrame->GetFont());
-			y_pos_vertrag += 20;
+				std::string(CT2CA(value)).c_str();
+
+				CStatic* vertrag_regelung_text = new CStatic();
+				vertrag_regelung_text->Create(value, WS_CHILD | WS_VISIBLE | BS_MULTILINE,
+					CRect(CPoint(20, y_pos_vertrag), size), this, 5000);
+				vertrag_regelung_text->SetFont(pMainFrame->GetFont());
+				y_pos_vertrag += 20;
+			}	
 		}
 	}
+	//XML
+
 	else {
 		int id = 3000;
 
